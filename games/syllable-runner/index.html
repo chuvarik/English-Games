@@ -434,13 +434,17 @@ function checkAnswer(answer){
     const item = gameWords[current];
 
     const correct =
-        item.correct.join(" ");
+        item.correct.join(" ")
+        .toLowerCase()
+        .trim();
 
-    if(
-        answer.toLowerCase().trim()
-        ===
-        correct.toLowerCase()
-    ){
+    const userAnswer =
+        answer
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g," ");
+
+    if(userAnswer === correct){
 
         score++;
 

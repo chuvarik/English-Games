@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Syllable Runner</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#eef4f7;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+#game{
+    width:1000px;
+    background:white;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.1);
+    text-align:center;
+}
+
+h1{
+    margin-top:0;
+}
+
+#word{
+    font-size:50px;
+    font-weight:bold;
+    margin-bottom:25px;
+}
+
+#inputArea{
+    margin-top:20px;
+}
+
+#answerInput{
+    width:360px;
+    padding:15px;
+    border-radius:12px;
+    border:2px solid #ccc;
+    font-size:24px;
+    text-align:center;
+}
+
+#submitBtn{
+    padding:15px 25px;
+    margin-left:10px;
+    border:none;
+    border-radius:12px;
+    background:#4f8cff;
+    color:white;
+    font-size:22px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+#submitBtn:hover{
+    transform:scale(1.05);
+}
+
+#scene{
+    position:relative;
+    width:100%;
+    height:300px;
+    margin-top:40px;
+    overflow:hidden;
+    background:linear-gradient(to top,#dff6ff,#ffffff);
+    border-bottom:6px solid black;
+    border-radius:15px;
+}
+
+#character{
+    position:absolute;
+    left:50px;
+    bottom:0;
+    font-size:70px;
+    transition:0.4s;
+    transform:scaleX(-1);
+}
+
+.obstacle{
+    position:absolute;
+    font-size:70px;
+}
+
+.slide{
+    transform:scaleX(-1) translateY(45px);
+}
+
+.hit{
+    transform:scaleX(-1) rotate(-25deg);
+}
+
+#score{
+    margin-top:20px;
+    font-size:28px;
+    font-weight:bold;
+}
+
+#progress{
+    margin-top:10px;
+    color:gray;
+    font-size:18px;
+}
+
+.correctFlash{
+    animation:greenFlash 0.5s;
+}
+
+.wrongFlash{
+    animation:redFlash 0.5s;
+}
+
+@keyframes greenFlash{
+    0%{background:#caffca;}
+    100%{background:white;}
+}
+
+@keyframes redFlash{
+    0%{background:#ffd2d2;}
+    100%{background:white;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <h1>Syllable Runner</h1>
+
+    <div id="word"></div>
+
+    <div id="inputArea">
+
+        <input
+            type="text"
+            id="answerInput"
+            placeholder="Type syllables like: ba-na-na"
+            autocomplete="off"
+        >
+
+        <button id="submitBtn">
+            Submit
+        </button>
+
+    </div>
+
+    <div id="scene">
+
+        <div id="character">🏃</div>
+
+    </div>
+
+    <div id="score">Score: 0</div>
+
+    <div id="progress"></div>
+
+</div>
+
+<script>
+
+function shuffle(array){
+
+    return array.sort(() => Math.random() - 0.5);
+
+}
+
+const words = [
+
+{word:"banana",correct:["ba","na","na"],types:["open","open","open"]},
+{word:"basket",correct:["bas","ket"],types:["closed","closed"]},
+{word:"robot",correct:["ro","bot"],types:["open","closed"]},
+{word:"window",correct:["win","dow"],types:["closed","open"]},
+{word:"tomato",correct:["to","ma","to"],types:["open","open","open"]},
+{word:"paper",correct:["pa","per"],types:["open","closed"]},
+{word:"music",correct:["mu","sic"],types:["open","closed"]},
+{word:"hotel",correct:["ho","tel"],types:["open","closed"]},
+{word:"student",correct:["stu","dent"],types:["open","closed"]},
+{word:"family",correct:["fa","mi","ly"],types:["open","open","closed"]},
+
+{word:"animal",correct:["an","i","mal"],types:["closed","open","closed"]},
+{word:"holiday",correct:["ho","li","day"],types:["open","open","closed"]},
+{word:"camera",correct:["ca","me","ra"],types:["open","open","open"]},
+{word:"monster",correct:["mon","ster"],types:["closed","closed"]},
+{word:"pencil",correct:["pen","cil"],types:["closed","closed"]},
+{word:"computer",correct:["com","pu","ter"],types:["closed","open","closed"]},
+{word:"radio",correct:["ra","di","o"],types:["open","open","open"]},
+{word:"winter",correct:["win","ter"],types:["closed","closed"]},
+{word:"tiger",correct:["ti","ger"],types:["open","closed"]},
+{word:"doctor",correct:["doc","tor"],types:["closed","closed"]},
+
+{word:"potato",correct:["po","ta","to"],types:["open","open","open"]},
+{word:"market",correct:["mar","ket"],types:["closed","closed"]},
+{word:"energy",correct:["en","er","gy"],types:["closed","closed","open"]},
+{word:"memory",correct:["me","mo","ry"],types:["open","open","closed"]},
+{word:"elephant",correct:["el","e","phant"],types:["closed","open","closed"]},
+{word:"internet",correct:["in","ter","net"],types:["closed","closed","closed"]},
+{word:"orange",correct:["or","ange"],types:["closed","closed"]},
+{word:"library",correct:["li","bra","ry"],types:["open","closed","open"]},
+{word:"beautiful",correct:["beau","ti","ful"],types:["open","open","closed"]},
+{word:"telephone",correct:["tel","e","phone"],types:["closed","open","closed"]},
+
+{word:"kangaroo",correct:["kan","ga","roo"],types:["closed","open","open"]},
+{word:"umbrella",correct:["um","brel","la"],types:["closed","closed","open"]},
+{word:"calendar",correct:["cal","en","dar"],types:["closed","closed","closed"]},
+{word:"adventure",correct:["ad","ven","ture"],types:["closed","closed","closed"]},
+{word:"chocolate",correct:["cho","co","late"],types:["open","open","closed"]},
+{word:"dangerous",correct:["dan","ger","ous"],types:["closed","closed","open"]},
+{word:"fantasy",correct:["fan","ta","sy"],types:["closed","open","open"]},
+{word:"wonderful",correct:["won","der","ful"],types:["closed","closed","closed"]}
+
+];
+
+const gameWords = shuffle(
+    [...words]
+).slice(0,5);
+
+let current = 0;
+let score = 0;
+
+const wordDiv =
+    document.getElementById("word");
+
+const answerInput =
+    document.getElementById("answerInput");
+
+const submitBtn =
+    document.getElementById("submitBtn");
+
+const scene =
+    document.getElementById("scene");
+
+const character =
+    document.getElementById("character");
+
+const scoreDiv =
+    document.getElementById("score");
+
+const progressDiv =
+    document.getElementById("progress");
+
+const gameDiv =
+    document.getElementById("game");
+
+function createObstacles(types){
+
+    document
+        .querySelectorAll(".obstacle")
+        .forEach(o => o.remove());
+
+    let startX = 300;
+
+    types.forEach((type,index)=>{
+
+        const obstacle =
+            document.createElement("div");
+
+        obstacle.classList.add("obstacle");
+
+        obstacle.innerHTML = "🪨";
+
+        obstacle.style.left =
+            (startX + index * 180) + "px";
+
+        if(type === "open"){
+
+            obstacle.style.bottom = "0px";
+
+        }
+
+        else{
+
+            obstacle.style.top = "30px";
+
+        }
+
+        scene.appendChild(obstacle);
+
+    });
+
+}
+
+function loadWord(){
+
+    character.style.left = "50px";
+
+    character.style.bottom = "0px";
+
+    character.className = "";
+
+    character.id = "character";
+
+    const item = gameWords[current];
+
+    wordDiv.textContent = item.word;
+    speakWord(item.word);
+
+    progressDiv.textContent =
+        "Word " +
+        (current + 1) +
+        " / " +
+        gameWords.length;
+
+    createObstacles(item.types);
+
+    answerInput.value = "";
+
+    answerInput.focus();
+
+}
+
+function animateRun(types, success, callback){
+
+    let index = 0;
+
+    let posX = 50;
+
+    function nextObstacle(){
+
+        if(index >= types.length){
+
+            callback();
+            return;
+        }
+
+        const type = types[index];
+
+        const obstacleX =
+            300 + index * 180;
+
+        posX = obstacleX - 140;
+
+        character.style.transition = "0.35s";
+
+        character.style.left = posX + "px";
+
+        character.style.bottom = "0px";
+
+        setTimeout(()=>{
+
+            if(!success && index === 0){
+
+                character.classList.add("hit");
+
+                character.style.left =
+                    obstacleX - 20 + "px";
+
+                setTimeout(()=>{
+
+                    character.classList.remove("hit");
+
+                    callback();
+
+                },700);
+
+                return;
+            }
+
+            if(type === "open"){
+
+                character.style.transition = "0.45s";
+
+                character.style.left =
+                    obstacleX + 20 + "px";
+
+                character.style.bottom = "170px";
+
+                setTimeout(()=>{
+
+                    character.style.transition = "0.35s";
+
+                    character.style.left =
+                        obstacleX + 120 + "px";
+
+                    character.style.bottom = "0px";
+
+                    setTimeout(()=>{
+
+                        index++;
+
+                        nextObstacle();
+
+                    },350);
+
+                },450);
+
+            }
+
+            else{
+
+                character.classList.add("slide");
+
+                character.style.left =
+                    obstacleX + 40 + "px";
+
+                setTimeout(()=>{
+
+                    character.classList.remove("slide");
+
+                    character.style.left =
+                        obstacleX + 120 + "px";
+
+                    setTimeout(()=>{
+
+                        index++;
+
+                        nextObstacle();
+
+                    },250);
+
+                },450);
+
+            }
+
+        },350);
+
+    }
+
+    nextObstacle();
+
+}
+
+function checkAnswer(answer){
+
+    const item = gameWords[current];
+
+    const correct =
+        item.correct.join("-");
+
+    if(
+        answer.toLowerCase().trim()
+        ===
+        correct.toLowerCase()
+    ){
+
+        score++;
+
+        scoreDiv.textContent =
+            "Score: " + score;
+
+        gameDiv.classList.add("correctFlash");
+
+        setTimeout(()=>{
+
+            gameDiv.classList.remove("correctFlash");
+
+        },500);
+
+        animateRun(item.types,true,()=>{
+
+            nextWord();
+
+        });
+
+    }
+
+    else{
+
+        gameDiv.classList.add("wrongFlash");
+
+        setTimeout(()=>{
+
+            gameDiv.classList.remove("wrongFlash");
+
+        },500);
+
+        animateRun(item.types,false,()=>{
+
+            nextWord();
+
+        });
+
+    }
+
+}
+
+function nextWord(){
+
+    current++;
+
+    if(current >= gameWords.length){
+
+        wordDiv.innerHTML =
+            "🎉 Finished!";
+
+        progressDiv.innerHTML = "";
+
+        answerInput.style.display = "none";
+
+        submitBtn.style.display = "none";
+
+        document
+            .querySelectorAll(".obstacle")
+            .forEach(o=>o.remove());
+
+        return;
+    }
+
+    loadWord();
+
+}
+
+submitBtn.onclick = ()=>{
+
+    checkAnswer(answerInput.value);
+
+};
+
+answerInput.addEventListener("keydown",(e)=>{
+
+    if(e.key === "Enter"){
+
+        checkAnswer(answerInput.value);
+
+    }
+
+});
+
+function speakWord(word){
+
+    const speech =
+        new SpeechSynthesisUtterance(word);
+
+    speech.lang = "en-US";
+
+    speech.rate = 0.9;
+
+    speech.pitch = 1;
+
+    speech.volume = 1;
+
+    speechSynthesis.speak(speech);
+
+}
+
+loadWord();
+
+</script>
+
+</body>
+</html>

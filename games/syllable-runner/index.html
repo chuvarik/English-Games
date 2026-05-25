@@ -145,7 +145,7 @@ h1{
         <input
             type="text"
             id="answerInput"
-            placeholder="Type syllables like: ba-na-na"
+            placeholder="Type syllables like: ba na na"
             autocomplete="off"
         >
 
@@ -298,11 +298,10 @@ function loadWord(){
 
     character.className = "";
 
-    character.id = "character";
-
     const item = gameWords[current];
 
     wordDiv.textContent = item.word;
+
     speakWord(item.word);
 
     progressDiv.textContent =
@@ -435,7 +434,7 @@ function checkAnswer(answer){
     const item = gameWords[current];
 
     const correct =
-        item.correct.join("-");
+        item.correct.join(" ");
 
     if(
         answer.toLowerCase().trim()

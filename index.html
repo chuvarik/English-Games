@@ -7,48 +7,111 @@
 
   <title>English Games Hub</title>
 
-  <link rel="stylesheet" href="style.css">
+  <style>
+
+    body{
+      margin:0;
+      padding:40px;
+      font-family:Arial, sans-serif;
+      background:#f4f7fb;
+      text-align:center;
+    }
+
+    h1{
+      color:#333;
+      margin-bottom:40px;
+    }
+
+    .games-container{
+      display:flex;
+      justify-content:center;
+      gap:30px;
+      flex-wrap:wrap;
+    }
+
+    .game-card{
+      background:white;
+      width:300px;
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .game-card h2{
+      margin-bottom:15px;
+      color:#222;
+    }
+
+    .game-card p{
+      color:#666;
+      margin-bottom:20px;
+    }
+
+    .play-btn{
+      display:inline-block;
+      padding:12px 24px;
+      background:#6a5cff;
+      color:white;
+      text-decoration:none;
+      border-radius:10px;
+      transition:0.3s;
+    }
+
+    .play-btn:hover{
+      background:#4f43d9;
+    }
+
+  </style>
+
 </head>
 
 <body>
 
-  <header>
-    <h1>English Games Hub</h1>
-  </header>
+  <h1>English Games Hub</h1>
 
-  <main>
+  <div class="games-container">
+
+    <!-- GAME 1 -->
 
     <div class="game-card">
 
       <h2>Syllable Runner</h2>
 
       <p>
-        Practice syllables through running challenges.
+        Practice syllables through fun running challenges.
       </p>
 
-      <a href="games/syllable-runner/index.html">
-        Play Game
+      <a class="play-btn"
+         href="games/syllable-runner/index.html">
+
+         Play Game
+
       </a>
 
     </div>
+
+
+    <!-- ONLINE GAME -->
 
     <div class="game-card">
 
-      <h2>Word Game</h2>
+      <h2>EN Quest Game</h2>
 
       <p>
-        Learn vocabulary and spelling.
+        Interactive online English adventure game.
       </p>
 
-      <a href="games/word-game/index.html">
-        Play Game
+      <a class="play-btn"
+         href="https://en-quest-game.lovable.app"
+         target="_blank">
+
+         Play Online
+
       </a>
 
     </div>
 
-  </main>
-
-  <script src="script.js"></script>
+  </div>
 
 </body>
 </html>

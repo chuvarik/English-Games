@@ -114,6 +114,36 @@
       font-size:18px;
     }
 
+    .music-toggle{
+      position:fixed;
+      right:24px;
+      bottom:24px;
+      z-index:10;
+      border:1px solid rgba(255,255,255,0.35);
+      border-radius:14px;
+      padding:12px 18px;
+      background:rgba(20,25,45,0.72);
+      color:white;
+      font-family:inherit;
+      font-size:16px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 8px 22px rgba(0,0,0,0.28);
+      backdrop-filter:blur(10px);
+      transition:0.25s;
+    }
+
+    .music-toggle:hover{
+      transform:translateY(-2px);
+      background:rgba(40,50,85,0.86);
+    }
+
+    .music-toggle.is-playing{
+      border-color:rgba(120,255,210,0.75);
+      box-shadow:0 8px 22px rgba(0,0,0,0.28),
+                 0 0 18px rgba(120,255,210,0.28);
+    }
+
     @media(max-width:768px){
 
       h1{
@@ -227,11 +257,112 @@
 
     </div>
 
+    <!-- GAME 5 -->
+
+    <div class="game-card">
+
+      <div class="game-icon">WM</div>
+
+      <h2>Word Miner</h2>
+
+      <p>
+        Mine blocks, collect coins, and choose the correct English words in a pixel adventure.
+      </p>
+
+      <a class="play-btn"
+         href="games/Word-miner/block-mine-portal.html">
+
+         Play Game
+
+      </a>
+
+    </div>
+
   </div>
 
   <div class="footer">
     🌍 Built for fun English learning experiences
   </div>
+
+  <button class="music-toggle" id="musicToggle" type="button" aria-pressed="false">
+    Music: Off
+  </button>
+
+  <script>
+    const musicToggle = document.getElementById("musicToggle");
+    let audioContext;
+    let masterGain;
+    let musicTimer;
+    let isMusicPlaying = false;
+    let isMasterConnected = false;
+
+    const notes = [261.63, 329.63, 392.00, 493.88, 392.00, 329.63];
+    let noteIndex = 0;
+
+    function playSoftTone(frequency){
+      const now = audioContext.currentTime;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(frequency, now);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.055, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.35);
+
+      oscillator.connect(gain);
+      gain.connect(masterGain);
+
+      oscillator.start(now);
+      oscillator.stop(now + 1.45);
+    }
+
+    function startMusic(){
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = masterGain || audioContext.createGain();
+
+      const now = audioContext.currentTime;
+      masterGain.gain.cancelScheduledValues(now);
+      masterGain.gain.setValueAtTime(0.35, now);
+
+      if(!isMasterConnected){
+        masterGain.connect(audioContext.destination);
+        isMasterConnected = true;
+      }
+
+      if(audioContext.state === "suspended"){
+        audioContext.resume();
+      }
+
+      playSoftTone(notes[noteIndex]);
+      musicTimer = setInterval(() => {
+        noteIndex = (noteIndex + 1) % notes.length;
+        playSoftTone(notes[noteIndex]);
+      }, 1400);
+    }
+
+    function stopMusic(){
+      clearInterval(musicTimer);
+      musicTimer = null;
+      if(masterGain){
+        masterGain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.08);
+      }
+    }
+
+    musicToggle.addEventListener("click", () => {
+      isMusicPlaying = !isMusicPlaying;
+      musicToggle.classList.toggle("is-playing", isMusicPlaying);
+      musicToggle.textContent = isMusicPlaying ? "Music: On" : "Music: Off";
+      musicToggle.setAttribute("aria-pressed", String(isMusicPlaying));
+
+      if(isMusicPlaying){
+        startMusic();
+      }else{
+        stopMusic();
+      }
+    });
+  </script>
 
 </body>
 </html>

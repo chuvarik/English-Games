@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Miner</title>
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at top,#3b6537 0%,#142516 42%,#070a07 100%);
+    color:#f4ffe8;
+    font-family:Verdana,Arial,sans-serif;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        linear-gradient(rgba(255,255,255,0.045) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,0.035) 1px,transparent 1px);
+    background-size:32px 32px;
+    pointer-events:none;
+}
+
+#shell{
+    width:min(1160px,96vw);
+    padding:18px;
+    border:4px solid #6f9d48;
+    background:#172215;
+    box-shadow:
+        0 0 0 4px #0b100a,
+        0 20px 70px rgba(0,0,0,0.55);
+}
+
+#topbar{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:18px;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+h1{
+    margin:0;
+    font-size:30px;
+    color:#c9ff78;
+    text-shadow:3px 3px 0 #203112;
+}
+
+#stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.pill{
+    min-width:88px;
+    padding:8px 10px;
+    border:2px solid #6e9550;
+    background:#253820;
+    text-align:center;
+    font-weight:700;
+    box-shadow:inset 0 -4px 0 rgba(0,0,0,0.2);
+}
+
+#layout{
+    display:grid;
+    grid-template-columns:768px 1fr;
+    gap:18px;
+    align-items:start;
+}
+
+#gameCanvas{
+    width:768px;
+    height:576px;
+    image-rendering:pixelated;
+    border:4px solid #0b100a;
+    background:#090b08;
+}
+
+#panel{
+    min-height:576px;
+    padding:14px;
+    border:4px solid #0b100a;
+    background:#22311e;
+}
+
+.section{
+    margin-bottom:14px;
+    padding:12px;
+    border:2px solid #5f8a3e;
+    background:#182516;
+}
+
+.section h2{
+    margin:0 0 10px;
+    color:#b9ff68;
+    font-size:18px;
+}
+
+#targetCard{
+    display:grid;
+    grid-template-columns:72px 1fr;
+    gap:12px;
+    align-items:center;
+}
+
+#targetIcon{
+    width:72px;
+    height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:3px solid #6e9550;
+    background:#2d4127;
+    font-size:42px;
+}
+
+#targetText,
+#message{
+    color:#e9ffd6;
+    font-size:16px;
+    line-height:1.45;
+}
+
+#choices,
+#badges{
+    display:grid;
+    gap:8px;
+}
+
+.choice,
+.badge{
+    padding:9px;
+    border:2px solid #486b35;
+    background:#2d4127;
+    font-weight:700;
+}
+
+.badge.locked{
+    opacity:0.42;
+    filter:saturate(0.4);
+}
+
+#boostLine{
+    color:#ffe47a;
+    font-weight:800;
+    min-height:22px;
+}
+
+button{
+    width:100%;
+    min-height:44px;
+    margin-top:8px;
+    border:0;
+    background:#6ecb39;
+    color:#102008;
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow:inset 0 -5px 0 rgba(0,0,0,0.22);
+}
+
+button:hover{
+    filter:brightness(1.12);
+}
+
+button.secondary{
+    background:#70b7ff;
+}
+
+button.danger{
+    background:#ff8a57;
+}
+
+button:disabled{
+    cursor:not-allowed;
+    opacity:0.45;
+    filter:saturate(0.4);
+}
+
+#overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,0.74);
+}
+
+#overlay.hidden{
+    display:none;
+}
+
+#menu{
+    width:min(760px,92vw);
+    max-height:92vh;
+    overflow:auto;
+    padding:26px;
+    border:4px solid #85b957;
+    background:#172215;
+    text-align:center;
+    box-shadow:0 0 50px rgba(118,255,72,0.18);
+}
+
+#menu h2{
+    margin:0 0 12px;
+    color:#c9ff78;
+    font-size:34px;
+}
+
+#menu p{
+    margin:0 0 18px;
+    line-height:1.6;
+    color:#e4f7d5;
+}
+
+.menuStats,
+.shopGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:14px 0;
+}
+
+.menuBox,
+.skinCard{
+    padding:12px;
+    border:2px solid #5f8a3e;
+    background:#22311e;
+}
+
+.menuBox strong{
+    display:block;
+    color:#c9ff78;
+    font-size:22px;
+    margin-top:4px;
+}
+
+.skinPreview{
+    width:52px;
+    height:52px;
+    margin:0 auto 8px;
+    border:3px solid #0b100a;
+    background:#263525;
+}
+
+.skinName{
+    color:#c9ff78;
+    font-weight:800;
+}
+
+.price{
+    color:#ffe47a;
+    font-weight:700;
+    margin-top:4px;
+}
+
+.menuRow{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.difficultyRow{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:12px 0;
+}
+
+.difficultyBtn.active{
+    background:#ffe47a;
+    color:#172215;
+}
+
+.hidden{
+    display:none;
+}
+
+@media (max-width:1050px){
+    body{
+        overflow:auto;
+        align-items:flex-start;
+        padding:16px 0;
+    }
+
+    #layout{
+        grid-template-columns:1fr;
+    }
+
+    #gameCanvas{
+        width:100%;
+        height:auto;
+    }
+
+    #panel{
+        min-height:0;
+    }
+
+    .menuStats,
+    .shopGrid{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+<body>
+<div id="shell">
+    <div id="topbar">
+        <h1>WORD MINER</h1>
+        <div id="stats">
+            <div class="pill">LEVEL <span id="level">1</span></div>
+            <div class="pill">ROUND <span id="round">1</span></div>
+            <div class="pill">SCORE <span id="score">0</span></div>
+            <div class="pill">COINS <span id="coinsHud">0</span></div>
+            <div class="pill">COMBO <span id="comboHud">0</span></div>
+            <div class="pill">LIGHT <span id="light">100</span></div>
+        </div>
+    </div>
+
+    <div id="layout">
+        <canvas id="gameCanvas" width="768" height="576"></canvas>
+
+        <aside id="panel">
+            <div class="section">
+                <h2>Find The Word</h2>
+                <div id="targetCard">
+                    <div id="targetIcon">?</div>
+                    <div id="targetText">Look at the picture. Mine the correct English word.</div>
+                </div>
+                <button id="soundBtn">HEAR WORD</button>
+                <button class="secondary" id="soundToggle">SOUND ON</button>
+            </div>
+
+            <div class="section">
+                <h2>Motivation</h2>
+                <div id="boostLine">Get 3 correct words in a row for bonus coins.</div>
+                <button id="menuBtn">MENU / SHOP</button>
+            </div>
+
+            <div class="section">
+                <h2>Words In This Mine</h2>
+                <div id="choices"></div>
+            </div>
+
+            <div class="section">
+                <h2>Badges</h2>
+                <div id="badges"></div>
+            </div>
+
+            <div class="section">
+                <h2>How To Play</h2>
+                <div id="message">
+                    Move with WASD or arrow keys. Stand next to a word block and press Space to mine it.
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="overlay">
+    <div id="menu">
+        <div id="mainMenu">
+            <h2>WORD MINER</h2>
+            <p>
+                Learn simple English words in a blocky mine. Earn coins, unlock skins,
+                build combos, and listen to the words.
+            </p>
+
+            <div class="menuStats">
+                <div class="menuBox">Coins<strong id="coinsMenu">0</strong></div>
+                <div class="menuBox">Best Score<strong id="bestMenu">0</strong></div>
+                <div class="menuBox">Best Combo<strong id="comboMenu">0</strong></div>
+            </div>
+
+            <div class="difficultyRow">
+                <button class="difficultyBtn" data-difficulty="easy">EASY<br>HINTS</button>
+                <button class="difficultyBtn" data-difficulty="normal">NORMAL<br>WORDS</button>
+                <button class="difficultyBtn" data-difficulty="hard">HARD<br>MEMORY</button>
+            </div>
+
+            <button id="startBtn">START GAME</button>
+            <div class="menuRow">
+                <button class="secondary" id="shopBtn">SKIN SHOP</button>
+                <button class="secondary" id="menuSoundBtn">SOUND ON</button>
+            </div>
+            <div class="menuRow">
+                <button class="secondary" id="musicBtn">MUSIC ON</button>
+                <button class="secondary" id="trackBtn">TRACK: MINE GROOVE</button>
+            </div>
+            <button class="danger" id="resetBtn">RESET PROGRESS</button>
+        </div>
+
+        <div id="shopMenu" class="hidden">
+            <h2>SKIN SHOP</h2>
+            <p>Buy a new miner skin with coins. Skins are just for fun, but fun helps practice.</p>
+            <div id="skinGrid" class="shopGrid"></div>
+            <button id="backBtn">BACK TO MENU</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const tile = 32;
+const cols = 24;
+const rows = 18;
+
+const words = [
+    {word:"apple",emoji:"\u{1F34E}",group:"Food"},
+    {word:"banana",emoji:"\u{1F34C}",group:"Food"},
+    {word:"cake",emoji:"\u{1F370}",group:"Food"},
+    {word:"egg",emoji:"\u{1F95A}",group:"Food"},
+    {word:"milk",emoji:"\u{1F95B}",group:"Food"},
+    {word:"bread",emoji:"\u{1F35E}",group:"Food"},
+    {word:"water",emoji:"\u{1F4A7}",group:"Food"},
+    {word:"rice",emoji:"\u{1F35A}",group:"Food"},
+    {word:"pizza",emoji:"\u{1F355}",group:"Food"},
+    {word:"carrot",emoji:"\u{1F955}",group:"Food"},
+    {word:"cat",emoji:"\u{1F431}",group:"Animals"},
+    {word:"dog",emoji:"\u{1F436}",group:"Animals"},
+    {word:"fish",emoji:"\u{1F41F}",group:"Animals"},
+    {word:"bird",emoji:"\u{1F426}",group:"Animals"},
+    {word:"cow",emoji:"\u{1F42E}",group:"Animals"},
+    {word:"pig",emoji:"\u{1F437}",group:"Animals"},
+    {word:"horse",emoji:"\u{1F434}",group:"Animals"},
+    {word:"frog",emoji:"\u{1F438}",group:"Animals"},
+    {word:"mouse",emoji:"\u{1F42D}",group:"Animals"},
+    {word:"duck",emoji:"\u{1F986}",group:"Animals"},
+    {word:"tree",emoji:"\u{1F333}",group:"Nature"},
+    {word:"flower",emoji:"\u{1F33C}",group:"Nature"},
+    {word:"rain",emoji:"\u{1F327}",group:"Nature"},
+    {word:"snow",emoji:"\u2744",group:"Nature"},
+    {word:"cloud",emoji:"\u2601",group:"Nature"},
+    {word:"fire",emoji:"\u{1F525}",group:"Nature"},
+    {word:"sun",emoji:"\u2600",group:"Nature"},
+    {word:"moon",emoji:"\u{1F319}",group:"Nature"},
+    {word:"star",emoji:"\u2B50",group:"Nature"},
+    {word:"book",emoji:"\u{1F4D8}",group:"School"},
+    {word:"pen",emoji:"\u270F",group:"School"},
+    {word:"bag",emoji:"\u{1F392}",group:"School"},
+    {word:"desk",emoji:"\u25A3",group:"School"},
+    {word:"chair",emoji:"\u{1FA91}",group:"School"},
+    {word:"clock",emoji:"\u{1F550}",group:"School"},
+    {word:"map",emoji:"\u{1F5FA}",group:"School"},
+    {word:"bus",emoji:"\u{1F68C}",group:"Town"},
+    {word:"car",emoji:"\u{1F697}",group:"Town"},
+    {word:"house",emoji:"\u{1F3E0}",group:"Town"},
+    {word:"shop",emoji:"\u{1F3EA}",group:"Town"},
+    {word:"park",emoji:"\u{1F3DE}",group:"Town"},
+    {word:"train",emoji:"\u{1F686}",group:"Town"},
+    {word:"red",emoji:"\u{1F534}",group:"Colors"},
+    {word:"blue",emoji:"\u{1F535}",group:"Colors"},
+    {word:"green",emoji:"\u{1F7E2}",group:"Colors"},
+    {word:"yellow",emoji:"\u{1F7E1}",group:"Colors"},
+    {word:"black",emoji:"\u26AB",group:"Colors"},
+    {word:"white",emoji:"\u26AA",group:"Colors"},
+    {word:"run",emoji:"\u{1F3C3}",group:"Actions"},
+    {word:"jump",emoji:"\u{1F998}",group:"Actions"},
+    {word:"read",emoji:"\u{1F4D6}",group:"Actions"},
+    {word:"write",emoji:"\u270D",group:"Actions"},
+    {word:"sleep",emoji:"\u{1F6CC}",group:"Actions"},
+    {word:"swim",emoji:"\u{1F3CA}",group:"Actions"}
+];
+
+const difficulties = {
+    easy:{
+        label:"Easy",
+        choices:4,
+        rounds:4,
+        light:110,
+        pointBonus:0,
+        coinBonus:0,
+        wrongPenalty:4,
+        lightPenalty:7,
+        wallChance:0.06,
+        gems:16,
+        showChoices:true,
+        showHint:true,
+        hideWrongAfterMistake:false,
+        wordBlockText:true,
+        speakOnStart:true
+    },
+    normal:{
+        label:"Normal",
+        choices:6,
+        rounds:5,
+        light:100,
+        pointBonus:5,
+        coinBonus:1,
+        wrongPenalty:8,
+        lightPenalty:12,
+        wallChance:0.1,
+        gems:12,
+        showChoices:true,
+        showHint:false,
+        hideWrongAfterMistake:false,
+        wordBlockText:true,
+        speakOnStart:true
+    },
+    hard:{
+        label:"Hard",
+        choices:6,
+        rounds:6,
+        light:82,
+        pointBonus:12,
+        coinBonus:3,
+        wrongPenalty:12,
+        lightPenalty:18,
+        wallChance:0.16,
+        gems:7,
+        showChoices:false,
+        showHint:false,
+        hideWrongAfterMistake:true,
+        wordBlockText:false,
+        speakOnStart:false,
+        listenByClick:true
+    }
+};
+
+const skins = [
+    {id:"blue",name:"Blue Miner",price:0,shirt:"#37a0ff",hat:"#3a2415",accent:"#ffffff"},
+    {id:"forest",name:"Forest Miner",price:45,shirt:"#49b15a",hat:"#263b19",accent:"#d6ff8c"},
+    {id:"gold",name:"Gold Miner",price:90,shirt:"#e0a82e",hat:"#79551a",accent:"#fff2a0"},
+    {id:"ruby",name:"Ruby Miner",price:130,shirt:"#d84a5f",hat:"#4d151b",accent:"#ffd3da"},
+    {id:"wizard",name:"Word Wizard",price:180,shirt:"#7b5cff",hat:"#2c1c61",accent:"#f3ddff"},
+    {id:"robot",name:"Sound Bot",price:230,shirt:"#9aa7b2",hat:"#343b42",accent:"#8dfff6"}
+];
+
+const badges = [
+    {id:"first",name:"First Word",test:() => progress.words >= 1},
+    {id:"combo3",name:"Combo 3",test:() => progress.bestCombo >= 3},
+    {id:"rich",name:"100 Coins",test:() => progress.coins >= 100},
+    {id:"level2",name:"Level 2",test:() => level >= 2 || progress.bestScore >= 120},
+    {id:"champion",name:"Mine Champion",test:() => progress.wins >= 1}
+];
+
+const musicTracks = [
+    {
+        id:"groove",
+        name:"Mine Groove",
+        tempo:92,
+        bass:[110,110,146.83,130.81,98,98,130.81,146.83],
+        lead:[440,0,392,0,493.88,0,392,0],
+        pad:[220,277.18,329.63]
+    },
+    {
+        id:"cave",
+        name:"Cave Pad",
+        tempo:72,
+        bass:[82.41,0,98,0,110,0,98,0],
+        lead:[329.63,0,392,0,293.66,0,349.23,0],
+        pad:[164.81,220,261.63]
+    },
+    {
+        id:"study",
+        name:"Study Beat",
+        tempo:104,
+        bass:[130.81,130.81,196,174.61,146.83,146.83,174.61,196],
+        lead:[523.25,0,659.25,0,587.33,0,493.88,0],
+        pad:[261.63,329.63,392]
+    }
+];
+
+const blockTypes = {
+    floor:0,
+    wall:1,
+    word:2,
+    gem:3
+};
+
+let map = [];
+let player = {x:2,y:2,dirX:1,dirY:0};
+let level = 1;
+let round = 1;
+let score = 0;
+let light = 100;
+let combo = 0;
+let target = words[0];
+let currentChoices = [];
+let running = false;
+let soundOn = localStorage.getItem("wmqSound") !== "off";
+let difficulty = localStorage.getItem("wmqDifficulty") || "normal";
+let musicOn = localStorage.getItem("wmqMusic") !== "off";
+let currentTrack = Number(localStorage.getItem("wmqTrack")) || 0;
+let audioCtx;
+let musicGain;
+let musicTimer;
+let musicStep = 0;
+let message = "Move with WASD or arrow keys. Press Space near a word block.";
+let progress = loadProgress();
+
+const levelEl = document.getElementById("level");
+const roundEl = document.getElementById("round");
+const scoreEl = document.getElementById("score");
+const lightEl = document.getElementById("light");
+const coinsHudEl = document.getElementById("coinsHud");
+const comboHudEl = document.getElementById("comboHud");
+const targetIconEl = document.getElementById("targetIcon");
+const targetTextEl = document.getElementById("targetText");
+const choicesEl = document.getElementById("choices");
+const badgesEl = document.getElementById("badges");
+const messageEl = document.getElementById("message");
+const boostLineEl = document.getElementById("boostLine");
+const overlay = document.getElementById("overlay");
+const mainMenu = document.getElementById("mainMenu");
+const shopMenu = document.getElementById("shopMenu");
+const coinsMenuEl = document.getElementById("coinsMenu");
+const bestMenuEl = document.getElementById("bestMenu");
+const comboMenuEl = document.getElementById("comboMenu");
+const skinGridEl = document.getElementById("skinGrid");
+const soundToggleBtn = document.getElementById("soundToggle");
+const menuSoundBtn = document.getElementById("menuSoundBtn");
+const musicBtn = document.getElementById("musicBtn");
+const trackBtn = document.getElementById("trackBtn");
+const difficultyButtons = document.querySelectorAll(".difficultyBtn");
+
+function loadProgress(){
+    const fallback = {
+        coins:0,
+        bestScore:0,
+        bestCombo:0,
+        words:0,
+        wins:0,
+        selectedSkin:"blue",
+        ownedSkins:["blue"]
+    };
+
+    try{
+        return {...fallback,...JSON.parse(localStorage.getItem("wmqProgress") || "{}")};
+    }
+    catch(error){
+        return fallback;
+    }
+}
+
+function saveProgress(){
+    localStorage.setItem("wmqProgress",JSON.stringify(progress));
+}
+
+function shuffle(array){
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function ensureAudio(){
+    if(!soundOn){
+        return null;
+    }
+
+    if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    return audioCtx;
+}
+
+function tone(freq,duration,type,gain,delay){
+    const ctxAudio = ensureAudio();
+
+    if(!ctxAudio){
+        return;
+    }
+
+    const start = ctxAudio.currentTime + (delay || 0);
+    const osc = ctxAudio.createOscillator();
+    const amp = ctxAudio.createGain();
+
+    osc.type = type || "square";
+    osc.frequency.setValueAtTime(freq,start);
+    amp.gain.setValueAtTime(0.0001,start);
+    amp.gain.exponentialRampToValueAtTime(gain || 0.05,start + 0.01);
+    amp.gain.exponentialRampToValueAtTime(0.0001,start + duration);
+    osc.connect(amp);
+    amp.connect(ctxAudio.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.03);
+}
+
+function musicTone(freq,start,duration,type,gain){
+    const ctxAudio = ensureAudio();
+
+    if(!ctxAudio || !musicGain || !freq){
+        return;
+    }
+
+    const osc = ctxAudio.createOscillator();
+    const filter = ctxAudio.createBiquadFilter();
+    const amp = ctxAudio.createGain();
+
+    osc.type = type || "sine";
+    osc.frequency.setValueAtTime(freq,start);
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(type === "sawtooth" ? 420 : 1400,start);
+    amp.gain.setValueAtTime(0.0001,start);
+    amp.gain.exponentialRampToValueAtTime(gain,start + 0.02);
+    amp.gain.exponentialRampToValueAtTime(0.0001,start + duration);
+    osc.connect(filter);
+    filter.connect(amp);
+    amp.connect(musicGain);
+    osc.start(start);
+    osc.stop(start + duration + 0.05);
+}
+
+function scheduleMusic(){
+    const ctxAudio = ensureAudio();
+
+    if(!ctxAudio || !musicOn || !soundOn){
+        return;
+    }
+
+    if(!musicGain){
+        musicGain = ctxAudio.createGain();
+        musicGain.gain.value = 0.09;
+        musicGain.connect(ctxAudio.destination);
+    }
+
+    const track = musicTracks[currentTrack % musicTracks.length];
+    const beat = 60 / track.tempo;
+    const now = ctxAudio.currentTime + 0.04;
+
+    for(let i=0;i<8;i++){
+        const step = (musicStep + i) % 8;
+        const t = now + i * beat * 0.5;
+        musicTone(track.bass[step],t,beat * 0.38,"sawtooth",0.035);
+        musicTone(track.lead[step],t,beat * 0.22,"triangle",0.018);
+    }
+
+    if(musicStep % 8 === 0){
+        track.pad.forEach(note => {
+            musicTone(note,now,beat * 3.4,"sine",0.012);
+        });
+    }
+
+    musicStep = (musicStep + 8) % 16;
+}
+
+function startMusic(){
+    if(!musicOn || !soundOn){
+        return;
+    }
+
+    stopMusic();
+    scheduleMusic();
+    const track = musicTracks[currentTrack % musicTracks.length];
+    musicTimer = setInterval(scheduleMusic,(60 / track.tempo) * 4 * 1000);
+}
+
+function stopMusic(){
+    if(musicTimer){
+        clearInterval(musicTimer);
+        musicTimer = null;
+    }
+}
+
+function toggleMusic(){
+    musicOn = !musicOn;
+    localStorage.setItem("wmqMusic",musicOn ? "on" : "off");
+    playSfx("click");
+
+    if(musicOn){
+        startMusic();
+    }
+    else{
+        stopMusic();
+    }
+
+    updateSoundButtons();
+}
+
+function nextTrack(){
+    currentTrack = (currentTrack + 1) % musicTracks.length;
+    localStorage.setItem("wmqTrack",String(currentTrack));
+    musicStep = 0;
+    playSfx("click");
+
+    if(musicOn && soundOn){
+        startMusic();
+    }
+
+    updateSoundButtons();
+}
+
+function noise(duration,gain){
+    const ctxAudio = ensureAudio();
+
+    if(!ctxAudio){
+        return;
+    }
+
+    const buffer = ctxAudio.createBuffer(1,ctxAudio.sampleRate * duration,ctxAudio.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for(let i=0;i<data.length;i++){
+        data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    }
+
+    const source = ctxAudio.createBufferSource();
+    const amp = ctxAudio.createGain();
+    source.buffer = buffer;
+    amp.gain.value = gain || 0.04;
+    source.connect(amp);
+    amp.connect(ctxAudio.destination);
+    source.start();
+}
+
+function playSfx(name){
+    if(name === "move"){
+        tone(140,0.05,"square",0.025);
+    }
+    else if(name === "bump"){
+        tone(90,0.09,"sawtooth",0.035);
+    }
+    else if(name === "mine"){
+        noise(0.08,0.045);
+        tone(180,0.06,"square",0.025,0.02);
+    }
+    else if(name === "gem"){
+        tone(640,0.08,"sine",0.04);
+        tone(920,0.1,"sine",0.035,0.07);
+    }
+    else if(name === "correct"){
+        tone(523,0.08,"sine",0.045);
+        tone(659,0.08,"sine",0.045,0.09);
+        tone(784,0.12,"sine",0.05,0.18);
+    }
+    else if(name === "wrong"){
+        tone(220,0.1,"sawtooth",0.045);
+        tone(150,0.14,"sawtooth",0.04,0.11);
+    }
+    else if(name === "combo"){
+        tone(740,0.08,"triangle",0.045);
+        tone(980,0.08,"triangle",0.045,0.08);
+        tone(1240,0.12,"triangle",0.045,0.16);
+    }
+    else if(name === "level"){
+        tone(392,0.1,"sine",0.045);
+        tone(523,0.1,"sine",0.045,0.11);
+        tone(659,0.1,"sine",0.045,0.22);
+        tone(1046,0.18,"sine",0.04,0.34);
+    }
+    else if(name === "click"){
+        tone(360,0.05,"square",0.025);
+    }
+    else if(name === "shop"){
+        tone(600,0.07,"triangle",0.04);
+        tone(900,0.1,"triangle",0.035,0.08);
+    }
+    else if(name === "win"){
+        tone(523,0.1,"sine",0.045);
+        tone(659,0.1,"sine",0.045,0.11);
+        tone(784,0.1,"sine",0.045,0.22);
+        tone(1046,0.22,"sine",0.045,0.34);
+    }
+}
+
+function speak(text){
+    if(!soundOn || !window.speechSynthesis){
+        return;
+    }
+
+    speechSynthesis.cancel();
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.rate = 0.82;
+    speech.pitch = 1;
+    speechSynthesis.speak(speech);
+}
+
+function makeEmptyMap(){
+    map = [];
+    const settings = difficulties[difficulty] || difficulties.normal;
+
+    for(let y=0;y<rows;y++){
+        const row = [];
+
+        for(let x=0;x<cols;x++){
+            const edge = x === 0 || y === 0 || x === cols - 1 || y === rows - 1;
+            const caveWall = Math.random() < settings.wallChance && x > 4 && y > 2;
+            row.push({type:edge || caveWall ? blockTypes.wall : blockTypes.floor});
+        }
+
+        map.push(row);
+    }
+
+    for(let y=1;y<5;y++){
+        for(let x=1;x<6;x++){
+            map[y][x] = {type:blockTypes.floor};
+        }
+    }
+}
+
+function placeWords(){
+    const positions = [
+        {x:8,y:3},
+        {x:15,y:4},
+        {x:20,y:7},
+        {x:7,y:11},
+        {x:14,y:13},
+        {x:20,y:15}
+    ];
+
+    currentChoices.forEach((item,index) => {
+        const pos = positions[index];
+        map[pos.y][pos.x] = {type:blockTypes.word,item};
+    });
+
+    const settings = difficulties[difficulty] || difficulties.normal;
+
+    for(let i=0;i<settings.gems + level;i++){
+        const x = 3 + Math.floor(Math.random() * (cols - 6));
+        const y = 3 + Math.floor(Math.random() * (rows - 6));
+
+        if(map[y][x].type === blockTypes.floor){
+            map[y][x] = {type:blockTypes.gem};
+        }
+    }
+}
+
+function chooseRound(){
+    const settings = difficulties[difficulty] || difficulties.normal;
+    const poolSize = Math.min(words.length,settings.choices + level * 4 + round);
+    const pool = shuffle([...words]).slice(0,poolSize);
+
+    target = pool[Math.floor(Math.random() * pool.length)];
+    currentChoices = shuffle([
+        target,
+        ...shuffle(pool.filter(item => item.word !== target.word)).slice(0,settings.choices - 1)
+    ]);
+
+    targetIconEl.textContent = target.emoji;
+        targetTextEl.innerHTML =
+        "Find the word for this picture.<br>" +
+        "Category: " + target.group + "<br>" +
+        "Difficulty: " + settings.label +
+        (settings.showHint ? "<br>Hint: starts with " + target.word[0].toUpperCase() : "") +
+        (settings.listenByClick ? "<br>Click hidden word blocks to hear them." : "");
+
+    choicesEl.innerHTML = "";
+
+    if(settings.showChoices){
+        currentChoices.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "choice";
+            div.textContent = item.word.toUpperCase();
+            choicesEl.appendChild(div);
+        });
+    }
+    else{
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.textContent = "Hard mode: read the blocks in the mine. No word list here.";
+        choicesEl.appendChild(div);
+    }
+}
+
+function startRound(){
+    const settings = difficulties[difficulty] || difficulties.normal;
+
+    player = {x:2,y:2,dirX:1,dirY:0};
+    light = Math.max(45,settings.light - level * 5);
+    chooseRound();
+    makeEmptyMap();
+    placeWords();
+    message = "Find: " + target.emoji + ". Mine the correct English word.";
+
+    if(settings.speakOnStart){
+        speak(target.word);
+    }
+
+    render();
+}
+
+function colorFor(cell){
+    if(cell.type === blockTypes.wall){
+        return "#68716e";
+    }
+
+    if(cell.type === blockTypes.word){
+        return "#3077c9";
+    }
+
+    if(cell.type === blockTypes.gem){
+        return "#56d66d";
+    }
+
+    return "#263525";
+}
+
+function drawCell(x,y,cell){
+    const px = x * tile;
+    const py = y * tile;
+
+    ctx.fillStyle = colorFor(cell);
+    ctx.fillRect(px,py,tile,tile);
+    ctx.strokeStyle = "rgba(0,0,0,0.32)";
+    ctx.strokeRect(px,py,tile,tile);
+
+    if(cell.type === blockTypes.wall){
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.fillRect(px + 4,py + 5,10,5);
+        ctx.fillRect(px + 18,py + 18,9,5);
+    }
+
+    if(cell.type === blockTypes.gem){
+        ctx.fillStyle = "#e9ffd6";
+        ctx.fillRect(px + 12,py + 8,8,8);
+        ctx.fillRect(px + 9,py + 16,14,8);
+    }
+
+    if(cell.type === blockTypes.word){
+        const settings = difficulties[difficulty] || difficulties.normal;
+
+        ctx.fillStyle = "#dff3ff";
+        ctx.font = "bold 10px Verdana";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+            settings.wordBlockText ? cell.item.word.toUpperCase() : "?",
+            px + tile / 2,
+            py + tile / 2
+        );
+    }
+}
+
+function activeSkin(){
+    return skins.find(skin => skin.id === progress.selectedSkin) || skins[0];
+}
+
+function drawSkinPreview(skin,canvasEl){
+    const preview = canvasEl.getContext("2d");
+    preview.clearRect(0,0,52,52);
+    preview.fillStyle = skin.shirt;
+    preview.fillRect(14,18,24,24);
+    preview.fillStyle = "#f2c49a";
+    preview.fillRect(16,9,20,14);
+    preview.fillStyle = skin.hat;
+    preview.fillRect(13,6,26,6);
+    preview.fillRect(17,1,18,8);
+    preview.fillStyle = skin.accent;
+    preview.fillRect(28,14,5,5);
+    preview.fillStyle = "#1e2a36";
+    preview.fillRect(15,42,8,6);
+    preview.fillRect(29,42,8,6);
+}
+
+function drawPlayer(){
+    const skin = activeSkin();
+    const px = player.x * tile;
+    const py = player.y * tile;
+
+    ctx.fillStyle = skin.shirt;
+    ctx.fillRect(px + 8,py + 8,16,19);
+    ctx.fillStyle = "#f2c49a";
+    ctx.fillRect(px + 9,py + 4,14,10);
+    ctx.fillStyle = skin.hat;
+    ctx.fillRect(px + 8,py + 3,16,4);
+    ctx.fillRect(px + 11,py,10,5);
+    ctx.fillStyle = skin.accent;
+    ctx.fillRect(px + (player.dirX < 0 ? 9 : 19),py + 8,4,4);
+    ctx.fillStyle = "#1e2a36";
+    ctx.fillRect(px + 8,py + 27,6,4);
+    ctx.fillRect(px + 18,py + 27,6,4);
+}
+
+function drawLight(){
+    const radius = 4 + Math.floor(light / 25);
+
+    for(let y=0;y<rows;y++){
+        for(let x=0;x<cols;x++){
+            const distance = Math.abs(player.x - x) + Math.abs(player.y - y);
+
+            if(distance > radius){
+                ctx.fillStyle = distance > radius + 2 ? "rgba(0,0,0,0.78)" : "rgba(0,0,0,0.4)";
+                ctx.fillRect(x * tile,y * tile,tile,tile);
+            }
+        }
+    }
+}
+
+function render(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    for(let y=0;y<rows;y++){
+        for(let x=0;x<cols;x++){
+            drawCell(x,y,map[y][x]);
+        }
+    }
+
+    drawPlayer();
+    drawLight();
+    renderHud();
+}
+
+function renderHud(){
+    levelEl.textContent = level;
+    roundEl.textContent = round;
+    scoreEl.textContent = score;
+    lightEl.textContent = light;
+    coinsHudEl.textContent = progress.coins;
+    comboHudEl.textContent = combo;
+    messageEl.textContent = message;
+    boostLineEl.textContent =
+        combo >= 3
+            ? "Combo bonus active! Correct words give extra coins."
+            : "Get 3 correct words in a row for bonus coins.";
+    renderBadges();
+    renderMenuStats();
+    updateSoundButtons();
+}
+
+function renderBadges(){
+    badgesEl.innerHTML = "";
+
+    badges.forEach(badge => {
+        const unlocked = badge.test();
+        const div = document.createElement("div");
+        div.className = "badge" + (unlocked ? "" : " locked");
+        div.textContent = (unlocked ? "UNLOCKED: " : "LOCKED: ") + badge.name;
+        badgesEl.appendChild(div);
+    });
+}
+
+function renderMenuStats(){
+    coinsMenuEl.textContent = progress.coins;
+    bestMenuEl.textContent = progress.bestScore;
+    comboMenuEl.textContent = progress.bestCombo;
+    difficultyButtons.forEach(button => {
+        button.classList.toggle("active",button.dataset.difficulty === difficulty);
+    });
+}
+
+function renderShop(){
+    skinGridEl.innerHTML = "";
+
+    skins.forEach(skin => {
+        const owned = progress.ownedSkins.includes(skin.id);
+        const selected = progress.selectedSkin === skin.id;
+        const canBuy = progress.coins >= skin.price;
+        const card = document.createElement("div");
+        const preview = document.createElement("canvas");
+        const name = document.createElement("div");
+        const price = document.createElement("div");
+        const button = document.createElement("button");
+
+        card.className = "skinCard";
+        preview.width = 52;
+        preview.height = 52;
+        preview.className = "skinPreview";
+        name.className = "skinName";
+        name.textContent = skin.name;
+        price.className = "price";
+        price.textContent = owned ? "Owned" : skin.price + " coins";
+        button.textContent = selected ? "EQUIPPED" : owned ? "EQUIP" : "BUY";
+        button.disabled = selected || (!owned && !canBuy);
+
+        button.onclick = () => {
+            playSfx("shop");
+
+            if(!owned){
+                progress.coins -= skin.price;
+                progress.ownedSkins.push(skin.id);
+            }
+
+            progress.selectedSkin = skin.id;
+            saveProgress();
+            renderShop();
+            render();
+        };
+
+        card.appendChild(preview);
+        card.appendChild(name);
+        card.appendChild(price);
+        card.appendChild(button);
+        skinGridEl.appendChild(card);
+        drawSkinPreview(skin,preview);
+    });
+}
+
+function updateSoundButtons(){
+    const settings = difficulties[difficulty] || difficulties.normal;
+    const track = musicTracks[currentTrack % musicTracks.length];
+
+    soundToggleBtn.textContent = soundOn ? "SOUND ON" : "SOUND OFF";
+    menuSoundBtn.textContent = soundOn ? "SOUND ON" : "SOUND OFF";
+    musicBtn.textContent = musicOn && soundOn ? "MUSIC ON" : "MUSIC OFF";
+    trackBtn.textContent = "TRACK: " + track.name.toUpperCase();
+    document.getElementById("soundBtn").disabled = Boolean(settings.listenByClick);
+    document.getElementById("soundBtn").textContent = settings.listenByClick ? "TARGET SOUND OFF" : "HEAR WORD";
+}
+
+function inBounds(x,y){
+    return x >= 0 && x < cols && y >= 0 && y < rows;
+}
+
+function addCoins(amount){
+    progress.coins += amount;
+    saveProgress();
+}
+
+function drainLight(amount){
+    light = Math.max(0,light - amount);
+
+    if(light === 0){
+        const settings = difficulties[difficulty] || difficulties.normal;
+
+        score = Math.max(0,score - 10);
+        combo = 0;
+        light = Math.max(45,Math.floor(settings.light * 0.6));
+        player.x = 2;
+        player.y = 2;
+        message = "Your light is out. Go again. You lost 10 points.";
+        playSfx("wrong");
+    }
+}
+
+function tryMove(dx,dy){
+    if(!running){
+        return;
+    }
+
+    player.dirX = dx;
+    player.dirY = dy;
+
+    const nx = player.x + dx;
+    const ny = player.y + dy;
+
+    if(!inBounds(nx,ny)){
+        return;
+    }
+
+    const next = map[ny][nx];
+
+    if(next.type === blockTypes.wall || next.type === blockTypes.word){
+        playSfx("bump");
+        render();
+        return;
+    }
+
+    player.x = nx;
+    player.y = ny;
+    playSfx("move");
+    drainLight(next.type === blockTypes.gem ? 0 : 1);
+
+    if(next.type === blockTypes.gem){
+        score += 2;
+        addCoins(1);
+        light = Math.min(100,light + 6);
+        map[ny][nx] = {type:blockTypes.floor};
+        message = "Small gem! +2 points, +1 coin, and more light.";
+        playSfx("gem");
+    }
+
+    render();
+}
+
+function mineWord(){
+    if(!running){
+        return;
+    }
+
+    const settings = difficulties[difficulty] || difficulties.normal;
+    const tx = player.x + player.dirX;
+    const ty = player.y + player.dirY;
+
+    if(!inBounds(tx,ty)){
+        return;
+    }
+
+    const cell = map[ty][tx];
+
+    if(cell.type !== blockTypes.word){
+        message = "Stand next to a word block. Then press Space.";
+        playSfx("bump");
+        render();
+        return;
+    }
+
+    playSfx("mine");
+
+    if(cell.item.word === target.word){
+        combo++;
+        progress.words++;
+        progress.bestCombo = Math.max(progress.bestCombo,combo);
+
+        const points = 20 + level * 5 + combo * 2 + settings.pointBonus;
+        const coins = 5 + level + settings.coinBonus + (combo >= 3 ? 5 : 0);
+
+        score += points;
+        addCoins(coins);
+        progress.bestScore = Math.max(progress.bestScore,score);
+        saveProgress();
+        message =
+            "Correct! " + target.word.toUpperCase() +
+            " means " + target.emoji +
+            ". +" + points + " points, +" + coins + " coins.";
+        playSfx(combo >= 3 ? "combo" : "correct");
+        speak(target.word);
+        nextRound();
+        return;
+    }
+
+    combo = 0;
+    score = Math.max(0,score - settings.wrongPenalty);
+    light = Math.max(10,light - settings.lightPenalty);
+    message = "Not this word. This is " + cell.item.word.toUpperCase() + ". Find " + target.emoji + ".";
+
+    if(settings.hideWrongAfterMistake){
+        map[ty][tx] = {type:blockTypes.wall};
+        message += " In Hard mode, wrong blocks turn into stone.";
+    }
+
+    playSfx("wrong");
+    speak(cell.item.word);
+    render();
+}
+
+function listenToClickedBlock(event){
+    const settings = difficulties[difficulty] || difficulties.normal;
+
+    if(!settings.listenByClick || !running){
+        return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = Math.floor((event.clientX - rect.left) * scaleX / tile);
+    const y = Math.floor((event.clientY - rect.top) * scaleY / tile);
+
+    if(!inBounds(x,y)){
+        return;
+    }
+
+    const cell = map[y][x];
+
+    if(cell.type !== blockTypes.word){
+        message = "In Hard mode, click a hidden word block to hear it.";
+        playSfx("bump");
+        render();
+        return;
+    }
+
+    message = "Listen carefully. Choose the block that matches the picture.";
+    playSfx("click");
+    speak(cell.item.word);
+    render();
+}
+
+function nextRound(){
+    const settings = difficulties[difficulty] || difficulties.normal;
+
+    round++;
+
+    if(round > settings.rounds){
+        level++;
+        round = 1;
+
+        if(level > 3){
+            running = false;
+            progress.wins++;
+            progress.bestScore = Math.max(progress.bestScore,score);
+            saveProgress();
+            playSfx("win");
+            showMenu("GREAT JOB!","You finished all word mines. Final score: " + score + ". Spend your coins on a new skin or play again.");
+            render();
+            return;
+        }
+
+        message = "Level up! New words are in the mine.";
+        playSfx("level");
+    }
+
+    setTimeout(startRound,900);
+}
+
+function startGame(){
+    level = 1;
+    round = 1;
+    score = 0;
+    combo = 0;
+    running = true;
+    overlay.classList.add("hidden");
+    mainMenu.classList.remove("hidden");
+    shopMenu.classList.add("hidden");
+    playSfx("click");
+    startMusic();
+    startRound();
+}
+
+function showMenu(title,text){
+    running = false;
+    overlay.classList.remove("hidden");
+    mainMenu.classList.remove("hidden");
+    shopMenu.classList.add("hidden");
+    document.querySelector("#mainMenu h2").textContent = title || "WORD MINER";
+    document.querySelector("#mainMenu p").textContent =
+        text || "Learn simple English words in a blocky mine. Earn coins, unlock skins, build combos, and listen to the words.";
+    document.getElementById("startBtn").textContent = score > 0 ? "PLAY AGAIN" : "START GAME";
+    renderMenuStats();
+    updateSoundButtons();
+}
+
+function showShop(){
+    playSfx("click");
+    mainMenu.classList.add("hidden");
+    shopMenu.classList.remove("hidden");
+    renderShop();
+}
+
+function toggleSound(){
+    soundOn = !soundOn;
+    localStorage.setItem("wmqSound",soundOn ? "on" : "off");
+
+    if(soundOn){
+        playSfx("click");
+        startMusic();
+    }
+    else{
+        stopMusic();
+    }
+
+    updateSoundButtons();
+}
+
+function resetProgress(){
+    playSfx("wrong");
+    progress = {
+        coins:0,
+        bestScore:0,
+        bestCombo:0,
+        words:0,
+        wins:0,
+        selectedSkin:"blue",
+        ownedSkins:["blue"]
+    };
+    score = 0;
+    combo = 0;
+    saveProgress();
+    render();
+    showMenu("WORD MINER","Progress reset. Start fresh and build your word mine again.");
+}
+
+document.getElementById("startBtn").onclick = startGame;
+document.getElementById("shopBtn").onclick = showShop;
+document.getElementById("backBtn").onclick = () => {
+    playSfx("click");
+    mainMenu.classList.remove("hidden");
+    shopMenu.classList.add("hidden");
+};
+document.getElementById("menuBtn").onclick = () => showMenu();
+document.getElementById("soundBtn").onclick = () => {
+    playSfx("click");
+    speak(target.word);
+};
+document.getElementById("soundToggle").onclick = toggleSound;
+document.getElementById("menuSoundBtn").onclick = toggleSound;
+document.getElementById("musicBtn").onclick = toggleMusic;
+document.getElementById("trackBtn").onclick = nextTrack;
+document.getElementById("resetBtn").onclick = resetProgress;
+canvas.addEventListener("click",listenToClickedBlock);
+difficultyButtons.forEach(button => {
+    button.onclick = () => {
+        difficulty = button.dataset.difficulty;
+        localStorage.setItem("wmqDifficulty",difficulty);
+        playSfx("click");
+        renderMenuStats();
+    };
+});
+
+window.addEventListener("keydown",(event)=>{
+    const key = event.key.toLowerCase();
+
+    if(["arrowup","arrowdown","arrowleft","arrowright"," ","w","a","s","d"].includes(key)){
+        event.preventDefault();
+    }
+
+    if(key === "w" || key === "arrowup"){
+        tryMove(0,-1);
+    }
+    else if(key === "s" || key === "arrowdown"){
+        tryMove(0,1);
+    }
+    else if(key === "a" || key === "arrowleft"){
+        tryMove(-1,0);
+    }
+    else if(key === "d" || key === "arrowright"){
+        tryMove(1,0);
+    }
+    else if(key === " "){
+        mineWord();
+    }
+});
+
+makeEmptyMap();
+render();
+showMenu();
+</script>
+</body>
+</html>

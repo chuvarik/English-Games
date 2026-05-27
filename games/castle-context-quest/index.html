@@ -235,14 +235,14 @@
 
     .game-controls {
       position: absolute;
-      right: clamp(10px, 2vw, 18px);
-      bottom: clamp(10px, 2vw, 18px);
+      left: clamp(10px, 2vw, 18px);
+      top: calc(clamp(10px, 2vw, 18px) + 250px);
       z-index: 5;
       display: flex;
       flex-wrap: wrap;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 8px;
-      max-width: min(520px, calc(100vw - 20px));
+      max-width: min(700px, calc(100vw - 20px));
     }
 
     .control-button {
@@ -522,6 +522,13 @@
         left: 8px;
         right: 8px;
         width: auto;
+      }
+
+      .game-controls {
+        left: 8px;
+        right: 8px;
+        top: auto;
+        bottom: 8px;
       }
 
       .choices,

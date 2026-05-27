@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grammar Galaxy Rescue</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #102236;
+      --paper: #f8fbff;
+      --sea: #14b8a6;
+      --sun: #f59e0b;
+      --rose: #ef476f;
+      --blue: #2563eb;
+      --space: #0d1326;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--paper);
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 18% 14%, rgba(245, 158, 11, 0.35), transparent 20rem),
+        radial-gradient(circle at 82% 18%, rgba(20, 184, 166, 0.28), transparent 22rem),
+        linear-gradient(145deg, #080d1f, #172554 48%, #0f172a);
+      overflow: hidden;
+    }
+
+    body.is-menu .sentence-banner,
+    body.is-menu .word-tray,
+    body.is-ended .sentence-banner,
+    body.is-ended .word-tray {
+      display: none;
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px clamp(10px, 3vw, 24px);
+      background: rgba(4, 10, 24, 0.72);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(18px, 3vw, 32px);
+      letter-spacing: 0;
+      line-height: 1;
+    }
+
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .pill {
+      min-width: 72px;
+      padding: 5px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    main {
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: none;
+    }
+
+    .panel {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(700px, calc(100vw - 22px));
+      max-height: calc(100vh - 76px);
+      overflow: auto;
+      transform: translate(-50%, -50%);
+      padding: clamp(12px, 2.4vw, 20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(248, 251, 255, 0.94);
+      color: var(--ink);
+      box-shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
+    }
+
+    .panel[hidden] {
+      display: none;
+    }
+
+    .panel h2 {
+      margin: 0 0 6px;
+      font-size: clamp(22px, 4vw, 36px);
+      line-height: 1;
+    }
+
+    .panel p {
+      margin: 6px 0;
+      font-size: clamp(14px, 2vw, 16px);
+      line-height: 1.3;
+    }
+
+    .sentence {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #e0f2fe;
+      color: #0f3b62;
+      font-size: clamp(16px, 3vw, 24px);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .sentence-banner {
+      position: absolute;
+      left: clamp(10px, 3vw, 30px);
+      right: clamp(10px, 3vw, 30px);
+      top: clamp(8px, 2vw, 16px);
+      z-index: 2;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border: 2px solid rgba(255, 255, 255, 0.75);
+      border-radius: 8px;
+      background: rgba(248, 251, 255, 0.94);
+      color: #07162b;
+      font-size: clamp(18px, 3.7vw, 34px);
+      font-weight: 900;
+      line-height: 1.08;
+      text-align: center;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+      pointer-events: none;
+    }
+
+    .sentence-banner strong {
+      color: var(--rose);
+      padding: 0 8px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .ship-card,
+    .difficulty-card {
+      min-height: 96px;
+      display: grid;
+      gap: 5px;
+      justify-items: center;
+      align-content: center;
+      padding: 8px;
+      border: 2px solid #d4dce8;
+      border-radius: 8px;
+      background: #f8fbff;
+      color: var(--ink);
+      box-shadow: none;
+    }
+
+    .ship-card.is-selected,
+    .difficulty-card.is-selected {
+      border-color: var(--sea);
+      background: #ccfbf1;
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.18);
+    }
+
+    .ship-icon {
+      width: 54px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: white;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .ship-title {
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .ship-stats {
+      font-size: 12px;
+      font-weight: 700;
+      color: #31506f;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    .menu-label {
+      margin: 10px 0 5px;
+      font-size: 13px;
+      font-weight: 900;
+      color: #243f5c;
+      text-transform: uppercase;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    button, a.home-link {
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 13px;
+      color: white;
+      background: var(--blue);
+      font: inherit;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+    }
+
+    button.secondary, a.home-link {
+      color: var(--ink);
+      background: #cbd5e1;
+      box-shadow: none;
+    }
+
+    .word-tray {
+      position: absolute;
+      left: clamp(12px, 3vw, 28px);
+      right: clamp(12px, 3vw, 28px);
+      bottom: clamp(8px, 2vw, 14px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .target {
+      min-height: 40px;
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(248, 251, 255, 0.9);
+      color: var(--ink);
+      font-weight: 800;
+      font-size: clamp(13px, 2vw, 18px);
+      line-height: 1.2;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    .target strong {
+      color: var(--rose);
+    }
+
+    .sound {
+      pointer-events: auto;
+      min-width: 94px;
+      height: 40px;
+      padding: 0 10px;
+      background: var(--sea);
+    }
+
+    .leaderboard {
+      margin-top: 10px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #d4dce8;
+      background: white;
+    }
+
+    .leaderboard-title {
+      padding: 8px 10px;
+      background: #dbeafe;
+      color: #12345c;
+      font-weight: 900;
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 42px 1fr 86px 74px;
+      gap: 8px;
+      padding: 7px 10px;
+      border-top: 1px solid #e5edf7;
+      color: #18324f;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .score-row.empty {
+      grid-template-columns: 1fr;
+      color: #64748b;
+    }
+
+    @media (max-width: 720px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hud {
+        justify-content: flex-start;
+      }
+
+      .pill {
+        min-width: 62px;
+        padding: 5px 7px;
+        font-size: 13px;
+      }
+
+      .menu-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sentence-banner {
+        min-height: 46px;
+      }
+
+      .panel {
+        max-height: calc(100vh - 28px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <header>
+      <h1>Grammar Galaxy Rescue</h1>
+      <div class="hud" aria-live="polite">
+        <div class="pill">Score <span id="score">0</span></div>
+        <div class="pill">Errors <span id="lives">5</span></div>
+        <div class="pill">Level <span id="level">1</span></div>
+        <div class="pill">Progress <span id="progress">0</span></div>
+        <div class="pill">Best <span id="bestScore">0</span></div>
+        <div class="pill">Mode <span id="difficultyName">Easy</span></div>
+        <div class="pill">Ship <span id="shipName">Comet</span></div>
+      </div>
+    </header>
+
+    <main>
+      <canvas id="game" aria-label="Grammar Galaxy Rescue game"></canvas>
+      <div class="sentence-banner" id="bigSentence">She <strong>___</strong> apples every day.</div>
+
+      <div class="word-tray">
+        <div class="target" id="targetSentence">Choose a ship and press Start Mission.</div>
+        <button class="sound" id="soundToggle" type="button" aria-label="Toggle music">Music On</button>
+        <button class="sound" id="gameMenuButton" type="button">Menu</button>
+      </div>
+
+      <section class="panel" id="startPanel">
+        <h2>Main Menu</h2>
+        <p>Fly through the galaxy and catch the word that completes each English sentence. Dodge the wrong words and keep your shields alive.</p>
+        <div class="sentence" id="previewSentence">She ___ apples every day.</div>
+        <div class="menu-label">Difficulty</div>
+        <div class="menu-grid" id="difficultyMenu">
+          <button class="difficulty-card is-selected" type="button" data-difficulty="easy">
+            <span class="ship-title">Easy</span>
+            <span class="ship-stats">Simple present<br>Slow speed growth</span>
+          </button>
+          <button class="difficulty-card" type="button" data-difficulty="medium">
+            <span class="ship-title">Medium</span>
+            <span class="ship-stats">Past and future<br>Medium speed growth</span>
+          </button>
+          <button class="difficulty-card" type="button" data-difficulty="hard">
+            <span class="ship-title">Hard</span>
+            <span class="ship-stats">Mixed grammar<br>Fast speed growth</span>
+          </button>
+        </div>
+        <div class="menu-label">Ship</div>
+        <div class="menu-grid" id="shipMenu">
+          <button class="ship-card is-selected" type="button" data-ship="comet">
+            <span class="ship-icon" style="background:#2563eb;">C</span>
+            <span class="ship-title">Comet</span>
+            <span class="ship-stats">Balanced speed<br>+100 base points</span>
+          </button>
+          <button class="ship-card" type="button" data-ship="scout">
+            <span class="ship-icon" style="background:#14b8a6;">S</span>
+            <span class="ship-title">Scout</span>
+            <span class="ship-stats">Very fast ship<br>+80 base points</span>
+          </button>
+          <button class="ship-card" type="button" data-ship="cruiser">
+            <span class="ship-icon" style="background:#ef476f;">R</span>
+            <span class="ship-title">Cruiser</span>
+            <span class="ship-stats">Slow heavy ship<br>+140 base points</span>
+          </button>
+        </div>
+        <p>Move with WASD, mouse, or touch. Press Space to start.</p>
+        <div class="actions">
+          <button id="startButton" type="button">Start Mission</button>
+          <button class="secondary" id="menuMusicButton" type="button">Music On</button>
+          <a class="home-link" href="../../index.html">Home</a>
+        </div>
+        <div class="leaderboard">
+          <div class="leaderboard-title">Records</div>
+          <div id="menuScores"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="endPanel" hidden>
+        <h2 id="endTitle">Mission complete</h2>
+        <p id="endText"></p>
+        <div class="sentence" id="finalSentence"></div>
+        <div class="actions">
+          <button id="againButton" type="button">Play Again</button>
+          <button class="secondary" id="backToMenuButton" type="button">Menu</button>
+          <a class="home-link" href="../../index.html">Home</a>
+        </div>
+        <div class="leaderboard">
+          <div class="leaderboard-title">Records</div>
+          <div id="endScores"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const scoreEl = document.getElementById("score");
+    const livesEl = document.getElementById("lives");
+    const levelEl = document.getElementById("level");
+    const progressEl = document.getElementById("progress");
+    const bestScoreEl = document.getElementById("bestScore");
+    const difficultyNameEl = document.getElementById("difficultyName");
+    const shipNameEl = document.getElementById("shipName");
+    const bigSentenceEl = document.getElementById("bigSentence");
+    const targetSentenceEl = document.getElementById("targetSentence");
+    const startPanel = document.getElementById("startPanel");
+    const endPanel = document.getElementById("endPanel");
+    const endTitle = document.getElementById("endTitle");
+    const endText = document.getElementById("endText");
+    const finalSentence = document.getElementById("finalSentence");
+    const startButton = document.getElementById("startButton");
+    const againButton = document.getElementById("againButton");
+    const backToMenuButton = document.getElementById("backToMenuButton");
+    const gameMenuButton = document.getElementById("gameMenuButton");
+    const soundToggle = document.getElementById("soundToggle");
+    const menuMusicButton = document.getElementById("menuMusicButton");
+    const menuScores = document.getElementById("menuScores");
+    const endScores = document.getElementById("endScores");
+    const shipButtons = [...document.querySelectorAll(".ship-card")];
+    const difficultyButtons = [...document.querySelectorAll(".difficulty-card")];
+
+    const promptSets = {
+      easy: [
+        { text: "She ___ apples every day.", answer: "eats", options: ["eat", "eats", "eating"] },
+        { text: "They ___ soccer after school.", answer: "play", options: ["plays", "play", "playing"] },
+        { text: "I ___ a blue backpack.", answer: "have", options: ["has", "have", "having"] },
+        { text: "The dog ___ very happy.", answer: "is", options: ["am", "are", "is"] },
+        { text: "We ___ English on Monday.", answer: "study", options: ["studies", "study", "studying"] },
+        { text: "My brother ___ milk.", answer: "drinks", options: ["drink", "drinks", "drinking"] },
+        { text: "There ___ three books here.", answer: "are", options: ["is", "are", "am"] },
+        { text: "The cat is ___ the chair.", answer: "under", options: ["under", "quickly", "happy"] },
+        { text: "I can ___ a kite.", answer: "fly", options: ["flies", "flying", "fly"] },
+        { text: "This pencil is ___ than that one.", answer: "longer", options: ["long", "longer", "longest"] }
+      ],
+      medium: [
+        { text: "He ___ to school yesterday.", answer: "went", options: ["go", "goes", "went"] },
+        { text: "I am ___ a book now.", answer: "reading", options: ["read", "reads", "reading"] },
+        { text: "We have ___ our homework.", answer: "finished", options: ["finish", "finished", "finishing"] },
+        { text: "They will ___ the museum tomorrow.", answer: "visit", options: ["visited", "visit", "visiting"] },
+        { text: "She was ___ when the phone rang.", answer: "sleeping", options: ["sleep", "slept", "sleeping"] },
+        { text: "If it rains, we ___ inside.", answer: "will stay", options: ["will stay", "stayed", "staying"] },
+        { text: "The cake was ___ by my aunt.", answer: "baked", options: ["bake", "baked", "baking"] },
+        { text: "I have lived here ___ 2021.", answer: "since", options: ["for", "since", "during"] },
+        { text: "My sister is ___ than me.", answer: "taller", options: ["tall", "taller", "tallest"] },
+        { text: "We ___ dinner when Dad arrived.", answer: "were cooking", options: ["cook", "were cooking", "cooked"] },
+        { text: "Please speak ___ in the library.", answer: "quietly", options: ["quiet", "quietly", "quieter"] },
+        { text: "This is the ___ movie I have seen.", answer: "best", options: ["good", "better", "best"] }
+      ],
+      hard: [
+        { text: "If I ___ more time, I would learn piano.", answer: "had", options: ["have", "had", "will have"] },
+        { text: "The letter ___ before I arrived.", answer: "had been sent", options: ["sent", "had been sent", "has sending"] },
+        { text: "She asked me where I ___ from.", answer: "came", options: ["come", "came", "will come"] },
+        { text: "Neither of the answers ___ correct.", answer: "is", options: ["are", "is", "were"] },
+        { text: "I wish I ___ spoken more clearly.", answer: "had", options: ["have", "had", "will"] },
+        { text: "By next June, they ___ here for five years.", answer: "will have lived", options: ["live", "will have lived", "lived"] },
+        { text: "The student, along with his friends, ___ ready.", answer: "is", options: ["are", "is", "were"] },
+        { text: "This is the house ___ roof was damaged.", answer: "whose", options: ["who", "whose", "which"] },
+        { text: "Had I known, I ___ earlier.", answer: "would have called", options: ["called", "will call", "would have called"] },
+        { text: "The project must ___ by Friday.", answer: "be completed", options: ["complete", "be completed", "completed"] },
+        { text: "No sooner had we left ___ it began to snow.", answer: "than", options: ["then", "than", "when"] },
+        { text: "The teacher suggested that he ___ again.", answer: "try", options: ["tries", "try", "trying"] },
+        { text: "I am used to ___ early.", answer: "waking up", options: ["wake up", "waking up", "woke up"] },
+        { text: "The book ___ on the desk is mine.", answer: "lying", options: ["lay", "lying", "lied"] }
+      ]
+    };
+
+    const difficulties = {
+      easy: { id: "easy", name: "Easy", baseFall: 92, speedGain: 9, randomFall: 22, pointBonus: 0, mistakes: 5 },
+      medium: { id: "medium", name: "Medium", baseFall: 120, speedGain: 16, randomFall: 28, pointBonus: 25, mistakes: 4 },
+      hard: { id: "hard", name: "Hard", baseFall: 150, speedGain: 24, randomFall: 34, pointBonus: 55, mistakes: 3 }
+    };
+
+    const ships = {
+      comet: {
+        id: "comet",
+        name: "Comet",
+        body: "#2563eb",
+        wing: "#14b8a6",
+        glass: "#93c5fd",
+        flame: "#f59e0b",
+        speed: 520,
+        basePoints: 100,
+        shape: "classic"
+      },
+      scout: {
+        id: "scout",
+        name: "Scout",
+        body: "#14b8a6",
+        wing: "#f59e0b",
+        glass: "#ccfbf1",
+        flame: "#2563eb",
+        speed: 650,
+        basePoints: 80,
+        shape: "needle"
+      },
+      cruiser: {
+        id: "cruiser",
+        name: "Cruiser",
+        body: "#ef476f",
+        wing: "#f59e0b",
+        glass: "#fecdd3",
+        flame: "#14b8a6",
+        speed: 440,
+        basePoints: 140,
+        shape: "wide"
+      }
+    };
+
+    const keys = new Set();
+    const pointer = { active: false, x: 0 };
+    const ship = { x: 0, y: 0, width: 74, height: 54, speed: 520 };
+    let width = 0;
+    let height = 0;
+    let score = 0;
+    let lives = 3;
+    let promptIndex = 0;
+    let words = [];
+    let stars = [];
+    let running = false;
+    let lastTime = 0;
+    let spawnTimer = 0;
+    let audioContext = null;
+    let soundOn = true;
+    let selectedShip = ships.comet;
+    let selectedDifficulty = difficulties.easy;
+    let prompts = promptSets.easy;
+    let musicTimer = null;
+    let musicStep = 0;
+    const scoreKey = "grammarGalaxyRecords";
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ship.x = Math.min(Math.max(ship.x || width / 2, 50), width - 50);
+      ship.y = Math.min(Math.max(ship.y || height - 92, 92), height - 58);
+      stars = Array.from({ length: Math.floor(width / 18) }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 2 + 0.6,
+        speed: Math.random() * 65 + 20
+      }));
+    }
+
+    function currentPrompt() {
+      return prompts[promptIndex % prompts.length];
+    }
+
+    function loadRecords() {
+      try {
+        return JSON.parse(localStorage.getItem(scoreKey)) || [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem(scoreKey, JSON.stringify(records.slice(0, 10)));
+    }
+
+    function bestForCurrentMode() {
+      return loadRecords()
+        .filter((record) => record.difficulty === selectedDifficulty.name)
+        .reduce((best, record) => Math.max(best, record.score), 0);
+    }
+
+    function renderRecords() {
+      const records = loadRecords();
+      const html = records.length
+        ? records.slice(0, 7).map((record, index) => `
+          <div class="score-row">
+            <span>#${index + 1}</span>
+            <span>${record.difficulty} / ${record.ship}</span>
+            <span>${record.score}</span>
+            <span>${record.progress}</span>
+          </div>
+        `).join("")
+        : `<div class="score-row empty">No records yet. Start a mission.</div>`;
+      menuScores.innerHTML = html;
+      endScores.innerHTML = html;
+    }
+
+    function addRecord() {
+      if (score <= 0) return;
+      const records = loadRecords();
+      records.push({
+        score,
+        difficulty: selectedDifficulty.name,
+        ship: selectedShip.name,
+        progress: `${promptIndex} words`
+      });
+      records.sort((a, b) => b.score - a.score);
+      saveRecords(records);
+      renderRecords();
+    }
+
+    function updateHud() {
+      scoreEl.textContent = score;
+      livesEl.textContent = lives;
+      levelEl.textContent = (promptIndex % prompts.length) + 1;
+      progressEl.textContent = promptIndex;
+      bestScoreEl.textContent = bestForCurrentMode();
+      difficultyNameEl.textContent = selectedDifficulty.name;
+      shipNameEl.textContent = selectedShip.name;
+      const prompt = currentPrompt();
+      const visibleSentence = prompt.text.replace("___", "<strong>___</strong>");
+      const round = Math.floor(promptIndex / prompts.length) + 1;
+      bigSentenceEl.innerHTML = visibleSentence;
+      targetSentenceEl.innerHTML = `Round ${round} | Sentence ${promptIndex + 1} | Catch: ${visibleSentence}`;
+    }
+
+    function fillSentence(prompt) {
+      return prompt.text.replace("___", prompt.answer);
+    }
+
+    function playTone(freq, duration, type = "sine") {
+      if (!soundOn) return;
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function playMusicNote() {
+      if (!soundOn) return;
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      const notes = [220, 277.18, 329.63, 392, 329.63, 277.18, 246.94, 329.63];
+      const now = audioContext.currentTime;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(notes[musicStep % notes.length], now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.045, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start(now);
+      osc.stop(now + 0.45);
+      musicStep += 1;
+    }
+
+    function startMusic() {
+      if (!soundOn || musicTimer) return;
+      playMusicNote();
+      musicTimer = setInterval(playMusicNote, 460);
+    }
+
+    function stopMusic() {
+      clearInterval(musicTimer);
+      musicTimer = null;
+    }
+
+    function updateMusicButtons() {
+      const label = soundOn ? "Music On" : "Music Off";
+      soundToggle.textContent = label;
+      menuMusicButton.textContent = label;
+      soundToggle.setAttribute("aria-label", soundOn ? "Turn music off" : "Turn music on");
+    }
+
+    function toggleMusic() {
+      soundOn = !soundOn;
+      updateMusicButtons();
+      if (soundOn) {
+        startMusic();
+      } else {
+        stopMusic();
+      }
+    }
+
+    function selectShip(shipId) {
+      selectedShip = ships[shipId] || ships.comet;
+      ship.speed = selectedShip.speed;
+      shipButtons.forEach((button) => {
+        button.classList.toggle("is-selected", button.dataset.ship === selectedShip.id);
+      });
+      updateHud();
+    }
+
+    function selectDifficulty(difficultyId) {
+      selectedDifficulty = difficulties[difficultyId] || difficulties.easy;
+      prompts = promptSets[selectedDifficulty.id];
+      promptIndex = 0;
+      if (!running) {
+        lives = selectedDifficulty.mistakes;
+      }
+      difficultyButtons.forEach((button) => {
+        button.classList.toggle("is-selected", button.dataset.difficulty === selectedDifficulty.id);
+      });
+      document.getElementById("previewSentence").textContent = prompts[0].text;
+      updateHud();
+      renderRecords();
+      drawStars(0);
+      drawPlanet();
+      drawShip();
+    }
+
+    function spawnWords() {
+      const prompt = currentPrompt();
+      const shuffled = [...prompt.options].sort(() => Math.random() - 0.5);
+      const laneCount = shuffled.length;
+      words = shuffled.map((label, index) => {
+        const lane = (index + 1) / (laneCount + 1);
+        return {
+          label,
+          x: width * lane + (Math.random() * 60 - 30),
+          y: -60 - Math.random() * 120,
+          width: Math.min(190, Math.max(92, label.length * 10 + 28)),
+          radius: 34,
+          speed: selectedDifficulty.baseFall
+            + promptIndex * selectedDifficulty.speedGain
+            + Math.random() * selectedDifficulty.randomFall,
+          correct: label === prompt.answer,
+          spin: Math.random() * Math.PI
+        };
+      });
+    }
+
+    function startGame() {
+      score = 0;
+      lives = selectedDifficulty.mistakes;
+      promptIndex = 0;
+      words = [];
+      running = true;
+      document.body.classList.remove("is-menu", "is-ended");
+      document.body.classList.add("is-playing");
+      ship.x = width / 2;
+      ship.y = height - 92;
+      lastTime = performance.now();
+      spawnTimer = 0;
+      startPanel.hidden = true;
+      endPanel.hidden = true;
+      updateHud();
+      spawnWords();
+      startMusic();
+      requestAnimationFrame(loop);
+    }
+
+    function endGame() {
+      running = false;
+      addRecord();
+      document.body.classList.remove("is-playing");
+      document.body.classList.add("is-ended");
+      endPanel.hidden = false;
+      endTitle.textContent = "Mission ended";
+      endText.textContent = `You scored ${score} points and completed ${promptIndex} sentences on ${selectedDifficulty.name}.`;
+      finalSentence.textContent = `Best ${selectedDifficulty.name} score: ${bestForCurrentMode()}`;
+      updateHud();
+    }
+
+    function showMenu() {
+      running = false;
+      words = [];
+      keys.clear();
+      pointer.active = false;
+      document.body.classList.remove("is-playing", "is-ended");
+      document.body.classList.add("is-menu");
+      startPanel.hidden = false;
+      endPanel.hidden = true;
+      lives = selectedDifficulty.mistakes;
+      promptIndex = 0;
+      updateHud();
+      renderRecords();
+      drawStars(0);
+      drawPlanet();
+      drawShip();
+    }
+
+    function drawStars(delta) {
+      ctx.fillStyle = "#081020";
+      ctx.fillRect(0, 0, width, height);
+      for (const star of stars) {
+        star.y += star.speed * delta;
+        if (star.y > height) {
+          star.y = 0;
+          star.x = Math.random() * width;
+        }
+        ctx.fillStyle = `rgba(255,255,255,${0.45 + star.size / 4})`;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawPlanet() {
+      const grd = ctx.createRadialGradient(width - 120, 90, 20, width - 90, 120, 160);
+      grd.addColorStop(0, "rgba(245,158,11,0.95)");
+      grd.addColorStop(0.55, "rgba(239,71,111,0.85)");
+      grd.addColorStop(1, "rgba(239,71,111,0)");
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(width - 90, 120, 150, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawShip() {
+      const x = ship.x;
+      const y = ship.y;
+      const pulse = Math.sin(performance.now() / 70) * 8;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = selectedShip.body;
+      ctx.strokeStyle = selectedShip.wing;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      if (selectedShip.shape === "needle") {
+        ctx.moveTo(0, -34);
+        ctx.lineTo(24, 20);
+        ctx.lineTo(7, 11);
+        ctx.lineTo(0, 26);
+        ctx.lineTo(-7, 11);
+        ctx.lineTo(-24, 20);
+      } else if (selectedShip.shape === "wide") {
+        ctx.moveTo(0, -24);
+        ctx.lineTo(44, 13);
+        ctx.lineTo(19, 19);
+        ctx.lineTo(0, 28);
+        ctx.lineTo(-19, 19);
+        ctx.lineTo(-44, 13);
+      } else {
+        ctx.moveTo(0, -28);
+        ctx.lineTo(35, 19);
+        ctx.lineTo(10, 12);
+        ctx.lineTo(0, 25);
+        ctx.lineTo(-10, 12);
+        ctx.lineTo(-35, 19);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = selectedShip.glass;
+      ctx.beginPath();
+      ctx.arc(0, -3, 10, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = selectedShip.flame;
+      ctx.beginPath();
+      ctx.moveTo(-10, 23);
+      ctx.lineTo(0, 38 + pulse * 0.65);
+      ctx.lineTo(10, 23);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawWord(word) {
+      ctx.save();
+      ctx.translate(word.x, word.y);
+      ctx.rotate(Math.sin(word.spin) * 0.08);
+      ctx.fillStyle = "#2563eb";
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(-word.width / 2, -22, word.width, 44, 8);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "white";
+      ctx.font = `${word.label.length > 14 ? "800 14px" : "800 17px"} Segoe UI, Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(word.label, 0, 1);
+      ctx.restore();
+    }
+
+    function updateShip(delta) {
+      const left = keys.has("a");
+      const right = keys.has("d");
+      const up = keys.has("w");
+      const down = keys.has("s");
+      if (left) ship.x -= ship.speed * delta;
+      if (right) ship.x += ship.speed * delta;
+      if (up) ship.y -= ship.speed * 0.72 * delta;
+      if (down) ship.y += ship.speed * 0.72 * delta;
+      if (pointer.active) {
+        ship.x += (pointer.x - ship.x) * Math.min(1, delta * 10);
+        ship.y += (pointer.y - ship.y) * Math.min(1, delta * 10);
+      }
+      ship.x = Math.max(52, Math.min(width - 52, ship.x));
+      ship.y = Math.max(92, Math.min(height - 58, ship.y));
+    }
+
+    function hit(word) {
+      return Math.abs(word.x - ship.x) < word.width / 2 + 26 && Math.abs(word.y - ship.y) < 42;
+    }
+
+    function advancePrompt() {
+      const prompt = currentPrompt();
+      score += selectedShip.basePoints + selectedDifficulty.pointBonus + promptIndex * 20;
+      playTone(660, 0.12, "triangle");
+      playTone(880, 0.18, "triangle");
+      promptIndex += 1;
+      updateHud();
+      spawnWords();
+    }
+
+    function missWord() {
+      lives -= 1;
+      playTone(150, 0.22, "sawtooth");
+      updateHud();
+      if (lives <= 0) {
+        endGame();
+      } else {
+        spawnWords();
+      }
+    }
+
+    function updateWords(delta) {
+      for (const word of words) {
+        word.y += word.speed * delta;
+        word.spin += delta * 3;
+        if (hit(word)) {
+          if (word.correct) {
+            advancePrompt();
+          } else {
+            score = Math.max(0, score - 30);
+            missWord();
+          }
+          return;
+        }
+      }
+      if (words.every((word) => word.y > height + 80)) {
+        missWord();
+      }
+    }
+
+    function loop(time) {
+      if (!running) return;
+      const delta = Math.min((time - lastTime) / 1000, 0.033);
+      lastTime = time;
+      spawnTimer += delta;
+      drawStars(delta);
+      drawPlanet();
+      updateShip(delta);
+      updateWords(delta);
+      for (const word of words) drawWord(word);
+      drawShip();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener("resize", resize);
+    window.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+      if (["w", "a", "s", "d"].includes(key)) {
+        keys.add(key);
+        event.preventDefault();
+      }
+      if (event.code === "Space" && !running) startGame();
+    });
+    window.addEventListener("keyup", (event) => {
+      const key = event.key.toLowerCase();
+      if (["w", "a", "s", "d"].includes(key)) {
+        keys.delete(key);
+      }
+    });
+
+    canvas.addEventListener("pointerdown", (event) => {
+      pointer.active = true;
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+      if (!running) startGame();
+    });
+    canvas.addEventListener("pointermove", (event) => {
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+    });
+    canvas.addEventListener("pointerup", () => {
+      pointer.active = false;
+    });
+
+    startButton.addEventListener("click", startGame);
+    againButton.addEventListener("click", startGame);
+    backToMenuButton.addEventListener("click", showMenu);
+    gameMenuButton.addEventListener("click", showMenu);
+    soundToggle.addEventListener("click", toggleMusic);
+    menuMusicButton.addEventListener("click", toggleMusic);
+    shipButtons.forEach((button) => {
+      button.addEventListener("click", () => selectShip(button.dataset.ship));
+    });
+    difficultyButtons.forEach((button) => {
+      button.addEventListener("click", () => selectDifficulty(button.dataset.difficulty));
+    });
+
+    resize();
+    document.body.classList.add("is-menu");
+    selectShip("comet");
+    selectDifficulty("easy");
+    updateMusicButtons();
+    renderRecords();
+    updateHud();
+    drawStars(0);
+    drawPlanet();
+    drawShip();
+  </script>
+</body>
+</html>

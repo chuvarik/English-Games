@@ -315,6 +315,65 @@
       line-height: 1.2;
     }
 
+    .menu-rules {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .menu-rule {
+      min-height: 120px;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 8px;
+      align-items: start;
+      padding: 10px;
+      border: 3px solid #b7791f;
+      border-radius: 4px;
+      background: #fef3c7;
+      font-weight: 900;
+      line-height: 1.25;
+    }
+
+    .menu-rule strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #3b2618;
+      font-size: 17px;
+    }
+
+    .pixel-icon,
+    .upgrade-icon {
+      position: relative;
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      image-rendering: pixelated;
+    }
+
+    .icon-shield {
+      background: #2563eb;
+      clip-path: polygon(50% 0, 92% 16%, 84% 74%, 50% 100%, 16% 74%, 8% 16%);
+      box-shadow: inset 0 0 0 5px #93c5fd;
+    }
+
+    .icon-book {
+      background: #8b5a2b;
+      box-shadow: inset 4px 0 0 #fef3c7, inset 16px 0 0 #fff7dc, inset 18px 0 0 #4a2c18;
+    }
+
+    .icon-gift {
+      background: #d99a20;
+      box-shadow: inset 13px 0 0 #c2413b, inset 0 12px 0 #f6c453;
+    }
+
+    .icon-shop {
+      background: #87919f;
+      box-shadow: 0 -8px 0 #c2413b, 10px -5px 0 #c2413b, -10px -5px 0 #c2413b, inset 10px 12px 0 #5b321d;
+    }
+
     .actions,
     .shop-grid {
       display: flex;
@@ -351,10 +410,72 @@
     }
 
     .upgrade-button {
-      min-height: 88px;
+      min-height: 104px;
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 9px;
+      align-items: start;
       background: #fef3c7;
       color: #23180f;
       text-align: left;
+    }
+
+    .upgrade-title {
+      display: block;
+      margin-bottom: 3px;
+      color: #3b2618;
+      font-size: 17px;
+    }
+
+    .upgrade-meta {
+      display: block;
+      color: #7c2d12;
+      font-size: 14px;
+    }
+
+    .upgrade-desc {
+      display: block;
+      margin-top: 4px;
+      line-height: 1.25;
+    }
+
+    .upgrade-icon.maxHp {
+      background: #87919f;
+      box-shadow: 0 -8px 0 #87919f, 9px -5px 0 #87919f, -9px -5px 0 #87919f, inset 12px 15px 0 #566170;
+    }
+
+    .upgrade-icon.fireRate {
+      background: #4a2c18;
+      box-shadow: 16px 3px 0 #4a2c18, 24px 3px 0 #d99a20, -4px 12px 0 #f6c453;
+    }
+
+    .upgrade-icon.damage {
+      background: #d1d5db;
+      clip-path: polygon(44% 0, 64% 0, 64% 64%, 82% 64%, 54% 100%, 26% 64%, 44% 64%);
+    }
+
+    .upgrade-icon.repair {
+      background: #8b5a2b;
+      box-shadow: 11px -5px 0 #d1d5db, 18px 2px 0 #d1d5db, 2px 17px 0 #4a2c18;
+      transform: rotate(-18deg);
+    }
+
+    .upgrade-icon.archers {
+      border-radius: 50%;
+      background: transparent;
+      border: 5px solid #8b5a2b;
+      box-shadow: 18px 0 0 -11px #4a2c18, 23px 0 0 -12px #d99a20;
+    }
+
+    .upgrade-icon.range {
+      background: #87919f;
+      box-shadow: 0 -8px 0 #87919f, inset 12px 10px 0 #162033, 19px -13px 0 -6px #f6c453;
+    }
+
+    .upgrade-icon.boost {
+      background: #2563eb;
+      clip-path: polygon(52% 0, 100% 42%, 66% 42%, 84% 100%, 12% 32%, 46% 32%);
+      box-shadow: 0 0 0 4px #93c5fd;
     }
 
     .upgrade-button:disabled {
@@ -404,6 +525,7 @@
       }
 
       .choices,
+      .menu-rules,
       .shop-grid {
         grid-template-columns: 1fr;
       }
@@ -446,9 +568,24 @@
 
       <section class="panel" id="startPanel">
         <h2>Castle Defence</h2>
-        <p>Protect the castle through 20 waves. Your archers shoot automatically when enemies come into range.</p>
-        <p>Read the short context and choose the word that completes the English sentence. Correct answers give a random reward: faster arrows, extra coins, or a knight who defeats one enemy.</p>
-        <p>After each wave, spend coins in the shop to improve the castle, or save them for later.</p>
+        <div class="menu-rules">
+          <div class="menu-rule">
+            <span class="pixel-icon icon-shield"></span>
+            <span><strong>Defend</strong>Protect the castle through 20 waves. Archers shoot when enemies enter range.</span>
+          </div>
+          <div class="menu-rule">
+            <span class="pixel-icon icon-book"></span>
+            <span><strong>Answer</strong>Choose the word that completes the English sentence from the story context.</span>
+          </div>
+          <div class="menu-rule">
+            <span class="pixel-icon icon-gift"></span>
+            <span><strong>Rewards</strong>Correct answers can give faster arrows, extra coins, or a knight attack.</span>
+          </div>
+          <div class="menu-rule">
+            <span class="pixel-icon icon-shop"></span>
+            <span><strong>Shop</strong>Between waves, buy upgrades or save coins for later.</span>
+          </div>
+        </div>
         <div class="sample">Example<br>Context: The guard is hungry.<br>Sentence: He wants to ___ bread.<br>Correct word: eat</div>
         <div class="actions">
           <button class="menu-button" id="startButton" type="button">Start Defense</button>
@@ -639,13 +776,13 @@
     ];
 
     const upgrades = [
-      { id: "maxHp", title: "Stronger Walls", desc: "+20 max castle health and repair 20 HP.", base: 32 },
-      { id: "fireRate", title: "Faster Archers", desc: "Archers shoot more often.", base: 45 },
-      { id: "damage", title: "Sharper Arrows", desc: "+6 arrow damage.", base: 48 },
-      { id: "repair", title: "Repair Gate", desc: "Restore 30 castle health.", base: 26 },
-      { id: "archers", title: "Extra Archer", desc: "Adds archer support. Every two levels adds a lane.", base: 68 },
-      { id: "range", title: "Watchtower Range", desc: "Archers can fire a little farther than half field.", base: 42 },
-      { id: "boost", title: "Longer Spell", desc: "Correct answers boost arrows longer.", base: 38 }
+      { id: "maxHp", icon: "maxHp", title: "Stronger Walls", desc: "+20 max castle health and repair 20 HP.", base: 12 },
+      { id: "fireRate", icon: "fireRate", title: "Faster Archers", desc: "Archers shoot more often.", base: 16 },
+      { id: "damage", icon: "damage", title: "Sharper Arrows", desc: "+6 arrow damage.", base: 18 },
+      { id: "repair", icon: "repair", title: "Repair Gate", desc: "Restore 30 castle health.", base: 10 },
+      { id: "archers", icon: "archers", title: "Extra Archer", desc: "Adds archer support. Every two levels adds a lane.", base: 19 },
+      { id: "range", icon: "range", title: "Watchtower Range", desc: "Archers can fire a little farther than half field.", base: 14 },
+      { id: "boost", icon: "boost", title: "Longer Spell", desc: "Correct answers boost arrows longer.", base: 13 }
     ];
     const maxUpgradeLevel = 5;
 
@@ -671,6 +808,9 @@
     let arrowTimer = 0;
     let boostTimer = 0;
     let audioContext = null;
+    let musicTimer = null;
+    let musicStep = 0;
+    let lastArrowSound = 0;
     let lastSolvedRound = rounds[0];
     let stats = {
       damage: 12,
@@ -776,21 +916,97 @@
       )).join("");
     }
 
-    function playTone(freq, duration, type) {
+    function ensureAudio() {
       if (!soundOn) return;
       audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") audioContext.resume();
+      return audioContext;
+    }
+
+    function playTone(freq, duration, type, volume = 0.1) {
+      const audio = ensureAudio();
+      if (!audio) return;
       const now = audioContext.currentTime;
       const osc = audioContext.createOscillator();
       const gain = audioContext.createGain();
       osc.type = type || "square";
       osc.frequency.setValueAtTime(freq, now);
       gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.1, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
       osc.connect(gain);
       gain.connect(audioContext.destination);
       osc.start(now);
       osc.stop(now + duration + 0.03);
+    }
+
+    function playChord(notes, duration = 0.22, type = "triangle", volume = 0.07) {
+      notes.forEach((note, index) => {
+        setTimeout(() => playTone(note, duration, type, volume), index * 55);
+      });
+    }
+
+    function playNoise(duration = 0.12, volume = 0.08) {
+      const audio = ensureAudio();
+      if (!audio) return;
+      const buffer = audio.createBuffer(1, audio.sampleRate * duration, audio.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i += 1) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+      }
+      const source = audio.createBufferSource();
+      const gain = audio.createGain();
+      gain.gain.setValueAtTime(volume, audio.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
+      source.buffer = buffer;
+      source.connect(gain);
+      gain.connect(audio.destination);
+      source.start();
+    }
+
+    function playMusicNote() {
+      const audio = ensureAudio();
+      if (!audio || !musicTimer) return;
+      const notes = [220, 261.63, 293.66, 329.63, 293.66, 261.63, 196, 246.94];
+      const now = audio.currentTime;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(notes[musicStep % notes.length], now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.035, now + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(now);
+      osc.stop(now + 0.46);
+
+      if (musicStep % 4 === 0) {
+        const bass = audio.createOscillator();
+        const bassGain = audio.createGain();
+        bass.type = "sine";
+        bass.frequency.setValueAtTime(110, now);
+        bassGain.gain.setValueAtTime(0.0001, now);
+        bassGain.gain.exponentialRampToValueAtTime(0.03, now + 0.04);
+        bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
+        bass.connect(bassGain);
+        bassGain.connect(audio.destination);
+        bass.start(now);
+        bass.stop(now + 0.72);
+      }
+      musicStep += 1;
+    }
+
+    function startMusic() {
+      if (!soundOn || musicTimer) return;
+      ensureAudio();
+      musicTimer = setInterval(playMusicNote, 520);
+      playMusicNote();
+    }
+
+    function stopMusic() {
+      clearInterval(musicTimer);
+      musicTimer = null;
     }
 
     function startGame() {
@@ -816,6 +1032,9 @@
       setActiveRound(pickRandomRound());
       lastSolvedRound = activeRound;
       updateControlButtons();
+      musicStep = 0;
+      startMusic();
+      playChord([196, 246.94, 293.66, 392], 0.2, "triangle", 0.08);
       startWave();
       startPanel.hidden = true;
       endPanel.hidden = true;
@@ -839,6 +1058,7 @@
       updateControlButtons();
       updateHud();
       lastTime = performance.now();
+      playChord([146.83, 196, 246.94], 0.15, "square", 0.055);
       requestAnimationFrame(loop);
     }
 
@@ -853,6 +1073,7 @@
       spawnLeft = 0;
       boostTimer = 0;
       knightReserve = 0;
+      stopMusic();
       document.body.classList.remove("is-playing", "is-ended", "is-shop");
       document.body.classList.add("is-menu");
       startPanel.hidden = false;
@@ -873,6 +1094,7 @@
       skipShopButton.textContent = wave >= maxWave ? "Finish Defense" : "Buy Nothing";
       renderShop();
       updateControlButtons();
+      playChord([329.63, 293.66, 261.63], 0.18, "triangle", 0.05);
       drawFrame();
     }
 
@@ -887,6 +1109,8 @@
       endTitle.textContent = victory ? "The castle stands" : "The gate has fallen";
       endText.textContent = `Score: ${score}. Coins: ${coins}. You reached wave ${wave} of ${maxWave}.`;
       lastAnswer.textContent = `Last correct sentence: ${lastSolvedRound.sentence.replace("___", lastSolvedRound.answer)}`;
+      stopMusic();
+      playChord(victory ? [261.63, 329.63, 392, 523.25] : [196, 164.81, 146.83], 0.24, victory ? "triangle" : "sawtooth", 0.08);
       updateControlButtons();
       updateHud();
     }
@@ -994,6 +1218,7 @@
         answerStatus.textContent = `Not this time. The answer was "${round.answer}".`;
         castleHp -= 5;
         playTone(150, 0.2, "sawtooth");
+        playNoise(0.1, 0.05);
         if (castleHp <= 0) {
           endGame(false);
           return;
@@ -1023,6 +1248,11 @@
       for (let i = 0; i < stats.archers; i += 1) {
         const target = nearestEnemy(height * 0.5);
         if (!target) return;
+        const now = performance.now();
+        if (now - lastArrowSound > 180) {
+          playTone(330, 0.055, "square", 0.035);
+          lastArrowSound = now;
+        }
         arrows.push({
           x: 206,
           y: height * (0.46 + i * 0.055),
@@ -1040,7 +1270,8 @@
       coins += enemy.coins;
       score += 35 + enemy.coins * 5 + wave * 10;
       burst(enemy.x, enemy.y - 20, "#f6c453");
-      playTone(520, 0.08, "square");
+      playTone(520, 0.08, "square", 0.06);
+      playNoise(0.08, 0.035);
       updateHud();
     }
 
@@ -1106,6 +1337,7 @@
           castleHp -= enemy.damage;
           burst(184, enemy.y - 10, "#c2413b");
           playTone(120, 0.18, "sawtooth");
+          playNoise(0.16, 0.08);
           updateHud();
           if (castleHp <= 0) {
             endGame(false);
@@ -1123,6 +1355,7 @@
         if (arrow.progress >= 1) {
           arrow.target.hp -= arrow.damage;
           burst(arrow.target.x, arrow.target.y - 34, "#d99a20");
+          playTone(240, 0.045, "triangle", 0.035);
           if (arrow.target.hp <= 0) killEnemy(arrow.target);
           arrow.done = true;
         }
@@ -1147,7 +1380,7 @@
     }
 
     function upgradeCost(upgrade) {
-      return upgrade.base + upgradeLevels[upgrade.id] * 24 + Math.floor(wave * 5);
+      return upgrade.base + upgradeLevels[upgrade.id] * 14 + Math.floor(wave * 2);
     }
 
     function renderShop() {
@@ -1156,9 +1389,12 @@
         const cost = upgradeCost(upgrade);
         const isMaxed = level >= maxUpgradeLevel;
         return `<button class="upgrade-button" type="button" data-upgrade="${upgrade.id}" ${coins < cost || isMaxed ? "disabled" : ""}>
-          ${upgrade.title}<br>
-          Level ${level}/${maxUpgradeLevel} | ${isMaxed ? "Max level" : `Cost ${cost} coins`}<br>
-          ${upgrade.desc}
+          <span class="upgrade-icon ${upgrade.icon}"></span>
+          <span>
+            <span class="upgrade-title">${upgrade.title}</span>
+            <span class="upgrade-meta">Level ${level}/${maxUpgradeLevel} | ${isMaxed ? "Max level" : `Cost ${cost} coins`}</span>
+            <span class="upgrade-desc">${upgrade.desc}</span>
+          </span>
         </button>`;
       }).join("");
       shopNote.textContent = "";
@@ -1189,11 +1425,13 @@
       if (id === "range") stats.attackRange += 45;
       if (id === "boost") stats.boostDuration += 1;
       shopSummary.textContent = `Upgrade bought. Coins: ${coins}. Castle health: ${Math.ceil(castleHp)}/${castleMaxHp}.`;
+      playChord([392, 523.25, 659.25], 0.12, "square", 0.055);
       renderShop();
       updateHud();
     }
 
     function continueAfterShop() {
+      playTone(260, 0.08, "triangle", 0.05);
       if (wave >= maxWave) {
         endGame(true);
       } else {
@@ -1461,15 +1699,23 @@
     pauseButton.addEventListener("click", () => {
       if (!running) return;
       isPaused = !isPaused;
+      playTone(isPaused ? 180 : 360, 0.08, "square", 0.05);
       updateControlButtons();
     });
     speedButton.addEventListener("click", () => {
       timeScale = timeScale === 1 ? 2 : timeScale === 2 ? 3 : 1;
+      playTone(280 + timeScale * 90, 0.07, "triangle", 0.045);
       updateControlButtons();
     });
     soundButton.addEventListener("click", () => {
       soundOn = !soundOn;
       soundButton.textContent = soundOn ? "Sound On" : "Sound Off";
+      if (soundOn) {
+        startMusic();
+        playChord([261.63, 329.63, 392], 0.14, "triangle", 0.06);
+      } else {
+        stopMusic();
+      }
     });
     window.addEventListener("resize", resize);
 

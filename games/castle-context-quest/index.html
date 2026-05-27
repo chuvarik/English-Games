@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Castle Defence</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #182033;
+      --paper: #fff7dc;
+      --wood: #4a2c18;
+      --blue: #2563eb;
+      --gold: #d99a20;
+      --red: #c2413b;
+      --green: #22c55e;
+      --stone: #87919f;
+      --stone-dark: #566170;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      background: linear-gradient(180deg, #24324f 0%, #6aa1bb 54%, #3f7c3a 55%, #2f5f35 100%);
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px clamp(10px, 2vw, 22px);
+      background: rgba(18, 28, 44, 0.9);
+      border-bottom: 4px solid #0f172a;
+      color: #f8fafc;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(18px, 3vw, 34px);
+      line-height: 1;
+      letter-spacing: 0;
+      text-shadow: 2px 2px 0 #0f172a;
+    }
+
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      font-weight: 900;
+      font-size: clamp(15px, 1.6vw, 21px);
+    }
+
+    .pill {
+      min-width: 108px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 10px;
+      border: 3px solid rgba(255, 255, 255, 0.34);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.12);
+      text-align: left;
+      white-space: nowrap;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.22);
+    }
+
+    .pill strong {
+      color: #fff7dc;
+      font-size: 1.08em;
+    }
+
+    .hud-icon {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      display: inline-block;
+      image-rendering: pixelated;
+    }
+
+    .icon-castle {
+      background: #87919f;
+      box-shadow: 0 -7px 0 #87919f, 8px -4px 0 #87919f, -8px -4px 0 #87919f, 0 5px 0 #566170;
+    }
+
+    .icon-wave {
+      background: #4a2c18;
+      width: 6px;
+      margin-left: 4px;
+    }
+
+    .icon-wave::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 1px;
+      width: 18px;
+      height: 13px;
+      background: #c2413b;
+      box-shadow: 0 13px 0 #d99a20;
+    }
+
+    .icon-enemies {
+      background: #4f9a3d;
+      box-shadow: 0 9px 0 #7c3aed, -6px 4px 0 #4f9a3d, 6px 4px 0 #4f9a3d;
+    }
+
+    .icon-coins {
+      border-radius: 50%;
+      background: #d99a20;
+      box-shadow: inset 0 0 0 4px #f6c453, 8px 3px 0 #b7791f;
+    }
+
+    .icon-score {
+      background: #f6c453;
+      clip-path: polygon(50% 0, 61% 34%, 98% 34%, 68% 54%, 80% 92%, 50% 68%, 20% 92%, 32% 54%, 2% 34%, 39% 34%);
+    }
+
+    .icon-best {
+      background: #d99a20;
+      clip-path: polygon(0 36%, 22% 58%, 38% 26%, 50% 62%, 64% 26%, 78% 58%, 100% 36%, 90% 100%, 10% 100%);
+    }
+
+    main {
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      touch-action: none;
+    }
+
+    .question-window {
+      position: absolute;
+      left: clamp(10px, 2vw, 18px);
+      top: clamp(10px, 2vw, 18px);
+      z-index: 4;
+      width: min(700px, calc(100vw - 20px));
+      padding: 16px;
+      border: 4px solid var(--wood);
+      border-radius: 4px;
+      background: rgba(255, 247, 220, 0.96);
+      box-shadow: 0 7px 0 rgba(0, 0, 0, 0.24);
+    }
+
+    .question-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: #5b341c;
+      font-size: 15px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .scene {
+      margin-bottom: 5px;
+      color: #5b341c;
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 800;
+      line-height: 1.18;
+    }
+
+    .sentence {
+      margin-bottom: 8px;
+      color: #111827;
+      font-size: clamp(22px, 3.2vw, 34px);
+      font-weight: 900;
+      line-height: 1.12;
+    }
+
+    .sentence strong {
+      color: var(--red);
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .choice {
+      min-height: 52px;
+      padding: 9px;
+      border: 3px solid #1e293b;
+      border-radius: 4px;
+      background: #e0f2fe;
+      color: #102236;
+      font: inherit;
+      font-size: clamp(16px, 2.1vw, 21px);
+      font-weight: 900;
+      box-shadow: 0 4px 0 #1e293b;
+      cursor: pointer;
+    }
+
+    .choice:hover,
+    .choice:focus-visible {
+      transform: translateY(-2px);
+      background: #bae6fd;
+      outline: none;
+    }
+
+    .choice:disabled {
+      opacity: 0.55;
+      cursor: default;
+      transform: none;
+    }
+
+    .status-line {
+      margin-top: 7px;
+      min-height: 20px;
+      color: #5b341c;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .game-controls {
+      position: absolute;
+      right: clamp(10px, 2vw, 18px);
+      bottom: clamp(10px, 2vw, 18px);
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      max-width: min(520px, calc(100vw - 20px));
+    }
+
+    .control-button {
+      min-height: 44px;
+      border: 3px solid #182033;
+      border-radius: 4px;
+      padding: 8px 12px;
+      background: rgba(255, 247, 220, 0.96);
+      color: #182033;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 900;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.32);
+      cursor: pointer;
+    }
+
+    .control-button.primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .control-button.warning {
+      background: #fef3c7;
+      color: #5b341c;
+    }
+
+    .panel {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 7;
+      width: min(780px, calc(100vw - 20px));
+      max-height: calc(100vh - 86px);
+      overflow: auto;
+      transform: translate(-50%, -50%);
+      padding: clamp(14px, 2.6vw, 22px);
+      border: 5px solid var(--wood);
+      border-radius: 4px;
+      background: var(--paper);
+      color: var(--ink);
+      box-shadow: 0 12px 0 rgba(0, 0, 0, 0.28);
+    }
+
+    .panel[hidden] {
+      display: none;
+    }
+
+    .panel h2 {
+      margin: 0 0 7px;
+      color: #3b2618;
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1;
+    }
+
+    .panel p {
+      margin: 7px 0;
+      font-size: clamp(15px, 2vw, 18px);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .sample {
+      margin: 12px 0;
+      padding: 10px;
+      border: 3px solid #b7791f;
+      border-radius: 4px;
+      background: #ffedd5;
+      font-size: clamp(16px, 2.5vw, 22px);
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .actions,
+    .shop-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .menu-button,
+    .home-link,
+    .upgrade-button {
+      min-height: 42px;
+      border: 3px solid #182033;
+      border-radius: 4px;
+      padding: 8px 13px;
+      background: var(--blue);
+      color: white;
+      font: inherit;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #182033;
+    }
+
+    .menu-button.secondary,
+    .home-link {
+      background: #d1d5db;
+      color: #111827;
+    }
+
+    .upgrade-button {
+      min-height: 88px;
+      background: #fef3c7;
+      color: #23180f;
+      text-align: left;
+    }
+
+    .upgrade-button:disabled {
+      opacity: 0.52;
+      cursor: default;
+    }
+
+    .shop-note {
+      margin-top: 8px;
+      min-height: 20px;
+      font-weight: 900;
+      color: #5b341c;
+    }
+
+    body.is-menu .question-window,
+    body.is-ended .question-window,
+    body.is-shop .question-window {
+      display: none;
+    }
+
+    body.is-menu .game-controls,
+    body.is-ended .game-controls,
+    body.is-shop .game-controls {
+      display: none;
+    }
+
+    @media (max-width: 720px) {
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .hud {
+        justify-content: flex-start;
+      }
+
+      .pill {
+        min-width: 88px;
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+
+      .question-window {
+        left: 8px;
+        right: 8px;
+        width: auto;
+      }
+
+      .choices,
+      .shop-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="is-menu">
+  <div class="screen">
+    <header>
+      <h1>Castle Defence</h1>
+      <div class="hud" aria-live="polite">
+        <div class="pill"><span class="hud-icon icon-castle"></span><span>Castle <strong><span id="castleHp">100</span>/<span id="castleMaxHp">100</span></strong></span></div>
+        <div class="pill"><span class="hud-icon icon-wave"></span><span>Wave <strong><span id="wave">1</span>/<span id="maxWave">20</span></strong></span></div>
+        <div class="pill"><span class="hud-icon icon-enemies"></span><span>Enemies <strong><span id="enemyCount">0</span></strong></span></div>
+        <div class="pill"><span class="hud-icon icon-coins"></span><span>Coins <strong><span id="coins">0</span></strong></span></div>
+        <div class="pill"><span class="hud-icon icon-score"></span><span>Score <strong><span id="score">0</span></strong></span></div>
+        <div class="pill"><span class="hud-icon icon-best"></span><span>Best <strong><span id="best">0</span></strong></span></div>
+      </div>
+    </header>
+
+    <main>
+      <canvas id="game" aria-label="Castle Defence game"></canvas>
+
+      <section class="question-window" aria-live="polite">
+        <div class="question-title">
+          <span>Context Spell</span>
+          <span id="boostText">Normal arrows</span>
+        </div>
+        <div class="scene" id="sceneText"></div>
+        <div class="sentence" id="sentenceText"></div>
+        <div class="choices" id="choices"></div>
+        <div class="status-line" id="answerStatus">Choose the word that fits the story.</div>
+      </section>
+
+      <div class="game-controls">
+        <button class="control-button primary" id="pauseButton" type="button">Pause</button>
+        <button class="control-button" id="speedButton" type="button">Speed 1x</button>
+        <button class="control-button warning" id="gameMenuButton" type="button">Main Menu</button>
+      </div>
+
+      <section class="panel" id="startPanel">
+        <h2>Castle Defence</h2>
+        <p>Defend the castle for 20 waves. Enemies move faster now, and every wave brings more pressure.</p>
+        <p>Insert the English word that fits the context. Correct answers randomly give fast arrows, coins, or a knight from the castle.</p>
+        <div class="sample">Context: The guard is hungry.<br>Sentence: He wants to ___ bread.<br>Answer: eat</div>
+        <div class="actions">
+          <button class="menu-button" id="startButton" type="button">Start Defense</button>
+          <button class="menu-button secondary" id="soundButton" type="button">Sound On</button>
+          <a class="home-link" href="../../index.html">Home</a>
+        </div>
+      </section>
+
+      <section class="panel" id="shopPanel" hidden>
+        <h2>Castle Shop</h2>
+        <p id="shopSummary">Wave cleared. Spend coins before the next attack.</p>
+        <div class="shop-grid" id="shopGrid"></div>
+        <div class="shop-note" id="shopNote"></div>
+        <div class="actions">
+          <button class="menu-button" id="nextWaveButton" type="button">Start Next Wave</button>
+          <button class="menu-button secondary" id="skipShopButton" type="button">Buy Nothing</button>
+          <button class="menu-button secondary" id="shopMenuButton" type="button">Main Menu</button>
+        </div>
+      </section>
+
+      <section class="panel" id="endPanel" hidden>
+        <h2 id="endTitle">The castle stands</h2>
+        <p id="endText"></p>
+        <div class="sample" id="lastAnswer"></div>
+        <div class="actions">
+          <button class="menu-button" id="againButton" type="button">Play Again</button>
+          <button class="menu-button secondary" id="menuButton" type="button">Menu</button>
+          <a class="home-link" href="../../index.html">Home</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const castleHpEl = document.getElementById("castleHp");
+    const castleMaxHpEl = document.getElementById("castleMaxHp");
+    const waveEl = document.getElementById("wave");
+    const maxWaveEl = document.getElementById("maxWave");
+    const enemyCountEl = document.getElementById("enemyCount");
+    const coinsEl = document.getElementById("coins");
+    const scoreEl = document.getElementById("score");
+    const bestEl = document.getElementById("best");
+    const boostText = document.getElementById("boostText");
+    const sceneText = document.getElementById("sceneText");
+    const sentenceText = document.getElementById("sentenceText");
+    const choicesEl = document.getElementById("choices");
+    const answerStatus = document.getElementById("answerStatus");
+    const startPanel = document.getElementById("startPanel");
+    const shopPanel = document.getElementById("shopPanel");
+    const endPanel = document.getElementById("endPanel");
+    const shopSummary = document.getElementById("shopSummary");
+    const shopGrid = document.getElementById("shopGrid");
+    const shopNote = document.getElementById("shopNote");
+    const endTitle = document.getElementById("endTitle");
+    const endText = document.getElementById("endText");
+    const lastAnswer = document.getElementById("lastAnswer");
+    const startButton = document.getElementById("startButton");
+    const soundButton = document.getElementById("soundButton");
+    const nextWaveButton = document.getElementById("nextWaveButton");
+    const skipShopButton = document.getElementById("skipShopButton");
+    const shopMenuButton = document.getElementById("shopMenuButton");
+    const pauseButton = document.getElementById("pauseButton");
+    const speedButton = document.getElementById("speedButton");
+    const gameMenuButton = document.getElementById("gameMenuButton");
+    const againButton = document.getElementById("againButton");
+    const menuButton = document.getElementById("menuButton");
+
+    const maxWave = 20;
+    const bestKey = "castleContextQuestBest";
+    const rounds = [
+      { scene: "The wall guard is hungry before breakfast.", sentence: "He wants to ___ bread.", answer: "eat", choices: ["eat", "read", "sleep"] },
+      { scene: "Rain is falling. The queen does not want wet hair.", sentence: "She takes an ___.", answer: "umbrella", choices: ["umbrella", "apple", "arrow"] },
+      { scene: "A knight is tired after a long walk.", sentence: "He needs to ___.", answer: "rest", choices: ["rest", "shout", "cook"] },
+      { scene: "The gate is open, and enemies are near.", sentence: "The guard must ___ the gate.", answer: "close", choices: ["close", "wash", "paint"] },
+      { scene: "The princess lost her small silver key.", sentence: "She looks ___ the key.", answer: "for", choices: ["for", "at", "with"] },
+      { scene: "A farmer brings fresh milk to the castle.", sentence: "The milk comes from a ___.", answer: "cow", choices: ["cow", "chair", "cloud"] },
+      { scene: "The sun is gone. The sky is dark.", sentence: "It is ___.", answer: "night", choices: ["night", "noon", "morning"] },
+      { scene: "The archer sees smoke far away.", sentence: "He looks from the high ___.", answer: "tower", choices: ["tower", "river", "plate"] },
+      { scene: "The king writes a note to his friend.", sentence: "He sends a ___.", answer: "letter", choices: ["letter", "ladder", "lemon"] },
+      { scene: "The child is cold near the stone wall.", sentence: "She puts on a ___.", answer: "coat", choices: ["coat", "crown", "cup"] },
+      { scene: "The horse is thirsty after running.", sentence: "It drinks ___.", answer: "water", choices: ["water", "sand", "paper"] },
+      { scene: "The old map shows a road to the forest.", sentence: "The knights follow the ___.", answer: "map", choices: ["map", "meal", "moon"] },
+      { scene: "The baby dragon is small and afraid.", sentence: "The knight speaks ___.", answer: "softly", choices: ["softly", "angrily", "slow"] },
+      { scene: "The castle bell rings. It is time for class.", sentence: "The students go to the ___.", answer: "room", choices: ["room", "roof", "road"] },
+      { scene: "A bag is heavy, so two guards carry it.", sentence: "The bag is not ___.", answer: "light", choices: ["light", "green", "late"] },
+      { scene: "The enemy flag is red. The castle flag is blue.", sentence: "Our flag is ___.", answer: "blue", choices: ["blue", "red", "black"] },
+      { scene: "The queen asks a question. The knight knows it.", sentence: "He can ___ the question.", answer: "answer", choices: ["answer", "open", "borrow"] },
+      { scene: "The cook made soup. It is very hot.", sentence: "The child waits before he ___ it.", answer: "eats", choices: ["eats", "throws", "draws"] },
+      { scene: "The guard is very cold at night.", sentence: "He stands near the ___.", answer: "fire", choices: ["fire", "fish", "floor"] },
+      { scene: "The page has many words and a cover.", sentence: "The girl opens a ___.", answer: "book", choices: ["book", "boot", "box"] },
+      { scene: "The table is dirty after lunch.", sentence: "The cook will ___ it.", answer: "clean", choices: ["clean", "climb", "cry"] },
+      { scene: "The knight sees a deep river.", sentence: "He uses a ___ to cross.", answer: "bridge", choices: ["bridge", "brush", "bread"] },
+      { scene: "The candle is too dark to see well.", sentence: "The room needs more ___.", answer: "light", choices: ["light", "salt", "rain"] },
+      { scene: "The boy runs all day and feels thirsty.", sentence: "He wants to ___.", answer: "drink", choices: ["drink", "draw", "drive"] },
+      { scene: "The queen has a gold crown on her head.", sentence: "The crown is ___.", answer: "gold", choices: ["gold", "cold", "old"] },
+      { scene: "The dog hears a loud bell.", sentence: "It starts to ___.", answer: "bark", choices: ["bark", "bake", "build"] },
+      { scene: "The guard cannot find the door key.", sentence: "He must ___ it.", answer: "find", choices: ["find", "fall", "feed"] },
+      { scene: "The soup has no salt.", sentence: "It tastes ___.", answer: "plain", choices: ["plain", "blue", "round"] },
+      { scene: "The knight wins the race.", sentence: "He is ___.", answer: "fast", choices: ["fast", "full", "far"] },
+      { scene: "The old shield is broken.", sentence: "The smith will ___ it.", answer: "fix", choices: ["fix", "fly", "fold"] },
+      { scene: "The horse carries the knight.", sentence: "The knight can ___.", answer: "ride", choices: ["ride", "read", "ring"] },
+      { scene: "The kitchen smells sweet.", sentence: "The cook made a ___.", answer: "cake", choices: ["cake", "cape", "cave"] },
+      { scene: "The floor is wet after rain.", sentence: "Walk ___.", answer: "slowly", choices: ["slowly", "loudly", "early"] },
+      { scene: "The guard sees enemies on the road.", sentence: "He calls for ___.", answer: "help", choices: ["help", "hope", "home"] },
+      { scene: "The window is open and cold air comes in.", sentence: "Please ___ the window.", answer: "close", choices: ["close", "carry", "count"] },
+      { scene: "The king is not sad today.", sentence: "He is ___.", answer: "happy", choices: ["happy", "heavy", "hungry"] },
+      { scene: "The small bird cannot walk to the tower.", sentence: "It can ___.", answer: "fly", choices: ["fly", "fix", "fall"] },
+      { scene: "The guard hears a sound behind him.", sentence: "He turns ___.", answer: "around", choices: ["around", "under", "inside"] },
+      { scene: "The plate has no food on it.", sentence: "The plate is ___.", answer: "empty", choices: ["empty", "early", "easy"] },
+      { scene: "The baker puts bread in the oven.", sentence: "The bread will ___.", answer: "bake", choices: ["bake", "break", "bring"] },
+      { scene: "The road goes up the hill.", sentence: "The knight walks ___.", answer: "up", choices: ["up", "off", "out"] },
+      { scene: "The cat is not outside. It is in the room.", sentence: "The cat is ___.", answer: "inside", choices: ["inside", "before", "near"] },
+      { scene: "The bag has many stones.", sentence: "It is very ___.", answer: "heavy", choices: ["heavy", "happy", "high"] },
+      { scene: "The baby is sleeping.", sentence: "Speak ___.", answer: "quietly", choices: ["quietly", "quickly", "badly"] },
+      { scene: "The knight cannot see at night.", sentence: "He needs a ___.", answer: "torch", choices: ["torch", "table", "tree"] },
+      { scene: "The garden has many flowers.", sentence: "The flowers are ___.", answer: "pretty", choices: ["pretty", "dirty", "empty"] },
+      { scene: "The guard is late for work.", sentence: "He must run ___.", answer: "quickly", choices: ["quickly", "softly", "sadly"] },
+      { scene: "The queen gives a gift to the child.", sentence: "The child says ___.", answer: "thanks", choices: ["thanks", "night", "water"] },
+      { scene: "The tower is taller than the wall.", sentence: "The tower is ___.", answer: "high", choices: ["high", "hot", "hard"] },
+      { scene: "The knight has no sword.", sentence: "He needs a ___.", answer: "sword", choices: ["sword", "spoon", "stone"] },
+      { scene: "The guard sees a small mouse.", sentence: "The mouse is ___.", answer: "small", choices: ["small", "slow", "sweet"] },
+      { scene: "The river water moves fast.", sentence: "The river is ___.", answer: "strong", choices: ["strong", "short", "soft"] },
+      { scene: "The child wants to know the time.", sentence: "She looks at the ___.", answer: "clock", choices: ["clock", "cloak", "cloud"] },
+      { scene: "The knight puts food in his bag.", sentence: "He will ___ it later.", answer: "eat", choices: ["eat", "open", "wear"] },
+      { scene: "The queen sits at the table.", sentence: "She sits on a ___.", answer: "chair", choices: ["chair", "chain", "chalk"] },
+      { scene: "The castle has no water in the well.", sentence: "The well is ___.", answer: "dry", choices: ["dry", "deep", "dark"] },
+      { scene: "The sky has many dark clouds.", sentence: "It may ___.", answer: "rain", choices: ["rain", "read", "ride"] },
+      { scene: "The guard cannot lift the big box alone.", sentence: "The box is too ___.", answer: "heavy", choices: ["heavy", "easy", "empty"] },
+      { scene: "The child makes a picture with a pencil.", sentence: "She can ___.", answer: "draw", choices: ["draw", "drink", "dream"] },
+      { scene: "The knight is first in line.", sentence: "He stands at the ___.", answer: "front", choices: ["front", "floor", "field"] },
+      { scene: "The moon is in the sky.", sentence: "It is ___.", answer: "night", choices: ["night", "lunch", "spring"] },
+      { scene: "The bread is old and hard.", sentence: "It is not ___.", answer: "fresh", choices: ["fresh", "fast", "full"] },
+      { scene: "The guard gives food to the horse.", sentence: "He will ___ the horse.", answer: "feed", choices: ["feed", "feel", "fall"] },
+      { scene: "The boy cannot reach the shelf.", sentence: "The shelf is too ___.", answer: "high", choices: ["high", "hot", "hungry"] },
+      { scene: "The castle door is locked.", sentence: "The guard needs a ___.", answer: "key", choices: ["key", "kite", "king"] },
+      { scene: "The queen is reading in silence.", sentence: "The room is ___.", answer: "quiet", choices: ["quiet", "quick", "round"] },
+      { scene: "The knight walks in the snow.", sentence: "His feet are ___.", answer: "cold", choices: ["cold", "gold", "good"] },
+      { scene: "The cook cuts carrots with a knife.", sentence: "The knife is ___.", answer: "sharp", choices: ["sharp", "short", "shy"] },
+      { scene: "The child drops a cup.", sentence: "The cup may ___.", answer: "break", choices: ["break", "bring", "brush"] },
+      { scene: "The guard sees smoke and fire.", sentence: "He feels ___.", answer: "afraid", choices: ["afraid", "awake", "alone"] },
+      { scene: "The horse wins every race.", sentence: "It is very ___.", answer: "fast", choices: ["fast", "fair", "fine"] },
+      { scene: "The king has many coins.", sentence: "He is ___.", answer: "rich", choices: ["rich", "rough", "right"] },
+      { scene: "The little girl lost her way.", sentence: "She needs a ___.", answer: "map", choices: ["map", "mop", "meal"] },
+      { scene: "The food is in the kitchen.", sentence: "The cook works ___.", answer: "there", choices: ["there", "their", "then"] },
+      { scene: "The knight is not weak.", sentence: "He is ___.", answer: "strong", choices: ["strong", "strange", "small"] },
+      { scene: "The window glass is clear.", sentence: "We can ___ outside.", answer: "see", choices: ["see", "say", "sit"] },
+      { scene: "The guard has a question.", sentence: "He will ___.", answer: "ask", choices: ["ask", "add", "act"] },
+      { scene: "The child is sick today.", sentence: "She should ___.", answer: "rest", choices: ["rest", "run", "ride"] },
+      { scene: "The queen smiles at the good news.", sentence: "She feels ___.", answer: "glad", choices: ["glad", "gray", "green"] },
+      { scene: "The knight drops his shield in the mud.", sentence: "The shield is ___.", answer: "dirty", choices: ["dirty", "dry", "deep"] },
+      { scene: "The sun is bright.", sentence: "The day is ___.", answer: "sunny", choices: ["sunny", "snowy", "sleepy"] },
+      { scene: "The guard puts arrows in a box.", sentence: "He keeps them ___.", answer: "safe", choices: ["safe", "same", "sad"] },
+      { scene: "The child has a red apple.", sentence: "The apple is ___.", answer: "red", choices: ["red", "read", "road"] },
+      { scene: "The castle wall is made of stone.", sentence: "The wall is ___.", answer: "hard", choices: ["hard", "hot", "high"] },
+      { scene: "The knight cannot hear the quiet song.", sentence: "The song is too ___.", answer: "soft", choices: ["soft", "short", "sharp"] },
+      { scene: "The queen goes to bed.", sentence: "She wants to ___.", answer: "sleep", choices: ["sleep", "sweep", "speak"] },
+      { scene: "The guard opens his eyes in the morning.", sentence: "He is ___.", answer: "awake", choices: ["awake", "away", "afraid"] },
+      { scene: "The cook needs hot water.", sentence: "He will ___ it.", answer: "boil", choices: ["boil", "build", "borrow"] },
+      { scene: "The knight leaves the castle.", sentence: "He goes ___.", answer: "outside", choices: ["outside", "under", "before"] },
+      { scene: "The king speaks to many people.", sentence: "His voice is ___.", answer: "loud", choices: ["loud", "low", "late"] },
+      { scene: "The guard sees one enemy, then many more.", sentence: "There are ___ enemies now.", answer: "many", choices: ["many", "much", "one"] },
+      { scene: "The boy has no coins.", sentence: "He is ___.", answer: "poor", choices: ["poor", "pure", "pink"] },
+      { scene: "The castle path is not wide.", sentence: "It is ___.", answer: "narrow", choices: ["narrow", "near", "new"] },
+      { scene: "The queen drinks tea after dinner.", sentence: "She drinks it from a ___.", answer: "cup", choices: ["cup", "cap", "cat"] },
+      { scene: "The guard writes with ink.", sentence: "He uses a ___.", answer: "pen", choices: ["pen", "pan", "pin"] },
+      { scene: "The child hears a funny joke.", sentence: "He starts to ___.", answer: "laugh", choices: ["laugh", "leave", "look"] },
+      { scene: "The knight is careful near the fire.", sentence: "Fire is ___.", answer: "hot", choices: ["hot", "high", "hard"] },
+      { scene: "The farmer has ten sheep.", sentence: "He counts ___.", answer: "sheep", choices: ["sheep", "ships", "shoes"] },
+      { scene: "The road is long.", sentence: "The walk takes much ___.", answer: "time", choices: ["time", "team", "tree"] },
+      { scene: "The guard cannot open the heavy gate alone.", sentence: "He needs two ___.", answer: "men", choices: ["men", "maps", "meals"] },
+      { scene: "The queen gives orders to the guards.", sentence: "The guards must ___.", answer: "listen", choices: ["listen", "lift", "laugh"] },
+      { scene: "The knight sees a star in the sky.", sentence: "The star is ___.", answer: "bright", choices: ["bright", "brown", "broken"] },
+      { scene: "The child keeps a secret.", sentence: "She does not ___ it.", answer: "tell", choices: ["tell", "take", "touch"] },
+      { scene: "The cook puts soup into bowls.", sentence: "The bowls are for ___.", answer: "dinner", choices: ["dinner", "danger", "door"] },
+      { scene: "The guard is on top of the tower.", sentence: "He looks ___.", answer: "down", choices: ["down", "done", "deep"] },
+      { scene: "The king is older than the prince.", sentence: "The prince is ___.", answer: "young", choices: ["young", "yellow", "yours"] },
+      { scene: "The queen asks for a clean dress.", sentence: "The dress must be ___.", answer: "clean", choices: ["clean", "clear", "close"] },
+      { scene: "The horse stops at the gate.", sentence: "It does not ___.", answer: "move", choices: ["move", "make", "meet"] },
+      { scene: "The guard puts armor on his body.", sentence: "Armor keeps him ___.", answer: "safe", choices: ["safe", "soft", "slow"] }
+    ];
+
+    const enemyTypes = [
+      { name: "Goblin", skin: "#4f9a3d", shirt: "#7c3aed", speed: 36, hp: 42, damage: 8, coins: 1 },
+      { name: "Orc", skin: "#3f7f45", shirt: "#8b3a2f", speed: 30, hp: 56, damage: 13, coins: 2 },
+      { name: "Raider", skin: "#5c8a43", shirt: "#9a6a2f", speed: 44, hp: 48, damage: 10, coins: 1 }
+    ];
+
+    const upgrades = [
+      { id: "maxHp", title: "Stronger Walls", desc: "+20 max castle health and repair 20 HP.", base: 32 },
+      { id: "fireRate", title: "Faster Archers", desc: "Archers shoot more often.", base: 45 },
+      { id: "damage", title: "Sharper Arrows", desc: "+6 arrow damage.", base: 48 },
+      { id: "repair", title: "Repair Gate", desc: "Restore 30 castle health.", base: 26 },
+      { id: "archers", title: "Extra Archer", desc: "Adds archer support. Every two levels adds a lane.", base: 68 },
+      { id: "range", title: "Watchtower Range", desc: "Archers can fire a little farther than half field.", base: 42 },
+      { id: "boost", title: "Longer Spell", desc: "Correct answers boost arrows longer.", base: 38 }
+    ];
+    const maxUpgradeLevel = 5;
+
+    let width = 0;
+    let height = 0;
+    let castleHp = 100;
+    let castleMaxHp = 100;
+    let wave = 1;
+    let score = 0;
+    let coins = 0;
+    let roundIndex = 0;
+    let enemies = [];
+    let arrows = [];
+    let particles = [];
+    let spawnLeft = 0;
+    let spawnTimer = 0;
+    let running = false;
+    let isPaused = false;
+    let timeScale = 1;
+    let lastTime = 0;
+    let soundOn = true;
+    let inputLocked = false;
+    let arrowTimer = 0;
+    let boostTimer = 0;
+    let audioContext = null;
+    let lastSolvedRound = rounds[0];
+    let stats = {
+      damage: 12,
+      fireRate: 1,
+      archers: 1,
+      boostDuration: 4,
+      attackRange: 0
+    };
+    let activeRound = rounds[0];
+    let activeChoices = [];
+    let lastCoinReward = 0;
+    let knights = [];
+    let knightReserve = 0;
+    let upgradeLevels = {
+      maxHp: 0,
+      fireRate: 0,
+      damage: 0,
+      repair: 0,
+      archers: 0,
+      range: 0,
+      boost: 0
+    };
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawFrame();
+    }
+
+    function bestScore() {
+      return Number(localStorage.getItem(bestKey)) || 0;
+    }
+
+    function saveBest() {
+      if (score > bestScore()) localStorage.setItem(bestKey, String(score));
+    }
+
+    function pickRandomRound() {
+      if (rounds.length < 2) return rounds[0];
+      let next = activeRound;
+      while (next === activeRound) {
+        next = rounds[Math.floor(Math.random() * rounds.length)];
+      }
+      return next;
+    }
+
+    function shuffledChoices(round) {
+      const choices = [...round.choices];
+      for (let i = choices.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [choices[i], choices[j]] = [choices[j], choices[i]];
+      }
+      if (choices[0] === round.answer && choices.length > 1) {
+        const swapIndex = 1 + Math.floor(Math.random() * (choices.length - 1));
+        [choices[0], choices[swapIndex]] = [choices[swapIndex], choices[0]];
+      }
+      return choices;
+    }
+
+    function setActiveRound(round) {
+      activeRound = round;
+      activeChoices = shuffledChoices(activeRound);
+    }
+
+    function currentRound() {
+      return activeRound;
+    }
+
+    function livingEnemies() {
+      return enemies.filter((enemy) => !enemy.dead && !enemy.escaped);
+    }
+
+    function updateControlButtons() {
+      pauseButton.textContent = isPaused ? "Resume" : "Pause";
+      speedButton.textContent = `Speed ${timeScale}x`;
+    }
+
+    function updateHud() {
+      castleHpEl.textContent = Math.max(0, Math.ceil(castleHp));
+      castleMaxHpEl.textContent = castleMaxHp;
+      waveEl.textContent = wave;
+      maxWaveEl.textContent = maxWave;
+      enemyCountEl.textContent = spawnLeft + livingEnemies().length;
+      coinsEl.textContent = coins;
+      scoreEl.textContent = score;
+      bestEl.textContent = bestScore();
+      boostText.textContent = boostTimer > 0
+        ? `Fast arrows ${Math.ceil(boostTimer)}s`
+        : knightReserve > 0
+          ? `Knight ready x${knightReserve}`
+          : "Random reward";
+
+      const round = currentRound();
+      sceneText.textContent = round.scene;
+      sentenceText.innerHTML = round.sentence.replace("___", "<strong>___</strong>");
+      choicesEl.innerHTML = activeChoices.map((choice, index) => (
+        `<button class="choice" type="button" data-choice="${choice}" ${inputLocked ? "disabled" : ""}>${index + 1}. ${choice}</button>`
+      )).join("");
+    }
+
+    function playTone(freq, duration, type) {
+      if (!soundOn) return;
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = type || "square";
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.1, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+      osc.start(now);
+      osc.stop(now + duration + 0.03);
+    }
+
+    function startGame() {
+      castleHp = 100;
+      castleMaxHp = 100;
+      wave = 1;
+      score = 0;
+      coins = 3;
+      roundIndex = 0;
+      enemies = [];
+      arrows = [];
+      particles = [];
+      knights = [];
+      knightReserve = 0;
+      lastCoinReward = 0;
+      inputLocked = false;
+      isPaused = false;
+      timeScale = 1;
+      boostTimer = 0;
+      arrowTimer = 0;
+      stats = { damage: 12, fireRate: 1, archers: 1, boostDuration: 4, attackRange: 0 };
+      upgradeLevels = { maxHp: 0, fireRate: 0, damage: 0, repair: 0, archers: 0, range: 0, boost: 0 };
+      setActiveRound(pickRandomRound());
+      lastSolvedRound = activeRound;
+      updateControlButtons();
+      startWave();
+      startPanel.hidden = true;
+      endPanel.hidden = true;
+      shopPanel.hidden = true;
+    }
+
+    function startWave() {
+      running = true;
+      isPaused = false;
+      spawnLeft = waveEnemyTotal();
+      spawnTimer = 0.2;
+      enemies = [];
+      arrows = [];
+      particles = [];
+      knights = [];
+      inputLocked = false;
+      answerStatus.textContent = "Choose the word that fits the story.";
+      document.body.classList.remove("is-menu", "is-ended", "is-shop");
+      document.body.classList.add("is-playing");
+      shopPanel.hidden = true;
+      updateControlButtons();
+      updateHud();
+      lastTime = performance.now();
+      requestAnimationFrame(loop);
+    }
+
+    function showMenu() {
+      running = false;
+      isPaused = false;
+      timeScale = 1;
+      enemies = [];
+      arrows = [];
+      particles = [];
+      knights = [];
+      spawnLeft = 0;
+      boostTimer = 0;
+      knightReserve = 0;
+      document.body.classList.remove("is-playing", "is-ended", "is-shop");
+      document.body.classList.add("is-menu");
+      startPanel.hidden = false;
+      endPanel.hidden = true;
+      shopPanel.hidden = true;
+      updateControlButtons();
+      drawFrame();
+    }
+
+    function openShop() {
+      running = false;
+      isPaused = false;
+      document.body.classList.remove("is-playing");
+      document.body.classList.add("is-shop");
+      shopPanel.hidden = false;
+      shopSummary.textContent = `Wave ${wave} cleared. Coins: ${coins}. Castle health: ${Math.ceil(castleHp)}/${castleMaxHp}.`;
+      nextWaveButton.textContent = wave >= maxWave ? "Finish Defense" : "Start Next Wave";
+      skipShopButton.textContent = wave >= maxWave ? "Finish Defense" : "Buy Nothing";
+      renderShop();
+      updateControlButtons();
+      drawFrame();
+    }
+
+    function endGame(victory) {
+      running = false;
+      isPaused = false;
+      saveBest();
+      document.body.classList.remove("is-playing", "is-shop");
+      document.body.classList.add("is-ended");
+      endPanel.hidden = false;
+      shopPanel.hidden = true;
+      endTitle.textContent = victory ? "The castle stands" : "The gate has fallen";
+      endText.textContent = `Score: ${score}. Coins: ${coins}. You reached wave ${wave} of ${maxWave}.`;
+      lastAnswer.textContent = `Last correct sentence: ${lastSolvedRound.sentence.replace("___", lastSolvedRound.answer)}`;
+      updateControlButtons();
+      updateHud();
+    }
+
+    function waveEnemyTotal() {
+      return 18 + wave * 7;
+    }
+
+    function spawnEnemy() {
+      const type = enemyTypes[(wave + spawnLeft + Math.floor(Math.random() * enemyTypes.length)) % enemyTypes.length];
+      const lane = Math.floor(Math.random() * 4);
+      const groundY = height * 0.72;
+      const maxHp = (type.hp + wave * 4 + Math.floor(wave / 5) * 6) * 2;
+      enemies.push({
+        type,
+        x: width + 70 + Math.random() * 130,
+        y: groundY - 4 - lane * 5,
+        speed: (type.speed + wave * 1.85 + Math.random() * 6) * 2,
+        maxHp,
+        hp: maxHp,
+        damage: type.damage + Math.floor(wave / 3),
+        coins: type.coins + Math.floor(wave / 8),
+        wobble: Math.random() * Math.PI * 2,
+        dead: false,
+        escaped: false
+      });
+    }
+
+    function randomCoinReward() {
+      let reward = 3 + Math.floor(wave / 2) + Math.floor(Math.random() * (4 + Math.ceil(wave / 2)));
+      if (reward === lastCoinReward) reward += 1 + Math.floor(Math.random() * 3);
+      lastCoinReward = reward;
+      return reward;
+    }
+
+    function nearestFieldEnemy() {
+      let best = null;
+      for (const enemy of enemies) {
+        if (enemy.dead || enemy.escaped) continue;
+        if (!best || enemy.x < best.x) best = enemy;
+      }
+      return best;
+    }
+
+    function summonKnight(target) {
+      const groundY = height * 0.72;
+      knights.push({
+        x: 154,
+        y: groundY - 5,
+        target,
+        speed: 180 + wave * 4,
+        done: false,
+        step: Math.random() * Math.PI * 2
+      });
+    }
+
+    function releaseReservedKnights() {
+      while (knightReserve > 0) {
+        const target = nearestFieldEnemy();
+        if (!target) return;
+        knightReserve -= 1;
+        summonKnight(target);
+      }
+    }
+
+    function giveCorrectReward() {
+      const rewardType = Math.floor(Math.random() * 3);
+      if (rewardType === 0) {
+        boostTimer = stats.boostDuration;
+        answerStatus.textContent = "Correct. Fast arrows are active.";
+        playTone(700, 0.12, "triangle");
+        playTone(920, 0.14, "triangle");
+        return;
+      }
+      if (rewardType === 1) {
+        const reward = randomCoinReward();
+        coins += reward;
+        answerStatus.textContent = `Correct. Treasury gains ${reward} coins.`;
+        playTone(520, 0.1, "square");
+        playTone(690, 0.12, "square");
+        return;
+      }
+      const target = nearestFieldEnemy();
+      if (target) {
+        summonKnight(target);
+        answerStatus.textContent = "Correct. A knight leaves the castle.";
+      } else {
+        knightReserve += 1;
+        answerStatus.textContent = "Correct. A knight is ready for the next enemy.";
+      }
+      playTone(440, 0.1, "triangle");
+      playTone(560, 0.16, "triangle");
+    }
+
+    function chooseAnswer(choice) {
+      if (!running || inputLocked || isPaused) return;
+      const round = currentRound();
+      inputLocked = true;
+      if (choice === round.answer) {
+        lastSolvedRound = round;
+        roundIndex += 1;
+        giveCorrectReward();
+      } else {
+        answerStatus.textContent = `Not this time. The answer was "${round.answer}".`;
+        castleHp -= 5;
+        playTone(150, 0.2, "sawtooth");
+        if (castleHp <= 0) {
+          endGame(false);
+          return;
+        }
+      }
+      updateHud();
+      setTimeout(() => {
+        inputLocked = false;
+        setActiveRound(pickRandomRound());
+        answerStatus.textContent = "Choose the word that fits the story.";
+        updateHud();
+      }, 900);
+    }
+
+    function nearestEnemy(laneY) {
+      let best = null;
+      const rangeLimit = Math.min(width - 90, 206 + width + stats.attackRange);
+      for (const enemy of enemies) {
+        if (enemy.dead || enemy.escaped) continue;
+        if (enemy.x > rangeLimit || enemy.x < 190) continue;
+        if (!best || enemy.x < best.x) best = enemy;
+      }
+      return best;
+    }
+
+    function fireArrows() {
+      for (let i = 0; i < stats.archers; i += 1) {
+        const target = nearestEnemy(height * 0.5);
+        if (!target) return;
+        arrows.push({
+          x: 206,
+          y: height * (0.46 + i * 0.055),
+          target,
+          progress: 0,
+          speed: boostTimer > 0 ? 4.2 : 2.25,
+          damage: stats.damage
+        });
+      }
+    }
+
+    function killEnemy(enemy) {
+      if (!enemy || enemy.dead || enemy.escaped) return;
+      enemy.dead = true;
+      coins += enemy.coins;
+      score += 35 + enemy.coins * 5 + wave * 10;
+      burst(enemy.x, enemy.y - 20, "#f6c453");
+      playTone(520, 0.08, "square");
+      updateHud();
+    }
+
+    function burst(x, y, color) {
+      for (let i = 0; i < 14; i += 1) {
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(i) * (55 + Math.random() * 70),
+          vy: Math.sin(i * 1.7) * (45 + Math.random() * 65),
+          life: 0.42,
+          color
+        });
+      }
+    }
+
+    function updateKnights(delta) {
+      releaseReservedKnights();
+      for (const knight of knights) {
+        if (!knight.target || knight.target.dead || knight.target.escaped) {
+          knight.target = nearestFieldEnemy();
+          if (!knight.target) {
+            knight.done = true;
+            continue;
+          }
+        }
+        knight.step += delta * 8;
+        knight.x += knight.speed * delta;
+        knight.y += (knight.target.y - knight.y) * Math.min(1, delta * 4);
+        if (knight.x >= knight.target.x - 18) {
+          burst(knight.target.x, knight.target.y - 28, "#f8fafc");
+          killEnemy(knight.target);
+          knight.done = true;
+        }
+      }
+      knights = knights.filter((knight) => !knight.done);
+    }
+
+    function update(delta) {
+      boostTimer = Math.max(0, boostTimer - delta);
+      spawnTimer -= delta;
+      if (spawnLeft > 0 && spawnTimer <= 0) {
+        spawnEnemy();
+        spawnLeft -= 1;
+        spawnTimer = Math.max(0.58, 1.35 - wave * 0.035);
+        updateHud();
+      }
+      updateKnights(delta);
+
+      const fireDelay = Math.max(0.42, stats.fireRate * (boostTimer > 0 ? 0.55 : 1));
+      arrowTimer -= delta;
+      if (arrowTimer <= 0) {
+        fireArrows();
+        arrowTimer = fireDelay;
+      }
+
+      for (const enemy of enemies) {
+        if (enemy.dead || enemy.escaped) continue;
+        enemy.x -= enemy.speed * delta;
+        enemy.wobble += delta * 4;
+        if (enemy.x < 188) {
+          enemy.escaped = true;
+          castleHp -= enemy.damage;
+          burst(184, enemy.y - 10, "#c2413b");
+          playTone(120, 0.18, "sawtooth");
+          updateHud();
+          if (castleHp <= 0) {
+            endGame(false);
+            return;
+          }
+        }
+      }
+
+      for (const arrow of arrows) {
+        if (!arrow.target || arrow.target.dead || arrow.target.escaped) {
+          arrow.done = true;
+          continue;
+        }
+        arrow.progress += delta * arrow.speed;
+        if (arrow.progress >= 1) {
+          arrow.target.hp -= arrow.damage;
+          burst(arrow.target.x, arrow.target.y - 34, "#d99a20");
+          if (arrow.target.hp <= 0) killEnemy(arrow.target);
+          arrow.done = true;
+        }
+      }
+      arrows = arrows.filter((arrow) => !arrow.done);
+
+      for (const particle of particles) {
+        particle.x += particle.vx * delta;
+        particle.y += particle.vy * delta;
+        particle.vy += 170 * delta;
+        particle.life -= delta;
+      }
+      particles = particles.filter((particle) => particle.life > 0);
+
+      if (spawnLeft <= 0 && livingEnemies().length === 0) {
+        if (wave >= maxWave) {
+          endGame(true);
+        } else {
+          openShop();
+        }
+      }
+    }
+
+    function upgradeCost(upgrade) {
+      return upgrade.base + upgradeLevels[upgrade.id] * 24 + Math.floor(wave * 5);
+    }
+
+    function renderShop() {
+      shopGrid.innerHTML = upgrades.map((upgrade) => {
+        const level = upgradeLevels[upgrade.id];
+        const cost = upgradeCost(upgrade);
+        const isMaxed = level >= maxUpgradeLevel;
+        return `<button class="upgrade-button" type="button" data-upgrade="${upgrade.id}" ${coins < cost || isMaxed ? "disabled" : ""}>
+          ${upgrade.title}<br>
+          Level ${level}/${maxUpgradeLevel} | ${isMaxed ? "Max level" : `Cost ${cost} coins`}<br>
+          ${upgrade.desc}
+        </button>`;
+      }).join("");
+      shopNote.textContent = "";
+    }
+
+    function buyUpgrade(id) {
+      const upgrade = upgrades.find((item) => item.id === id);
+      if (!upgrade) return;
+      if (upgradeLevels[id] >= maxUpgradeLevel) {
+        shopNote.textContent = "This upgrade is already level 5.";
+        return;
+      }
+      const cost = upgradeCost(upgrade);
+      if (coins < cost) {
+        shopNote.textContent = "Not enough coins.";
+        return;
+      }
+      coins -= cost;
+      upgradeLevels[id] += 1;
+      if (id === "maxHp") {
+        castleMaxHp += 20;
+        castleHp = Math.min(castleMaxHp, castleHp + 20);
+      }
+      if (id === "fireRate") stats.fireRate = Math.max(0.55, stats.fireRate - 0.09);
+      if (id === "damage") stats.damage += 6;
+      if (id === "repair") castleHp = Math.min(castleMaxHp, castleHp + 30);
+      if (id === "archers") stats.archers = Math.min(3, 1 + Math.floor(upgradeLevels.archers / 2));
+      if (id === "range") stats.attackRange += 45;
+      if (id === "boost") stats.boostDuration += 1;
+      shopSummary.textContent = `Upgrade bought. Coins: ${coins}. Castle health: ${Math.ceil(castleHp)}/${castleMaxHp}.`;
+      renderShop();
+      updateHud();
+    }
+
+    function continueAfterShop() {
+      if (wave >= maxWave) {
+        endGame(true);
+      } else {
+        wave += 1;
+        startWave();
+      }
+    }
+
+    function rect(x, y, w, h, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+    }
+
+    function drawBackground() {
+      const sky = ctx.createLinearGradient(0, 0, 0, height);
+      sky.addColorStop(0, "#7bb8dc");
+      sky.addColorStop(0.42, "#c8e0b0");
+      sky.addColorStop(0.58, "#a8c47d");
+      sky.addColorStop(0.59, "#5ca04a");
+      sky.addColorStop(1, "#2f5f35");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.fillStyle = "#5e7890";
+      ctx.beginPath();
+      ctx.moveTo(170, height * 0.58);
+      ctx.lineTo(360, height * 0.24);
+      ctx.lineTo(560, height * 0.58);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#7894a8";
+      ctx.beginPath();
+      ctx.moveTo(470, height * 0.58);
+      ctx.lineTo(710, height * 0.2);
+      ctx.lineTo(960, height * 0.58);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#f8fafc";
+      ctx.beginPath();
+      ctx.moveTo(360, height * 0.24);
+      ctx.lineTo(314, height * 0.33);
+      ctx.lineTo(384, height * 0.31);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(710, height * 0.2);
+      ctx.lineTo(654, height * 0.31);
+      ctx.lineTo(742, height * 0.29);
+      ctx.closePath();
+      ctx.fill();
+
+      rect(width - 140, 42, 64, 64, "#f6c453");
+      rect(width - 155, 68, 14, 14, "#f8e08b");
+      rect(width - 74, 68, 14, 14, "#f8e08b");
+      rect(width - 116, 26, 14, 14, "#f8e08b");
+      rect(width - 116, 108, 14, 14, "#f8e08b");
+
+      for (let x = 300; x < width; x += 260) {
+        rect(x, height * 0.16, 66, 16, "rgba(255,255,255,0.72)");
+        rect(x + 34, height * 0.13, 54, 18, "rgba(255,255,255,0.78)");
+        rect(x + 72, height * 0.17, 58, 14, "rgba(255,255,255,0.7)");
+      }
+
+      for (let x = 270; x < width + 80; x += 92) {
+        rect(x, height * 0.64, 44, 40, "#2f7d46");
+        rect(x + 17, height * 0.68, 12, 44, "#6b4423");
+        rect(x + 6, height * 0.62, 32, 24, "#3d9a55");
+      }
+      rect(0, height * 0.72, width, height * 0.28, "#3f7c3a");
+      ctx.fillStyle = "#8a6b43";
+      ctx.beginPath();
+      ctx.moveTo(106, height);
+      ctx.lineTo(184, height * 0.72);
+      ctx.lineTo(width, height * 0.8);
+      ctx.lineTo(width, height);
+      ctx.closePath();
+      ctx.fill();
+      rect(0, height * 0.715, width, 8, "#75b85a");
+      for (let x = 0; x < width; x += 32) rect(x, height * 0.74 + (x % 64 ? 6 : 0), 20, 6, "#6bb856");
+      for (let x = 250; x < width; x += 110) {
+        rect(x, height * 0.82 + (x % 220 ? 20 : 0), 14, 8, "#5c6b54");
+        rect(x + 34, height * 0.77 + (x % 3) * 12, 5, 5, "#f6c453");
+        rect(x + 45, height * 0.775 + (x % 2) * 14, 5, 5, "#e8796e");
+      }
+    }
+
+    function drawCastle() {
+      const baseY = height * 0.47;
+      rect(0, baseY + 62, 210, height - baseY, "#4f5b68");
+      rect(22, baseY + 10, 58, 122, "#87919f");
+      rect(126, baseY - 18, 66, 152, "#87919f");
+      rect(72, baseY + 45, 80, 92, "#9aa4b2");
+      rect(15, baseY + 132, 184, 28, "#6f7b88");
+      for (let x = 18; x < 204; x += 28) rect(x, baseY + 2 + (x % 56 ? 28 : 0), 18, 16, "#566170");
+      rect(42, baseY - 6, 18, 16, "#566170");
+      rect(62, baseY - 6, 18, 16, "#566170");
+      rect(128, baseY - 34, 18, 16, "#566170");
+      rect(150, baseY - 34, 18, 16, "#566170");
+      rect(172, baseY - 34, 18, 16, "#566170");
+      rect(24, baseY - 18, 54, 18, "#c2413b");
+      rect(132, baseY - 46, 56, 18, "#c2413b");
+      rect(81, baseY + 28, 62, 20, "#b7791f");
+      for (let x = 18; x < 188; x += 38) {
+        rect(x, baseY + 72, 20, 8, "#b7c0cc");
+        rect(x + 12, baseY + 104, 22, 8, "#6f7b88");
+        rect(x + 4, baseY + 158, 24, 8, "#9aa4b2");
+      }
+      rect(43, baseY + 44, 12, 30, "#162033");
+      rect(151, baseY + 18, 12, 30, "#162033");
+      rect(169, baseY + 18, 12, 30, "#162033");
+      rect(95, baseY + 62, 14, 28, "#162033");
+      rect(76, baseY + 94, 56, 92, "#5b321d");
+      rect(100, baseY + 94, 8, 92, "#3b2418");
+      rect(91, baseY + 128, 8, 8, "#d99a20");
+      rect(76, baseY + 94, 56, 7, "#7b4a25");
+      rect(76, baseY + 181, 56, 8, "#3b2418");
+      rect(180, baseY - 62, 8, 48, "#4a2c18");
+      rect(188, baseY - 62, 48, 26, "#c2413b");
+      rect(188, baseY - 36, 48, 7, "#9f2f2a");
+      rect(5, baseY + 48, 24, 92, "#697786");
+      rect(184, baseY + 42, 20, 96, "#697786");
+      const hpWidth = Math.max(0, 170 * castleHp / castleMaxHp);
+      rect(20, baseY + 206, 174, 16, "#1f2937");
+      rect(22, baseY + 208, hpWidth, 12, castleHp > castleMaxHp * 0.35 ? "#22c55e" : "#ef4444");
+    }
+
+    function drawEnemy(enemy) {
+      if (enemy.dead || enemy.escaped) return;
+      const bob = Math.sin(enemy.wobble) * 4;
+      const x = enemy.x;
+      const y = enemy.y + bob;
+      rect(x - 24, y + 34, 52, 8, "rgba(0,0,0,0.22)");
+      rect(x - 20, y - 50, 40, 34, "#203020");
+      rect(x - 18, y - 48, 36, 30, enemy.type.skin);
+      rect(x - 24, y - 38, 10, 10, enemy.type.skin);
+      rect(x + 14, y - 38, 10, 10, enemy.type.skin);
+      rect(x - 15, y - 46, 8, 6, "#6bb856");
+      rect(x + 5, y - 46, 8, 6, "#6bb856");
+      rect(x - 16, y - 18, 32, 36, "#1f2937");
+      rect(x - 14, y - 16, 28, 32, enemy.type.shirt);
+      rect(x - 13, y - 9, 26, 6, "#d99a20");
+      rect(x - 31, y - 13, 14, 30, "#203020");
+      rect(x + 17, y - 13, 14, 30, "#203020");
+      rect(x - 28, y - 12, 12, 26, enemy.type.skin);
+      rect(x + 16, y - 12, 12, 26, enemy.type.skin);
+      rect(x - 14, y + 16, 12, 24, "#1f2937");
+      rect(x + 2, y + 16, 12, 24, "#1f2937");
+      rect(x - 16, y + 35, 16, 6, "#111827");
+      rect(x + 2, y + 35, 16, 6, "#111827");
+      rect(x - 11, y - 38, 6, 6, "#111827");
+      rect(x + 6, y - 38, 6, 6, "#111827");
+      rect(x - 9, y - 27, 20, 5, "#111827");
+      rect(x - 5, y - 22, 4, 5, "#f8fafc");
+      rect(x + 4, y - 22, 4, 5, "#f8fafc");
+      rect(x - 32, y - 2, 18, 20, "#5b321d");
+      rect(x - 29, y + 1, 12, 14, "#87919f");
+      rect(x + 23, y - 26, 5, 47, "#4a2c18");
+      rect(x + 18, y - 31, 15, 8, "#87919f");
+      if (enemy.type.name === "Orc") {
+        rect(x - 25, y - 57, 10, 16, "#f8fafc");
+        rect(x + 15, y - 57, 10, 16, "#f8fafc");
+        rect(x - 21, y - 61, 42, 8, "#5b321d");
+        rect(x + 24, y - 20, 18, 34, "#7c2d12");
+        rect(x + 29, y - 16, 8, 26, "#d99a20");
+      }
+      if (enemy.type.name === "Raider") {
+        rect(x - 21, y - 56, 42, 8, "#9a6a2f");
+        rect(x - 16, y - 63, 32, 8, "#c2413b");
+        rect(x + 24, y - 8, 26, 5, "#d1d5db");
+        rect(x + 46, y - 11, 8, 11, "#d99a20");
+      }
+      if (enemy.type.name === "Goblin") {
+        rect(x - 22, y - 56, 12, 10, "#4f9a3d");
+        rect(x + 10, y - 56, 12, 10, "#4f9a3d");
+        rect(x - 2, y - 59, 5, 12, "#7c3aed");
+      }
+      const hpRatio = Math.max(0, enemy.hp / enemy.maxHp);
+      rect(x - 24, y - 66, 48, 7, "#111827");
+      rect(x - 22, y - 64, 44 * hpRatio, 3, hpRatio > 0.4 ? "#22c55e" : "#ef4444");
+    }
+
+    function drawKnight(knight) {
+      const bob = Math.sin(knight.step) * 3;
+      const x = knight.x;
+      const y = knight.y + bob;
+      rect(x - 18, y + 22, 46, 7, "rgba(0,0,0,0.22)");
+      rect(x - 14, y - 54, 28, 24, "#9ca3af");
+      rect(x - 12, y - 52, 24, 22, "#d1d5db");
+      rect(x - 8, y - 56, 16, 5, "#f8fafc");
+      rect(x - 12, y - 30, 24, 32, "#1e3a8a");
+      rect(x - 10, y - 30, 20, 30, "#2563eb");
+      rect(x - 20, y - 25, 10, 24, "#9ca3af");
+      rect(x + 10, y - 25, 10, 24, "#9ca3af");
+      rect(x - 21, y - 14, 13, 20, "#d99a20");
+      rect(x - 18, y - 11, 7, 14, "#f6c453");
+      rect(x - 10, y, 8, 24, "#343434");
+      rect(x + 2, y, 8, 24, "#343434");
+      rect(x - 12, y + 22, 13, 5, "#111827");
+      rect(x + 2, y + 22, 13, 5, "#111827");
+      rect(x - 7, y - 46, 5, 5, "#111827");
+      rect(x + 3, y - 46, 5, 5, "#111827");
+      rect(x + 18, y - 35, 36, 5, "#f8fafc");
+      rect(x + 48, y - 38, 8, 11, "#d99a20");
+      rect(x - 12, y - 62, 24, 7, "#f6c453");
+    }
+
+    function drawArrows() {
+      for (const arrow of arrows) {
+        if (!arrow.target) continue;
+        const t = Math.min(1, arrow.progress);
+        const x = arrow.x + (arrow.target.x - arrow.x) * t;
+        const y = arrow.y + (arrow.target.y - 38 - arrow.y) * t - Math.sin(t * Math.PI) * 70;
+        rect(x - 18, y - 2, 34, 4, "#4a2c18");
+        rect(x + 12, y - 5, 10, 10, "#d99a20");
+      }
+    }
+
+    function drawParticles() {
+      for (const particle of particles) rect(particle.x, particle.y, 6, 6, particle.color);
+    }
+
+    function drawFrame() {
+      drawBackground();
+      drawCastle();
+      for (const enemy of enemies) drawEnemy(enemy);
+      for (const knight of knights) drawKnight(knight);
+      drawArrows();
+      drawParticles();
+    }
+
+    function loop(time) {
+      if (!running) return;
+      const rawDelta = Math.min((time - lastTime) / 1000, 0.033);
+      lastTime = time;
+      if (!isPaused) update(rawDelta * timeScale);
+      drawFrame();
+      requestAnimationFrame(loop);
+    }
+
+    choicesEl.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-choice]");
+      if (button) chooseAnswer(button.dataset.choice);
+    });
+
+    shopGrid.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-upgrade]");
+      if (button) buyUpgrade(button.dataset.upgrade);
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.code === "Space" && document.body.classList.contains("is-menu")) startGame();
+      if (["Digit1", "Digit2", "Digit3"].includes(event.code) && running) {
+        const index = Number(event.code.replace("Digit", "")) - 1;
+        chooseAnswer(activeChoices[index]);
+      }
+    });
+
+    startButton.addEventListener("click", startGame);
+    nextWaveButton.addEventListener("click", continueAfterShop);
+    skipShopButton.addEventListener("click", continueAfterShop);
+    shopMenuButton.addEventListener("click", showMenu);
+    againButton.addEventListener("click", startGame);
+    menuButton.addEventListener("click", showMenu);
+    gameMenuButton.addEventListener("click", showMenu);
+    pauseButton.addEventListener("click", () => {
+      if (!running) return;
+      isPaused = !isPaused;
+      updateControlButtons();
+    });
+    speedButton.addEventListener("click", () => {
+      timeScale = timeScale === 1 ? 2 : timeScale === 2 ? 3 : 1;
+      updateControlButtons();
+    });
+    soundButton.addEventListener("click", () => {
+      soundOn = !soundOn;
+      soundButton.textContent = soundOn ? "Sound On" : "Sound Off";
+    });
+    window.addEventListener("resize", resize);
+
+    resize();
+    maxWaveEl.textContent = maxWave;
+    updateControlButtons();
+    updateHud();
+    drawFrame();
+  </script>
+</body>
+</html>

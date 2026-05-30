@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alphabet Quest</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #192238;
+      --paper: #fff8e8;
+      --sky: #8fd3ff;
+      --grass: #43b46b;
+      --sun: #ffd45c;
+      --coral: #ff6f61;
+      --blue: #276ef1;
+      --violet: #7b61ff;
+      --shadow: rgba(25, 34, 56, 0.2);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(143, 211, 255, 0.92), rgba(255, 248, 232, 0.92) 58%, rgba(67, 180, 107, 0.28)),
+        radial-gradient(circle at 18% 18%, #fff7a6 0 76px, transparent 77px),
+        linear-gradient(135deg, #dff5ff, #fff7da);
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: min(1120px, calc(100% - 32px));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 24px 0 32px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 18px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .back-link,
+    .icon-btn,
+    .answer-btn,
+    .primary-btn,
+    .mode-btn {
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 14px;
+      color: #ffffff;
+      background: #23304f;
+      text-decoration: none;
+      box-shadow: 0 5px 0 #121a2f;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 6vw, 72px);
+      line-height: 0.95;
+      text-align: center;
+      letter-spacing: 0;
+    }
+
+    .scorebar {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      font-weight: 900;
+    }
+
+    .score-pill {
+      min-width: 82px;
+      padding: 8px 10px;
+      border: 3px solid #23304f;
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+      box-shadow: 0 4px 0 rgba(18, 26, 47, 0.18);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.78fr) minmax(320px, 1.22fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .side-panel,
+    .game-panel {
+      border: 4px solid #23304f;
+      border-radius: 8px;
+      background: rgba(255, 248, 232, 0.94);
+      box-shadow: 0 10px 0 rgba(35, 48, 79, 0.2), 0 20px 42px var(--shadow);
+    }
+
+    .side-panel {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mode-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mode-btn {
+      min-height: 42px;
+      color: #23304f;
+      background: #e9f5ff;
+      border: 3px solid #23304f;
+      box-shadow: 0 4px 0 rgba(35, 48, 79, 0.2);
+    }
+
+    .mode-btn.is-active {
+      color: #ffffff;
+      background: var(--blue);
+    }
+
+    .alphabet-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .letter-tile {
+      aspect-ratio: 1;
+      border: 3px solid #23304f;
+      border-radius: 8px;
+      background: #ffffff;
+      color: #23304f;
+      font-size: clamp(20px, 4vw, 28px);
+      font-weight: 900;
+      box-shadow: 0 4px 0 rgba(35, 48, 79, 0.18);
+    }
+
+    .letter-tile.is-mastered {
+      background: #baf7c8;
+    }
+
+    .letter-tile.is-current {
+      background: var(--sun);
+      transform: translateY(-2px);
+    }
+
+    .game-panel {
+      position: relative;
+      min-height: 620px;
+      overflow: hidden;
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 18px;
+    }
+
+    .skyline {
+      position: absolute;
+      inset: auto 0 0;
+      height: 142px;
+      background:
+        linear-gradient(180deg, transparent 0 40%, rgba(67, 180, 107, 0.95) 41%),
+        repeating-linear-gradient(90deg, transparent 0 70px, rgba(35, 48, 79, 0.08) 70px 72px);
+      pointer-events: none;
+    }
+
+    .prompt-row {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .prompt {
+      min-height: 88px;
+      padding: 14px 16px;
+      border: 3px solid #23304f;
+      border-radius: 8px;
+      background: #ffffff;
+      font-size: clamp(18px, 3vw, 28px);
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 72px;
+      height: 72px;
+      border: 3px solid #23304f;
+      background: var(--sun);
+      color: #23304f;
+      font-size: 30px;
+      box-shadow: 0 6px 0 rgba(35, 48, 79, 0.24);
+    }
+
+    .stage {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      min-height: 280px;
+    }
+
+    .big-letter {
+      width: min(330px, 74vw);
+      aspect-ratio: 1;
+      border: 8px solid #23304f;
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 212, 92, 0.72)),
+        var(--sun);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 14px 0 rgba(35, 48, 79, 0.24);
+      user-select: none;
+    }
+
+    .big-letter .alphabet-picture {
+      width: 100%;
+      height: 100%;
+      display: block;
+      margin: auto;
+      border: 0;
+      border-radius: 8px;
+      box-shadow: none;
+      object-fit: contain;
+    }
+
+    .word-card {
+      position: relative;
+      z-index: 1;
+      width: min(330px, 74vw);
+      padding: 12px 16px;
+      border: 4px solid #23304f;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 8px 0 rgba(35, 48, 79, 0.2);
+      text-align: center;
+    }
+
+    .word-card .word {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 900;
+      color: #23304f;
+    }
+
+    .answers {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .answer-btn {
+      min-height: 76px;
+      border: 4px solid #23304f;
+      background: #ffffff;
+      color: #23304f;
+      font-size: clamp(28px, 5vw, 48px);
+      box-shadow: 0 7px 0 rgba(35, 48, 79, 0.25);
+    }
+
+    .answer-btn:hover,
+    .icon-btn:hover,
+    .mode-btn:hover,
+    .primary-btn:hover,
+    .back-link:hover {
+      transform: translateY(-2px);
+    }
+
+    .answer-btn.is-correct {
+      background: #92f2a6;
+    }
+
+    .answer-btn.is-wrong {
+      background: #ffaca5;
+    }
+
+    .feedback {
+      position: relative;
+      z-index: 1;
+      min-height: 54px;
+      padding: 12px 14px;
+      border: 3px solid #23304f;
+      border-radius: 8px;
+      background: #ffffff;
+      font-size: clamp(18px, 3vw, 24px);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .primary-btn {
+      min-height: 48px;
+      border: 3px solid #23304f;
+      background: var(--coral);
+      color: #ffffff;
+      box-shadow: 0 5px 0 #a93c34;
+    }
+
+    @media (max-width: 840px) {
+      header,
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .scorebar {
+        justify-content: center;
+      }
+
+      .alphabet-grid {
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .game-panel {
+        min-height: 600px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        width: min(100% - 20px, 1120px);
+        padding-top: 12px;
+      }
+
+      .alphabet-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .prompt-row,
+      .answers {
+        grid-template-columns: 1fr;
+      }
+
+      .icon-btn {
+        width: 100%;
+        height: 56px;
+      }
+
+      .word-card {
+        width: min(100%, 280px);
+      }
+
+      .stage {
+        justify-content: center;
+      }
+    }
+
+    /* The Kingdom visual pass */
+    :root {
+      --ink: #35200c;
+      --paper: #fff4ca;
+      --paper-light: #fffbe7;
+      --wood: #714016;
+      --wood-dark: #46220c;
+      --gold: #ffd057;
+      --gold-dark: #b66a11;
+      --red: #d94635;
+      --green: #2ea55f;
+      --blue: #2b7fc2;
+      --shadow: rgba(58, 30, 8, 0.28);
+    }
+
+    body {
+      padding: 18px;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(121, 205, 255, 0.42), rgba(255, 230, 138, 0.55)),
+        url("../../assets/images/kingdom-hero.png");
+      background-size: cover;
+      background-position: center top;
+    }
+
+    .app {
+      width: min(1180px, 100%);
+      min-height: calc(100vh - 36px);
+      padding: clamp(14px, 2.4vw, 28px);
+      border: 4px solid var(--wood);
+      border-radius: 8px;
+      background: rgba(255, 244, 202, 0.97);
+      box-shadow: 0 14px 0 #7e4b1d, 0 24px 70px var(--shadow);
+      gap: 18px;
+    }
+
+    .app::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(113, 64, 22, 0.06) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(176, 99, 28, 0.05));
+      background-size: 44px 44px, auto;
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      padding-bottom: 4px;
+    }
+
+    h1 {
+      color: #4a250d;
+      text-shadow: 0 3px 0 #ffd86a;
+    }
+
+    .back-link,
+    .mode-btn,
+    .icon-btn,
+    .answer-btn,
+    .primary-btn {
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      color: #351a08;
+      background: linear-gradient(180deg, #fff1a7, #ffc54a);
+      box-shadow: 0 5px 0 #8c5017;
+    }
+
+    .back-link {
+      color: #351a08;
+      text-decoration: none;
+    }
+
+    .score-pill,
+    .side-panel,
+    .game-panel,
+    .prompt,
+    .word-card,
+    .feedback {
+      border-color: var(--wood);
+      color: var(--ink);
+      background: rgba(255, 251, 231, 0.95);
+      box-shadow: 0 7px 0 rgba(113, 64, 22, 0.34);
+    }
+
+    .side-panel,
+    .game-panel {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 251, 231, 0.96), rgba(255, 232, 164, 0.9)),
+        var(--paper);
+    }
+
+    .side-panel::before,
+    .game-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(255, 255, 255, 0.4), transparent 22%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(154, 85, 20, 0.08));
+    }
+
+    .side-panel > *,
+    .game-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .game-panel > .skyline {
+      position: absolute;
+      z-index: 0;
+    }
+
+    .mode-btn {
+      background: linear-gradient(180deg, #fffbe6, #f5d889);
+    }
+
+    .mode-btn.is-active {
+      color: white;
+      background: linear-gradient(180deg, #5bb5ff, #236eb5);
+      box-shadow: 0 5px 0 #154574;
+    }
+
+    .letter-tile {
+      border-color: var(--wood);
+      color: #4a250d;
+      background: #fffdf1;
+      box-shadow: 0 4px 0 rgba(113, 64, 22, 0.3);
+    }
+
+    .letter-tile.is-mastered {
+      background: #dff8df;
+    }
+
+    .letter-tile.is-current {
+      background: var(--gold);
+      box-shadow: 0 6px 0 #8c5017;
+    }
+
+    .prompt {
+      background: linear-gradient(180deg, #fffbe7, #ffe9a4);
+      font-size: clamp(18px, 2.8vw, 27px);
+    }
+
+    .icon-btn,
+    .primary-btn {
+      background: linear-gradient(180deg, #57d983, #23854c);
+      color: white;
+      box-shadow: 0 5px 0 #155b34;
+    }
+
+    .big-letter {
+      border-color: var(--wood);
+      background:
+        radial-gradient(circle at 70% 22%, rgba(255, 255, 255, 0.5), transparent 20%),
+        linear-gradient(145deg, #fff7c4, #ffd057);
+      box-shadow: 0 12px 0 rgba(113, 64, 22, 0.38);
+    }
+
+    .word-card .word {
+      color: #4a250d;
+      text-shadow: 0 2px 0 #ffe18a;
+    }
+
+    .answer-btn {
+      color: #4a250d;
+      background: #fffdf1;
+      box-shadow: 0 7px 0 rgba(113, 64, 22, 0.3);
+    }
+
+    .answer-btn.is-correct {
+      background: #dff8df;
+    }
+
+    .answer-btn.is-wrong {
+      background: #ffd8d3;
+    }
+
+    .skyline {
+      height: 150px;
+      background:
+        linear-gradient(180deg, transparent 0 38%, rgba(93, 188, 90, 0.94) 39%),
+        repeating-linear-gradient(90deg, rgba(113, 64, 22, 0.18) 0 3px, transparent 3px 74px);
+    }
+
+    .skyline::before {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 36px;
+      height: 72px;
+      border: 5px solid #7a4317;
+      border-bottom: 0;
+      border-radius: 60px 60px 0 0;
+      background: rgba(185, 106, 38, 0.82);
+      box-shadow:
+        74px -32px 0 -16px rgba(185, 106, 38, 0.82),
+        148px -54px 0 -25px rgba(185, 106, 38, 0.82),
+        inset 0 10px rgba(255, 255, 255, 0.18);
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 10px;
+      }
+
+      .app {
+        width: 100%;
+        min-height: calc(100vh - 20px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <a class="back-link" href="../../index.html">The Kingdom</a>
+      <h1>Alphabet Quest</h1>
+      <div class="scorebar" aria-label="Game score">
+        <div class="score-pill">Score <span id="score">0</span></div>
+        <div class="score-pill">Streak <span id="streak">0</span></div>
+      </div>
+    </header>
+
+    <main>
+      <aside class="side-panel" aria-label="Alphabet progress">
+        <div class="mode-row">
+          <button class="mode-btn is-active" id="upperMode" type="button">ABC</button>
+          <button class="mode-btn" id="lowerMode" type="button">abc</button>
+        </div>
+        <div class="alphabet-grid" id="alphabetGrid"></div>
+        <button class="primary-btn" id="resetBtn" type="button">New Round</button>
+      </aside>
+
+      <section class="game-panel" aria-label="Alphabet game">
+        <div class="prompt-row">
+          <div class="prompt" id="prompt">Find the letter the word starts with.</div>
+          <button class="icon-btn" id="soundBtn" type="button" title="Hear the letter" aria-label="Hear the letter">Sound</button>
+        </div>
+
+        <div class="stage">
+          <div class="big-letter" id="bigLetter" aria-hidden="true"></div>
+          <div class="word-card">
+            <div class="word" id="word">Apple</div>
+          </div>
+        </div>
+
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback">Listen, look, and choose.</div>
+        <div class="skyline"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const alphabet = [
+      { letter: "A", word: "apple" },
+      { letter: "B", word: "bear" },
+      { letter: "C", word: "castle" },
+      { letter: "D", word: "dragon" },
+      { letter: "E", word: "elf" },
+      { letter: "F", word: "fairy" },
+      { letter: "G", word: "guard" },
+      { letter: "H", word: "hero" },
+      { letter: "I", word: "island" },
+      { letter: "J", word: "jump" },
+      { letter: "K", word: "king" },
+      { letter: "L", word: "lake" },
+      { letter: "M", word: "magic" },
+      { letter: "N", word: "near" },
+      { letter: "O", word: "orange" },
+      { letter: "P", word: "princess" },
+      { letter: "Q", word: "queen" },
+      { letter: "R", word: "river" },
+      { letter: "S", word: "sword" },
+      { letter: "T", word: "tree" },
+      { letter: "U", word: "under" },
+      { letter: "V", word: "village" },
+      { letter: "W", word: "wizard" },
+      { letter: "X", word: "xylophone" },
+      { letter: "Y", word: "yellow" },
+      { letter: "Z", word: "zoo" }
+    ];
+
+    const grid = document.getElementById("alphabetGrid");
+    const bigLetter = document.getElementById("bigLetter");
+    const word = document.getElementById("word");
+    const answers = document.getElementById("answers");
+    const feedback = document.getElementById("feedback");
+    const scoreEl = document.getElementById("score");
+    const streakEl = document.getElementById("streak");
+    const soundBtn = document.getElementById("soundBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const upperMode = document.getElementById("upperMode");
+    const lowerMode = document.getElementById("lowerMode");
+
+    let current = alphabet[0];
+    let score = 0;
+    let streak = 0;
+    let lowercaseMode = false;
+    const mastered = new Set();
+
+    function shuffle(items) {
+      return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function displayLetter(letter) {
+      return lowercaseMode ? letter.toLowerCase() : letter;
+    }
+
+    function displayWord(value) {
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function renderVocabPicture(item) {
+      bigLetter.innerHTML = "";
+      const image = document.createElement("img");
+      image.className = "alphabet-picture";
+      image.src = `../../assets/images/vocab/alphabet-crops/${item.word}.png`;
+      image.alt = displayWord(item.word);
+      image.draggable = false;
+      image.addEventListener("error", () => {
+        bigLetter.textContent = displayLetter(item.letter);
+      }, { once: true });
+      bigLetter.appendChild(image);
+    }
+
+    function pictureSvg(type) {
+      const iconType = String(type).toLowerCase();
+      const nudges = {
+        bear: "translate(0 3)",
+        castle: "translate(0 -2)",
+        dragon: "translate(-3 4) scale(.96)",
+        fairy: "translate(0 3) scale(.96)",
+        guard: "translate(0 -1)",
+        hero: "translate(0 2)",
+        island: "translate(0 -1)",
+        lake: "translate(0 1)",
+        magic: "translate(1 0) scale(.96)",
+        princess: "translate(0 1)",
+        river: "translate(-1 0)",
+        sword: "translate(2 0) scale(.96)",
+        tree: "translate(0 1)",
+        umbrella: "translate(0 3)",
+        village: "translate(0 1)",
+        wizard: "translate(0 1)",
+        xylophone: "translate(0 2)",
+        yacht: "translate(0 1)",
+        zoo: "translate(0 1)"
+      };
+      const icons = {
+        apple: '<circle cx="96" cy="104" r="52" fill="#e94040"/><circle cx="73" cy="92" r="31" fill="#ff5a55"/><path d="M96 49c9-22 30-25 46-12-12 8-28 12-46 12z" fill="#41a85f"/><path d="M95 57c-4-13 0-24 9-33" stroke="#6b3b19" stroke-width="8" stroke-linecap="round"/>',
+        bear: '<circle cx="60" cy="62" r="26" fill="#8b5a35"/><circle cx="132" cy="62" r="26" fill="#8b5a35"/><circle cx="96" cy="103" r="66" fill="#a66b3f"/><circle cx="96" cy="120" r="30" fill="#f2c99c"/><circle cx="74" cy="96" r="7" fill="#192238"/><circle cx="118" cy="96" r="7" fill="#192238"/><path d="M90 112h12l-6 8z" fill="#192238"/><path d="M80 132q16 14 32 0" fill="none" stroke="#192238" stroke-width="6" stroke-linecap="round"/>',
+        castle: '<rect x="38" y="80" width="116" height="72" fill="#8497b8"/><rect x="52" y="58" width="24" height="94" fill="#6f82a4"/><rect x="116" y="58" width="24" height="94" fill="#6f82a4"/><path d="M52 58V38h10v12h8V38h10v20M116 58V38h10v12h8V38h10v20M38 80V58h12v12h12V58h12v22" fill="#6f82a4"/><path d="M82 152v-36q14-18 28 0v36z" fill="#52351f"/><rect x="84" y="83" width="24" height="20" fill="#d9f2ff"/>',
+        dragon: '<path d="M48 125q18-70 82-62q38 6 37 45q-2 37-50 42H66q-24-1-18-25z" fill="#43b46b"/><path d="M123 62l26-28 6 37" fill="#2e8c51"/><path d="M148 74l27-17-9 33" fill="#2e8c51"/><circle cx="138" cy="91" r="7" fill="#192238"/><path d="M62 117q-29-2-35 27q27-10 55 4" fill="#2e8c51"/><path d="M159 111q20-4 27 11q-17 3-27-11z" fill="#ffcc59"/>',
+        elf: '<path d="M46 89l-31-22 33-5M146 89l31-22-33-5" fill="#f2c99c"/><circle cx="96" cy="98" r="53" fill="#ffd5a6"/><path d="M50 78q45-76 92 0z" fill="#2fa36b"/><circle cx="77" cy="98" r="6" fill="#192238"/><circle cx="115" cy="98" r="6" fill="#192238"/><path d="M78 121q18 12 36 0" fill="none" stroke="#192238" stroke-width="6" stroke-linecap="round"/>',
+        fairy: '<path d="M82 88C22 40 18 132 78 116M110 88c60-48 64 44 4 28" fill="#b8ecff"/><circle cx="96" cy="78" r="20" fill="#ffd5a6"/><path d="M86 98h20l13 58H73z" fill="#ff82c5"/><path d="M96 22l8 18 19 2-14 13 4 19-17-10-17 10 4-19-14-13 19-2z" fill="#ffd45c"/>',
+        guard: '<path d="M96 28l60 22v44c0 40-22 62-60 78-38-16-60-38-60-78V50z" fill="#276ef1"/><path d="M96 43v110" stroke="#ffffff" stroke-width="8"/><path d="M60 89h72" stroke="#ffffff" stroke-width="8"/><circle cx="96" cy="88" r="18" fill="#ffd45c"/>',
+        hero: '<path d="M70 86L35 163l61-28 61 28-35-77z" fill="#d9354b"/><circle cx="96" cy="63" r="28" fill="#ffd5a6"/><path d="M64 49q32-35 64 0q-28-8-64 0z" fill="#7a4a2a"/><path d="M72 91h48l18 60H54z" fill="#276ef1"/><path d="M80 112h32" stroke="#ffd45c" stroke-width="8" stroke-linecap="round"/>',
+        island: '<path d="M31 138q65-34 130 0q-65 34-130 0z" fill="#f2c56b"/><path d="M94 132q11-59 47-82" stroke="#7a4a2a" stroke-width="10" stroke-linecap="round"/><path d="M137 54q-39-11-58 23q38 5 58-23zM140 54q17 35 55 29q-20-33-55-29z" fill="#43b46b"/><path d="M21 158q31 18 62 0t62 0t42 0" fill="none" stroke="#276ef1" stroke-width="9" stroke-linecap="round"/>',
+        jewel: '<path d="M54 54h84l28 42-70 72-70-72z" fill="#61d5ff"/><path d="M54 54l42 114 42-114M26 96h140" stroke="#ffffff" stroke-width="7" opacity=".75"/><path d="M75 54l-21 42M117 54l21 42" stroke="#276ef1" stroke-width="6" opacity=".55"/>',
+        king: '<circle cx="96" cy="92" r="46" fill="#ffd5a6"/><path d="M45 67l16-38 27 28 20-35 23 35 26-28 17 38z" fill="#ffd45c"/><circle cx="73" cy="93" r="6" fill="#192238"/><circle cx="119" cy="93" r="6" fill="#192238"/><path d="M76 116q20 14 40 0" fill="none" stroke="#192238" stroke-width="6" stroke-linecap="round"/><rect x="62" y="136" width="68" height="26" rx="12" fill="#7b61ff"/>',
+        lake: '<path d="M30 120q33-24 66 0t66 0v40H30z" fill="#61d5ff"/><path d="M20 92q38 20 76 0t76 0" fill="none" stroke="#276ef1" stroke-width="9" stroke-linecap="round"/><path d="M28 135q34 16 68 0t68 0" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/><circle cx="143" cy="50" r="24" fill="#ffd45c"/>',
+        magic: '<path d="M53 145L143 55" stroke="#7a4a2a" stroke-width="12" stroke-linecap="round"/><path d="M138 24l8 18 19 2-14 13 4 19-17-10-17 10 4-19-14-13 19-2z" fill="#ffd45c"/><circle cx="65" cy="58" r="8" fill="#7b61ff"/><circle cx="35" cy="86" r="6" fill="#ff6f61"/><circle cx="139" cy="128" r="7" fill="#276ef1"/>',
+        nest: '<path d="M38 112q58-50 116 0q-5 48-58 48t-58-48z" fill="#9a6a3b"/><path d="M44 112q52 24 104 0M56 132q40 19 80 0" fill="none" stroke="#6b3b19" stroke-width="7" stroke-linecap="round"/><ellipse cx="79" cy="100" rx="22" ry="30" fill="#b8ecff"/><ellipse cx="113" cy="100" rx="22" ry="30" fill="#fff3a6"/>',
+        orange: '<circle cx="96" cy="103" r="58" fill="#ff8c22"/><circle cx="76" cy="83" r="24" fill="#ffa83e"/><path d="M98 45c11-22 34-22 48-7-13 8-29 10-48 7z" fill="#43b46b"/><path d="M96 51c-3-12 2-23 12-31" stroke="#6b3b19" stroke-width="7" stroke-linecap="round"/>',
+        princess: '<circle cx="96" cy="82" r="39" fill="#ffd5a6"/><path d="M54 68q42-42 84 0q-10-42-42-42t-42 42z" fill="#7a4a2a"/><path d="M49 154l47-62 47 62z" fill="#ff82c5"/><path d="M57 49l12-25 16 18 11-27 13 27 16-18 11 25z" fill="#ffd45c"/><circle cx="82" cy="83" r="5" fill="#192238"/><circle cx="110" cy="83" r="5" fill="#192238"/>',
+        queen: '<circle cx="96" cy="84" r="42" fill="#ffd5a6"/><path d="M45 56l17-32 25 22 9-35 12 35 24-22 16 32z" fill="#ffd45c"/><path d="M58 151q38-49 76 0z" fill="#7b61ff"/><circle cx="80" cy="85" r="5" fill="#192238"/><circle cx="112" cy="85" r="5" fill="#192238"/><path d="M77 106q19 12 38 0" fill="none" stroke="#192238" stroke-width="6" stroke-linecap="round"/>',
+        river: '<path d="M82 22q54 33 16 72t19 76" fill="none" stroke="#276ef1" stroke-width="42" stroke-linecap="round"/><path d="M82 22q54 33 16 72t19 76" fill="none" stroke="#8fd3ff" stroke-width="26" stroke-linecap="round"/><path d="M18 148h156" stroke="#43b46b" stroke-width="18" stroke-linecap="round"/><path d="M28 50h50M121 74h43" stroke="#43b46b" stroke-width="14" stroke-linecap="round"/>',
+        sword: '<path d="M110 28l30 30-66 71-17-17z" fill="#cbd5e1"/><path d="M49 107l36 36" stroke="#276ef1" stroke-width="12" stroke-linecap="round"/><path d="M47 146l-13 20M47 146l18 18" stroke="#7a4a2a" stroke-width="10" stroke-linecap="round"/><path d="M119 39l10 10" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>',
+        tree: '<rect x="86" y="96" width="22" height="66" rx="8" fill="#7a4a2a"/><circle cx="73" cy="83" r="35" fill="#43b46b"/><circle cx="113" cy="74" r="42" fill="#2fa36b"/><circle cx="122" cy="108" r="33" fill="#4dc878"/><path d="M42 164h108" stroke="#43b46b" stroke-width="14" stroke-linecap="round"/>',
+        umbrella: '<path d="M32 94q64-72 128 0z" fill="#ff6f61"/><path d="M96 94v52q0 24 24 11" fill="none" stroke="#23304f" stroke-width="9" stroke-linecap="round"/><path d="M32 94q16-19 32 0q16-19 32 0q16-19 32 0q16-19 32 0" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>',
+        village: '<rect x="32" y="101" width="50" height="52" fill="#ffcc59"/><path d="M24 101l33-29 33 29z" fill="#d9354b"/><rect x="110" y="88" width="54" height="65" fill="#b8ecff"/><path d="M101 88l36-32 36 32z" fill="#7b61ff"/><rect x="52" y="124" width="14" height="29" fill="#52351f"/><rect x="130" y="119" width="16" height="34" fill="#52351f"/><path d="M20 160h152" stroke="#43b46b" stroke-width="12" stroke-linecap="round"/>',
+        wizard: '<circle cx="96" cy="86" r="37" fill="#ffd5a6"/><path d="M55 68l41-54 41 54z" fill="#7b61ff"/><path d="M66 126h60l22 39H44z" fill="#276ef1"/><path d="M69 106q27 29 54 0" fill="#ffffff"/><circle cx="82" cy="83" r="5" fill="#192238"/><circle cx="110" cy="83" r="5" fill="#192238"/><path d="M139 45l9 16 18 3-13 12 3 18-17-8-16 8 3-18-13-12 18-3z" fill="#ffd45c"/>',
+        xylophone: '<rect x="40" y="126" width="112" height="12" rx="6" fill="#7a4a2a"/><rect x="42" y="58" width="22" height="78" rx="7" fill="#ff6f61"/><rect x="70" y="66" width="22" height="70" rx="7" fill="#ffd45c"/><rect x="98" y="74" width="22" height="62" rx="7" fill="#43b46b"/><rect x="126" y="82" width="22" height="54" rx="7" fill="#276ef1"/><path d="M46 45l104 92M146 45L42 137" stroke="#23304f" stroke-width="7" stroke-linecap="round"/>',
+        yacht: '<path d="M45 133h104q-13 31-71 31q-27 0-33-31z" fill="#276ef1"/><path d="M91 31v100" stroke="#23304f" stroke-width="8" stroke-linecap="round"/><path d="M98 42q43 29 43 79H98z" fill="#ffffff"/><path d="M84 56q-30 27-34 65h34z" fill="#ff6f61"/><path d="M24 169q33-15 66 0t66 0" fill="none" stroke="#61d5ff" stroke-width="9" stroke-linecap="round"/>',
+        zoo: '<rect x="34" y="64" width="124" height="88" rx="10" fill="#fff8e8" stroke="#23304f" stroke-width="8"/><path d="M58 64V36h76v28" fill="none" stroke="#23304f" stroke-width="8" stroke-linecap="round"/><path d="M60 92h72M60 123h72M78 70v82M114 70v82" stroke="#23304f" stroke-width="6"/><circle cx="76" cy="108" r="9" fill="#ff8c22"/><circle cx="116" cy="108" r="9" fill="#43b46b"/>'
+      };
+
+      return `<svg class="alphabet-picture" viewBox="0 0 192 192" role="img" aria-label="${iconType} picture" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="176" height="176" rx="28" fill="#fff8e8"/><circle cx="154" cy="38" r="18" fill="#ffd45c" opacity=".75"/><g transform="${nudges[iconType] || "translate(0 0)"}">${icons[iconType] || icons.apple}</g></svg>`;
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) {
+        feedback.textContent = "Sound is not available in this browser.";
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.78;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function renderGrid() {
+      grid.innerHTML = "";
+      alphabet.forEach((item) => {
+        const tile = document.createElement("button");
+        tile.className = "letter-tile";
+        tile.type = "button";
+        tile.textContent = displayLetter(item.letter);
+        tile.setAttribute("aria-label", `${displayWord(item.word)} starts with ${item.letter}`);
+        tile.classList.toggle("is-mastered", mastered.has(item.letter));
+        tile.classList.toggle("is-current", item.letter === current.letter);
+        tile.addEventListener("click", () => {
+          current = item;
+          renderQuestion();
+          speak(`${item.letter}. ${displayWord(item.word)}.`);
+        });
+        grid.appendChild(tile);
+      });
+    }
+
+    function chooseQuestion() {
+      const remaining = alphabet.filter((item) => !mastered.has(item.letter));
+      current = shuffle(remaining.length ? remaining : alphabet)[0];
+    }
+
+    function renderQuestion() {
+      renderVocabPicture(current);
+      word.textContent = displayWord(current.word);
+      feedback.textContent = `Which letter does "${displayWord(current.word)}" start with?`;
+
+      const wrongLetters = shuffle(alphabet.filter((item) => item.letter !== current.letter)).slice(0, 2);
+      const choices = shuffle([current, ...wrongLetters]);
+
+      answers.innerHTML = "";
+      choices.forEach((item) => {
+        const button = document.createElement("button");
+        button.className = "answer-btn";
+        button.type = "button";
+        button.textContent = displayLetter(item.letter);
+        button.addEventListener("click", () => checkAnswer(item.letter, button));
+        answers.appendChild(button);
+      });
+
+      renderGrid();
+    }
+
+    function checkAnswer(letter, button) {
+      const allButtons = answers.querySelectorAll(".answer-btn");
+      allButtons.forEach((answer) => {
+        answer.disabled = true;
+      });
+
+      if (letter === current.letter) {
+        score += 10;
+        streak += 1;
+        mastered.add(current.letter);
+        button.classList.add("is-correct");
+        feedback.textContent = `Great! ${displayWord(current.word)} starts with ${current.letter}.`;
+        speak(`${displayWord(current.word)} starts with ${current.letter}.`);
+      } else {
+        streak = 0;
+        button.classList.add("is-wrong");
+        feedback.textContent = `Try again: ${displayWord(current.word)} starts with ${current.letter}.`;
+        speak(`${displayWord(current.word)} starts with ${current.letter}.`);
+      }
+
+      scoreEl.textContent = score;
+      streakEl.textContent = streak;
+      renderGrid();
+
+      window.setTimeout(() => {
+        chooseQuestion();
+        renderQuestion();
+      }, 1300);
+    }
+
+    function setMode(useLowercase) {
+      lowercaseMode = useLowercase;
+      upperMode.classList.toggle("is-active", !lowercaseMode);
+      lowerMode.classList.toggle("is-active", lowercaseMode);
+      renderQuestion();
+    }
+
+    soundBtn.addEventListener("click", () => speak(`${current.letter}. ${displayWord(current.word)}.`));
+    resetBtn.addEventListener("click", () => {
+      score = 0;
+      streak = 0;
+      mastered.clear();
+      scoreEl.textContent = score;
+      streakEl.textContent = streak;
+      chooseQuestion();
+      renderQuestion();
+      speak("New round. Find the letter.");
+    });
+    upperMode.addEventListener("click", () => setMode(false));
+    lowerMode.addEventListener("click", () => setMode(true));
+
+    chooseQuestion();
+    renderQuestion();
+  </script>
+</body>
+</html>

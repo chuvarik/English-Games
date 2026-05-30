@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Castle Defence</title>
+  <title>Kingdom Castle Defence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -200,6 +201,10 @@
 
     .choice {
       min-height: 52px;
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      align-items: center;
+      gap: 7px;
       padding: 9px;
       border: 3px solid #1e293b;
       border-radius: 4px;
@@ -210,6 +215,27 @@
       font-weight: 900;
       box-shadow: 0 4px 0 #1e293b;
       cursor: pointer;
+    }
+
+    .castleChoiceIcon {
+      display: inline-block;
+      width: 32px;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      background-color: #fff4c7;
+      box-shadow: 0 2px 0 rgba(72, 34, 9, 0.24);
+    }
+
+    .choice-number {
+      min-width: 22px;
+      text-align: right;
+      color: #7c2d12;
+    }
+
+    .choice-word {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      text-align: left;
     }
 
     .choice:hover,
@@ -538,14 +564,100 @@
       }
     }
   </style>
+  <style>
+    :root {
+      --ink: #3a1d08;
+      --paper: #fff4c7;
+      --wood: #744019;
+      --blue: #1f75bd;
+      --gold: #ffd766;
+      --red: #d94030;
+      --green: #25a55f;
+      --stone: #9f9b8d;
+      --stone-dark: #6c6658;
+    }
+
+    body {
+      background:
+        linear-gradient(180deg, rgba(126, 200, 242, 0.42), rgba(255, 230, 142, 0.48)),
+        url("../../assets/images/kingdom-hero.png");
+      background-size: cover;
+      background-position: center top;
+      font-family: "Fredoka", "Trebuchet MS", Arial, sans-serif;
+    }
+
+    header {
+      background: rgba(111, 55, 17, 0.88);
+      border-bottom-color: #ffd766;
+    }
+
+    h1,
+    .panel h2 {
+      font-family: "Cinzel", serif;
+      color: #fff1a8;
+      text-shadow: 0 3px 0 #8b2a18, 0 8px 18px rgba(41, 16, 4, 0.34);
+    }
+
+    .pill,
+    .question-window,
+    .panel,
+    .menu-rule,
+    .sample,
+    .upgrade-button {
+      border-radius: 8px;
+    }
+
+    .pill {
+      border-color: rgba(255, 229, 106, 0.72);
+      background: rgba(255, 244, 199, 0.16);
+    }
+
+    .question-window,
+    .panel {
+      background: rgba(255, 244, 199, 0.96);
+      box-shadow: 0 12px 0 #7d4a1c, 0 24px 70px rgba(73, 36, 10, 0.32);
+    }
+
+    .choice,
+    .control-button,
+    .menu-button,
+    .home-link,
+    .upgrade-button {
+      border-color: #6f2a14;
+      border-radius: 8px;
+      box-shadow: 0 5px 0 #9b4317;
+    }
+
+    .choice,
+    .control-button.warning,
+    .menu-button.secondary,
+    .home-link,
+    .upgrade-button,
+    .sample,
+    .menu-rule {
+      background: #fff0b8;
+      color: #5b210c;
+    }
+
+    .choice:hover,
+    .choice:focus-visible {
+      background: #fff7cf;
+    }
+
+    .control-button.primary,
+    .menu-button {
+      background: linear-gradient(180deg, #ffe56a, #ff9f24);
+      color: #542008;
+    }
+  </style>
 </head>
 <body class="is-menu">
   <div class="screen">
     <header>
-      <h1>Castle Defence</h1>
+      <h1>Kingdom Castle Defence</h1>
       <div class="hud" aria-live="polite">
         <div class="pill"><span class="hud-icon icon-castle"></span><span>Castle <strong><span id="castleHp">100</span>/<span id="castleMaxHp">100</span></strong></span></div>
-        <div class="pill"><span class="hud-icon icon-wave"></span><span>Wave <strong><span id="wave">1</span>/<span id="maxWave">20</span></strong></span></div>
+        <div class="pill"><span class="hud-icon icon-wave"></span><span>Wave <strong><span id="wave">1</span>/<span id="maxWave">10</span></strong></span></div>
         <div class="pill"><span class="hud-icon icon-enemies"></span><span>Enemies <strong><span id="enemyCount">0</span></strong></span></div>
         <div class="pill"><span class="hud-icon icon-coins"></span><span>Coins <strong><span id="coins">0</span></strong></span></div>
         <div class="pill"><span class="hud-icon icon-score"></span><span>Score <strong><span id="score">0</span></strong></span></div>
@@ -578,7 +690,7 @@
         <div class="menu-rules">
           <div class="menu-rule">
             <span class="pixel-icon icon-shield"></span>
-            <span><strong>Defend</strong>Protect the castle through 20 waves. Archers shoot when enemies enter range.</span>
+            <span><strong>Defend</strong>Protect the castle through 10 waves. Archers shoot when enemies enter range.</span>
           </div>
           <div class="menu-rule">
             <span class="pixel-icon icon-book"></span>
@@ -597,7 +709,7 @@
         <div class="actions">
           <button class="menu-button" id="startButton" type="button">Start Defense</button>
           <button class="menu-button secondary" id="soundButton" type="button">Sound On</button>
-          <a class="home-link" href="../../index.html">Home</a>
+          <a class="home-link" href="../../index.html">The Kingdom</a>
         </div>
       </section>
 
@@ -620,12 +732,13 @@
         <div class="actions">
           <button class="menu-button" id="againButton" type="button">Play Again</button>
           <button class="menu-button secondary" id="menuButton" type="button">Menu</button>
-          <a class="home-link" href="../../index.html">Home</a>
+          <a class="home-link" href="../../index.html">The Kingdom</a>
         </div>
       </section>
     </main>
   </div>
 
+  <script src="../../assets/images/vocab/vocab-icons.js"></script>
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
@@ -662,124 +775,621 @@
     const againButton = document.getElementById("againButton");
     const menuButton = document.getElementById("menuButton");
 
-    const maxWave = 20;
+    const maxWave = 10;
     const bestKey = "castleContextQuestBest";
-    const rounds = [
-      { scene: "The wall guard is hungry before breakfast.", sentence: "He wants to ___ bread.", answer: "eat", choices: ["eat", "read", "sleep"] },
-      { scene: "Rain is falling. The queen does not want wet hair.", sentence: "She takes an ___.", answer: "umbrella", choices: ["umbrella", "apple", "arrow"] },
-      { scene: "A knight is tired after a long walk.", sentence: "He needs to ___.", answer: "rest", choices: ["rest", "shout", "cook"] },
-      { scene: "The gate is open, and enemies are near.", sentence: "The guard must ___ the gate.", answer: "close", choices: ["close", "wash", "paint"] },
-      { scene: "The princess lost her small silver key.", sentence: "She looks ___ the key.", answer: "for", choices: ["for", "at", "with"] },
-      { scene: "A farmer brings fresh milk to the castle.", sentence: "The milk comes from a ___.", answer: "cow", choices: ["cow", "chair", "cloud"] },
-      { scene: "The sun is gone. The sky is dark.", sentence: "It is ___.", answer: "night", choices: ["night", "noon", "morning"] },
-      { scene: "The archer sees smoke far away.", sentence: "He looks from the high ___.", answer: "tower", choices: ["tower", "river", "plate"] },
-      { scene: "The king writes a note to his friend.", sentence: "He sends a ___.", answer: "letter", choices: ["letter", "ladder", "lemon"] },
-      { scene: "The child is cold near the stone wall.", sentence: "She puts on a ___.", answer: "coat", choices: ["coat", "crown", "cup"] },
-      { scene: "The horse is thirsty after running.", sentence: "It drinks ___.", answer: "water", choices: ["water", "sand", "paper"] },
-      { scene: "The old map shows a road to the forest.", sentence: "The knights follow the ___.", answer: "map", choices: ["map", "meal", "moon"] },
-      { scene: "The baby dragon is small and afraid.", sentence: "The knight speaks ___.", answer: "softly", choices: ["softly", "angrily", "slow"] },
-      { scene: "The castle bell rings. It is time for class.", sentence: "The students go to the ___.", answer: "room", choices: ["room", "roof", "road"] },
-      { scene: "A bag is heavy, so two guards carry it.", sentence: "The bag is not ___.", answer: "light", choices: ["light", "green", "late"] },
-      { scene: "The enemy flag is red. The castle flag is blue.", sentence: "Our flag is ___.", answer: "blue", choices: ["blue", "red", "black"] },
-      { scene: "The queen asks a question. The knight knows it.", sentence: "He can ___ the question.", answer: "answer", choices: ["answer", "open", "borrow"] },
-      { scene: "The cook made soup. It is very hot.", sentence: "The child waits before he ___ it.", answer: "eats", choices: ["eats", "throws", "draws"] },
-      { scene: "The guard is very cold at night.", sentence: "He stands near the ___.", answer: "fire", choices: ["fire", "fish", "floor"] },
-      { scene: "The page has many words and a cover.", sentence: "The girl opens a ___.", answer: "book", choices: ["book", "boot", "box"] },
-      { scene: "The table is dirty after lunch.", sentence: "The cook will ___ it.", answer: "clean", choices: ["clean", "climb", "cry"] },
-      { scene: "The knight sees a deep river.", sentence: "He uses a ___ to cross.", answer: "bridge", choices: ["bridge", "brush", "bread"] },
-      { scene: "The candle is too dark to see well.", sentence: "The room needs more ___.", answer: "light", choices: ["light", "salt", "rain"] },
-      { scene: "The boy runs all day and feels thirsty.", sentence: "He wants to ___.", answer: "drink", choices: ["drink", "draw", "drive"] },
-      { scene: "The queen has a gold crown on her head.", sentence: "The crown is ___.", answer: "gold", choices: ["gold", "cold", "old"] },
-      { scene: "The dog hears a loud bell.", sentence: "It starts to ___.", answer: "bark", choices: ["bark", "bake", "build"] },
-      { scene: "The guard cannot find the door key.", sentence: "He must ___ it.", answer: "find", choices: ["find", "fall", "feed"] },
-      { scene: "The soup has no salt.", sentence: "It tastes ___.", answer: "plain", choices: ["plain", "blue", "round"] },
-      { scene: "The knight wins the race.", sentence: "He is ___.", answer: "fast", choices: ["fast", "full", "far"] },
-      { scene: "The old shield is broken.", sentence: "The smith will ___ it.", answer: "fix", choices: ["fix", "fly", "fold"] },
-      { scene: "The horse carries the knight.", sentence: "The knight can ___.", answer: "ride", choices: ["ride", "read", "ring"] },
-      { scene: "The kitchen smells sweet.", sentence: "The cook made a ___.", answer: "cake", choices: ["cake", "cape", "cave"] },
-      { scene: "The floor is wet after rain.", sentence: "Walk ___.", answer: "slowly", choices: ["slowly", "loudly", "early"] },
-      { scene: "The guard sees enemies on the road.", sentence: "He calls for ___.", answer: "help", choices: ["help", "hope", "home"] },
-      { scene: "The window is open and cold air comes in.", sentence: "Please ___ the window.", answer: "close", choices: ["close", "carry", "count"] },
-      { scene: "The king is not sad today.", sentence: "He is ___.", answer: "happy", choices: ["happy", "heavy", "hungry"] },
-      { scene: "The small bird cannot walk to the tower.", sentence: "It can ___.", answer: "fly", choices: ["fly", "fix", "fall"] },
-      { scene: "The guard hears a sound behind him.", sentence: "He turns ___.", answer: "around", choices: ["around", "under", "inside"] },
-      { scene: "The plate has no food on it.", sentence: "The plate is ___.", answer: "empty", choices: ["empty", "early", "easy"] },
-      { scene: "The baker puts bread in the oven.", sentence: "The bread will ___.", answer: "bake", choices: ["bake", "break", "bring"] },
-      { scene: "The road goes up the hill.", sentence: "The knight walks ___.", answer: "up", choices: ["up", "off", "out"] },
-      { scene: "The cat is not outside. It is in the room.", sentence: "The cat is ___.", answer: "inside", choices: ["inside", "before", "near"] },
-      { scene: "The bag has many stones.", sentence: "It is very ___.", answer: "heavy", choices: ["heavy", "happy", "high"] },
-      { scene: "The baby is sleeping.", sentence: "Speak ___.", answer: "quietly", choices: ["quietly", "quickly", "badly"] },
-      { scene: "The knight cannot see at night.", sentence: "He needs a ___.", answer: "torch", choices: ["torch", "table", "tree"] },
-      { scene: "The garden has many flowers.", sentence: "The flowers are ___.", answer: "pretty", choices: ["pretty", "dirty", "empty"] },
-      { scene: "The guard is late for work.", sentence: "He must run ___.", answer: "quickly", choices: ["quickly", "softly", "sadly"] },
-      { scene: "The queen gives a gift to the child.", sentence: "The child says ___.", answer: "thanks", choices: ["thanks", "night", "water"] },
-      { scene: "The tower is taller than the wall.", sentence: "The tower is ___.", answer: "high", choices: ["high", "hot", "hard"] },
-      { scene: "The knight has no sword.", sentence: "He needs a ___.", answer: "sword", choices: ["sword", "spoon", "stone"] },
-      { scene: "The guard sees a small mouse.", sentence: "The mouse is ___.", answer: "small", choices: ["small", "slow", "sweet"] },
-      { scene: "The river water moves fast.", sentence: "The river is ___.", answer: "strong", choices: ["strong", "short", "soft"] },
-      { scene: "The child wants to know the time.", sentence: "She looks at the ___.", answer: "clock", choices: ["clock", "cloak", "cloud"] },
-      { scene: "The knight puts food in his bag.", sentence: "He will ___ it later.", answer: "eat", choices: ["eat", "open", "wear"] },
-      { scene: "The queen sits at the table.", sentence: "She sits on a ___.", answer: "chair", choices: ["chair", "chain", "chalk"] },
-      { scene: "The castle has no water in the well.", sentence: "The well is ___.", answer: "dry", choices: ["dry", "deep", "dark"] },
-      { scene: "The sky has many dark clouds.", sentence: "It may ___.", answer: "rain", choices: ["rain", "read", "ride"] },
-      { scene: "The guard cannot lift the big box alone.", sentence: "The box is too ___.", answer: "heavy", choices: ["heavy", "easy", "empty"] },
-      { scene: "The child makes a picture with a pencil.", sentence: "She can ___.", answer: "draw", choices: ["draw", "drink", "dream"] },
-      { scene: "The knight is first in line.", sentence: "He stands at the ___.", answer: "front", choices: ["front", "floor", "field"] },
-      { scene: "The moon is in the sky.", sentence: "It is ___.", answer: "night", choices: ["night", "lunch", "spring"] },
-      { scene: "The bread is old and hard.", sentence: "It is not ___.", answer: "fresh", choices: ["fresh", "fast", "full"] },
-      { scene: "The guard gives food to the horse.", sentence: "He will ___ the horse.", answer: "feed", choices: ["feed", "feel", "fall"] },
-      { scene: "The boy cannot reach the shelf.", sentence: "The shelf is too ___.", answer: "high", choices: ["high", "hot", "hungry"] },
-      { scene: "The castle door is locked.", sentence: "The guard needs a ___.", answer: "key", choices: ["key", "kite", "king"] },
-      { scene: "The queen is reading in silence.", sentence: "The room is ___.", answer: "quiet", choices: ["quiet", "quick", "round"] },
-      { scene: "The knight walks in the snow.", sentence: "His feet are ___.", answer: "cold", choices: ["cold", "gold", "good"] },
-      { scene: "The cook cuts carrots with a knife.", sentence: "The knife is ___.", answer: "sharp", choices: ["sharp", "short", "shy"] },
-      { scene: "The child drops a cup.", sentence: "The cup may ___.", answer: "break", choices: ["break", "bring", "brush"] },
-      { scene: "The guard sees smoke and fire.", sentence: "He feels ___.", answer: "afraid", choices: ["afraid", "awake", "alone"] },
-      { scene: "The horse wins every race.", sentence: "It is very ___.", answer: "fast", choices: ["fast", "fair", "fine"] },
-      { scene: "The king has many coins.", sentence: "He is ___.", answer: "rich", choices: ["rich", "rough", "right"] },
-      { scene: "The little girl lost her way.", sentence: "She needs a ___.", answer: "map", choices: ["map", "mop", "meal"] },
-      { scene: "The food is in the kitchen.", sentence: "The cook works ___.", answer: "there", choices: ["there", "their", "then"] },
-      { scene: "The knight is not weak.", sentence: "He is ___.", answer: "strong", choices: ["strong", "strange", "small"] },
-      { scene: "The window glass is clear.", sentence: "We can ___ outside.", answer: "see", choices: ["see", "say", "sit"] },
-      { scene: "The guard has a question.", sentence: "He will ___.", answer: "ask", choices: ["ask", "add", "act"] },
-      { scene: "The child is sick today.", sentence: "She should ___.", answer: "rest", choices: ["rest", "run", "ride"] },
-      { scene: "The queen smiles at the good news.", sentence: "She feels ___.", answer: "glad", choices: ["glad", "gray", "green"] },
-      { scene: "The knight drops his shield in the mud.", sentence: "The shield is ___.", answer: "dirty", choices: ["dirty", "dry", "deep"] },
-      { scene: "The sun is bright.", sentence: "The day is ___.", answer: "sunny", choices: ["sunny", "snowy", "sleepy"] },
-      { scene: "The guard puts arrows in a box.", sentence: "He keeps them ___.", answer: "safe", choices: ["safe", "same", "sad"] },
-      { scene: "The child has a red apple.", sentence: "The apple is ___.", answer: "red", choices: ["red", "read", "road"] },
-      { scene: "The castle wall is made of stone.", sentence: "The wall is ___.", answer: "hard", choices: ["hard", "hot", "high"] },
-      { scene: "The knight cannot hear the quiet song.", sentence: "The song is too ___.", answer: "soft", choices: ["soft", "short", "sharp"] },
-      { scene: "The queen goes to bed.", sentence: "She wants to ___.", answer: "sleep", choices: ["sleep", "sweep", "speak"] },
-      { scene: "The guard opens his eyes in the morning.", sentence: "He is ___.", answer: "awake", choices: ["awake", "away", "afraid"] },
-      { scene: "The cook needs hot water.", sentence: "He will ___ it.", answer: "boil", choices: ["boil", "build", "borrow"] },
-      { scene: "The knight leaves the castle.", sentence: "He goes ___.", answer: "outside", choices: ["outside", "under", "before"] },
-      { scene: "The king speaks to many people.", sentence: "His voice is ___.", answer: "loud", choices: ["loud", "low", "late"] },
-      { scene: "The guard sees one enemy, then many more.", sentence: "There are ___ enemies now.", answer: "many", choices: ["many", "much", "one"] },
-      { scene: "The boy has no coins.", sentence: "He is ___.", answer: "poor", choices: ["poor", "pure", "pink"] },
-      { scene: "The castle path is not wide.", sentence: "It is ___.", answer: "narrow", choices: ["narrow", "near", "new"] },
-      { scene: "The queen drinks tea after dinner.", sentence: "She drinks it from a ___.", answer: "cup", choices: ["cup", "cap", "cat"] },
-      { scene: "The guard writes with ink.", sentence: "He uses a ___.", answer: "pen", choices: ["pen", "pan", "pin"] },
-      { scene: "The child hears a funny joke.", sentence: "He starts to ___.", answer: "laugh", choices: ["laugh", "leave", "look"] },
-      { scene: "The knight is careful near the fire.", sentence: "Fire is ___.", answer: "hot", choices: ["hot", "high", "hard"] },
-      { scene: "The farmer has ten sheep.", sentence: "He counts ___.", answer: "sheep", choices: ["sheep", "ships", "shoes"] },
-      { scene: "The road is long.", sentence: "The walk takes much ___.", answer: "time", choices: ["time", "team", "tree"] },
-      { scene: "The guard cannot open the heavy gate alone.", sentence: "He needs two ___.", answer: "men", choices: ["men", "maps", "meals"] },
-      { scene: "The queen gives orders to the guards.", sentence: "The guards must ___.", answer: "listen", choices: ["listen", "lift", "laugh"] },
-      { scene: "The knight sees a star in the sky.", sentence: "The star is ___.", answer: "bright", choices: ["bright", "brown", "broken"] },
-      { scene: "The child keeps a secret.", sentence: "She does not ___ it.", answer: "tell", choices: ["tell", "take", "touch"] },
-      { scene: "The cook puts soup into bowls.", sentence: "The bowls are for ___.", answer: "dinner", choices: ["dinner", "danger", "door"] },
-      { scene: "The guard is on top of the tower.", sentence: "He looks ___.", answer: "down", choices: ["down", "done", "deep"] },
-      { scene: "The king is older than the prince.", sentence: "The prince is ___.", answer: "young", choices: ["young", "yellow", "yours"] },
-      { scene: "The queen asks for a clean dress.", sentence: "The dress must be ___.", answer: "clean", choices: ["clean", "clear", "close"] },
-      { scene: "The horse stops at the gate.", sentence: "It does not ___.", answer: "move", choices: ["move", "make", "meet"] },
-      { scene: "The guard puts armor on his body.", sentence: "Armor keeps him ___.", answer: "safe", choices: ["safe", "soft", "slow"] }
+    let rounds = [
+      {
+            "scene": "guard near castle",
+            "sentence": "the guard can ___ the chest.",
+            "answer": "open",
+            "choices": [
+                  "open",
+                  "close",
+                  "sleep"
+            ]
+      },
+      {
+            "scene": "queen in tower",
+            "sentence": "the queen is ___.",
+            "answer": "happy",
+            "choices": [
+                  "happy",
+                  "dark",
+                  "under"
+            ]
+      },
+      {
+            "scene": "king with gold",
+            "sentence": "the king can ___ gold.",
+            "answer": "take",
+            "choices": [
+                  "take",
+                  "drink",
+                  "behind"
+            ]
+      },
+      {
+            "scene": "knight with sword",
+            "sentence": "the knight can ___.",
+            "answer": "fight",
+            "choices": [
+                  "fight",
+                  "tea",
+                  "purple"
+            ]
+      },
+      {
+            "scene": "wizard near portal",
+            "sentence": "the wizard can ___ a portal.",
+            "answer": "open",
+            "choices": [
+                  "open",
+                  "eat",
+                  "blue"
+            ]
+      },
+      {
+            "scene": "witch with potion",
+            "sentence": "the witch can ___ a potion.",
+            "answer": "take",
+            "choices": [
+                  "take",
+                  "run",
+                  "white"
+            ]
+      },
+      {
+            "scene": "dragon in cave",
+            "sentence": "the dragon is ___.",
+            "answer": "big",
+            "choices": [
+                  "big",
+                  "under",
+                  "book"
+            ]
+      },
+      {
+            "scene": "elf and fairy",
+            "sentence": "the elf and fairy can ___.",
+            "answer": "help",
+            "choices": [
+                  "help",
+                  "coin",
+                  "black"
+            ]
+      },
+      {
+            "scene": "giant near mountain",
+            "sentence": "the giant is ___.",
+            "answer": "strong",
+            "choices": [
+                  "strong",
+                  "near",
+                  "milk"
+            ]
+      },
+      {
+            "scene": "hero with shield",
+            "sentence": "the hero can ___ the shield.",
+            "answer": "take",
+            "choices": [
+                  "take",
+                  "sleep",
+                  "pink"
+            ]
+      },
+      {
+            "scene": "villager on farm",
+            "sentence": "the villager is on the ___.",
+            "answer": "farm",
+            "choices": [
+                  "farm",
+                  "sword",
+                  "can"
+            ]
+      },
+      {
+            "scene": "pirate and captain",
+            "sentence": "the pirate and captain can ___.",
+            "answer": "fight",
+            "choices": [
+                  "fight",
+                  "cake",
+                  "there"
+            ]
+      },
+      {
+            "scene": "monster in dungeon",
+            "sentence": "the monster is in the ___.",
+            "answer": "dungeon",
+            "choices": [
+                  "dungeon",
+                  "apple",
+                  "you"
+            ]
+      },
+      {
+            "scene": "friend near bridge",
+            "sentence": "my friend is near the ___.",
+            "answer": "bridge",
+            "choices": [
+                  "bridge",
+                  "egg",
+                  "but"
+            ]
+      },
+      {
+            "scene": "cat under table",
+            "sentence": "the cat is ___ the table.",
+            "answer": "under",
+            "choices": [
+                  "under",
+                  "cannot",
+                  "green"
+            ]
+      },
+      {
+            "scene": "dog near tree",
+            "sentence": "the dog is ___ the tree.",
+            "answer": "near",
+            "choices": [
+                  "near",
+                  "and",
+                  "meat"
+            ]
+      },
+      {
+            "scene": "bird on tower",
+            "sentence": "the bird can ___.",
+            "answer": "fly",
+            "choices": [
+                  "fly",
+                  "cheese",
+                  "brown"
+            ]
+      },
+      {
+            "scene": "horse on road",
+            "sentence": "the horse can ___.",
+            "answer": "run",
+            "choices": [
+                  "run",
+                  "soup",
+                  "that"
+            ]
+      },
+      {
+            "scene": "fish in lake",
+            "sentence": "the fish can ___.",
+            "answer": "swim",
+            "choices": [
+                  "swim",
+                  "sword",
+                  "the"
+            ]
+      },
+      {
+            "scene": "wolf in forest",
+            "sentence": "the wolf is in the ___.",
+            "answer": "forest",
+            "choices": [
+                  "forest",
+                  "juice",
+                  "are"
+            ]
+      },
+      {
+            "scene": "owl behind tree",
+            "sentence": "the owl is ___ the tree.",
+            "answer": "behind",
+            "choices": [
+                  "behind",
+                  "orange",
+                  "walk"
+            ]
+      },
+      {
+            "scene": "rabbit near grass",
+            "sentence": "the rabbit is near the ___.",
+            "answer": "grass",
+            "choices": [
+                  "grass",
+                  "armor",
+                  "how"
+            ]
+      },
+      {
+            "scene": "bear near river",
+            "sentence": "the bear is near the ___.",
+            "answer": "river",
+            "choices": [
+                  "river",
+                  "letter",
+                  "she"
+            ]
+      },
+      {
+            "scene": "fox on road",
+            "sentence": "the fox can ___.",
+            "answer": "walk",
+            "choices": [
+                  "walk",
+                  "key",
+                  "six"
+            ]
+      },
+      {
+            "scene": "flower in rain",
+            "sentence": "the flower is ___.",
+            "answer": "bright",
+            "choices": [
+                  "bright",
+                  "on",
+                  "fish"
+            ]
+      },
+      {
+            "scene": "mountain and cloud",
+            "sentence": "the cloud is near the ___.",
+            "answer": "mountain",
+            "choices": [
+                  "mountain",
+                  "bag",
+                  "my"
+            ]
+      },
+      {
+            "scene": "island and beach",
+            "sentence": "the beach is near the ___.",
+            "answer": "island",
+            "choices": [
+                  "island",
+                  "helmet",
+                  "we"
+            ]
+      },
+      {
+            "scene": "snow on village",
+            "sentence": "the village is ___.",
+            "answer": "cold",
+            "choices": [
+                  "cold",
+                  "open",
+                  "coin"
+            ]
+      },
+      {
+            "scene": "rain cloud",
+            "sentence": "the road is ___.",
+            "answer": "dark",
+            "choices": [
+                  "dark",
+                  "bright",
+                  "cold"
+            ]
+      },
+      {
+            "scene": "sword and shield",
+            "sentence": "this is a ___.",
+            "answer": "sword",
+            "choices": [
+                  "sword",
+                  "are",
+                  "happy"
+            ]
+      },
+      {
+            "scene": "bow with arrow",
+            "sentence": "the arrow is near the ___.",
+            "answer": "bow",
+            "choices": [
+                  "bow",
+                  "water",
+                  "is"
+            ]
+      },
+      {
+            "scene": "ring in chest",
+            "sentence": "the ring is in the ___.",
+            "answer": "chest",
+            "choices": [
+                  "chest",
+                  "walk",
+                  "yellow"
+            ]
+      },
+      {
+            "scene": "map near treasure",
+            "sentence": "the map is near the ___.",
+            "answer": "treasure",
+            "choices": [
+                  "treasure",
+                  "bad",
+                  "with"
+            ]
+      },
+      {
+            "scene": "book and letter",
+            "sentence": "you can ___ a book.",
+            "answer": "read",
+            "choices": [
+                  "read",
+                  "hot",
+                  "seven"
+            ]
+      },
+      {
+            "scene": "torch in cave",
+            "sentence": "the torch is ___.",
+            "answer": "bright",
+            "choices": [
+                  "bright",
+                  "small",
+                  "apple"
+            ]
+      },
+      {
+            "scene": "apple and bread",
+            "sentence": "I can ___ bread.",
+            "answer": "eat",
+            "choices": [
+                  "eat",
+                  "fly",
+                  "purple"
+            ]
+      },
+      {
+            "scene": "milk and water",
+            "sentence": "we can ___ water.",
+            "answer": "drink",
+            "choices": [
+                  "drink",
+                  "write",
+                  "near"
+            ]
+      },
+      {
+            "scene": "cake and candy",
+            "sentence": "the cake is ___.",
+            "answer": "good",
+            "choices": [
+                  "good",
+                  "under",
+                  "bow"
+            ]
+      },
+      {
+            "scene": "magic spell",
+            "sentence": "the wizard can ___ a spell.",
+            "answer": "write",
+            "choices": [
+                  "write",
+                  "bear",
+                  "ten"
+            ]
+      },
+      {
+            "scene": "crystal and gem",
+            "sentence": "the gem is ___.",
+            "answer": "bright",
+            "choices": [
+                  "bright",
+                  "cannot",
+                  "fish"
+            ]
+      },
+      {
+            "scene": "quest danger",
+            "sentence": "the quest is ___.",
+            "answer": "danger",
+            "choices": [
+                  "danger",
+                  "milk",
+                  "blue"
+            ]
+      },
+      {
+            "scene": "battle victory",
+            "sentence": "the team can find ___.",
+            "answer": "victory",
+            "choices": [
+                  "victory",
+                  "in",
+                  "cold"
+            ]
+      },
+      {
+            "scene": "boss level",
+            "sentence": "the boss is in the ___.",
+            "answer": "level",
+            "choices": [
+                  "level",
+                  "cake",
+                  "your"
+            ]
+      },
+      {
+            "scene": "what",
+            "sentence": "___ is this?",
+            "answer": "what",
+            "choices": [
+                  "what",
+                  "green",
+                  "sleep"
+            ]
+      },
+      {
+            "scene": "where",
+            "sentence": "___ is the castle?",
+            "answer": "where",
+            "choices": [
+                  "where",
+                  "pink",
+                  "drink"
+            ]
+      },
+      {
+            "scene": "who",
+            "sentence": "___ is your friend?",
+            "answer": "who",
+            "choices": [
+                  "who",
+                  "black",
+                  "river"
+            ]
+      },
+      {
+            "scene": "why",
+            "sentence": "___ can the bird fly?",
+            "answer": "why",
+            "choices": [
+                  "why",
+                  "armor",
+                  "red"
+            ]
+      },
+      {
+            "scene": "how",
+            "sentence": "___ can we help?",
+            "answer": "how",
+            "choices": [
+                  "how",
+                  "gold",
+                  "sad"
+            ]
+      }
+];
+
+    rounds = [
+      { scene: "The guard is hungry. There is bread on the table.", sentence: "The guard can ___ bread.", answer: "eat", choices: ["eat", "read", "sleep"] },
+      { scene: "The guard is thirsty. There is water in a cup.", sentence: "The guard can ___ water.", answer: "drink", choices: ["drink", "write", "jump"] },
+      { scene: "It is night. The child is tired.", sentence: "The child can ___.", answer: "sleep", choices: ["sleep", "fight", "open"] },
+      { scene: "There is a book on the chair.", sentence: "You can ___ a book.", answer: "read", choices: ["read", "drink", "run"] },
+      { scene: "The king has a blank letter.", sentence: "The king can ___ a letter.", answer: "write", choices: ["write", "swim", "close"] },
+      { scene: "The key is lost in the grass.", sentence: "The guard must ___ the key.", answer: "find", choices: ["find", "eat", "play"] },
+      { scene: "The gate is open. Danger is near.", sentence: "The guard must ___ the gate.", answer: "close", choices: ["close", "read", "jump"] },
+      { scene: "The chest is locked. The guard has a key.", sentence: "The guard can ___ the chest.", answer: "open", choices: ["open", "sleep", "drink"] },
+      { scene: "The knight has a sword and shield.", sentence: "The knight can ___.", answer: "fight", choices: ["fight", "write", "swim"] },
+      { scene: "The prince and princess have a game.", sentence: "They can ___.", answer: "play", choices: ["play", "close", "drink"] },
+      { scene: "The queen speaks. The guard uses his ears.", sentence: "The guard can ___.", answer: "listen", choices: ["listen", "jump", "eat"] },
+      { scene: "The fairy is kind. The elf is in danger.", sentence: "The fairy can ___ the elf.", answer: "help", choices: ["help", "sleep", "read"] },
+      { scene: "The hero sees gold on the road.", sentence: "The hero can ___ the gold.", answer: "take", choices: ["take", "swim", "write"] },
+      { scene: "The queen has a ring for the princess.", sentence: "The queen can ___ a ring.", answer: "give", choices: ["give", "close", "run"] },
+      { scene: "The horse is fast on the road.", sentence: "The horse can ___.", answer: "run", choices: ["run", "read", "drink"] },
+      { scene: "The villager is not in a hurry.", sentence: "The villager can ___ on the road.", answer: "walk", choices: ["walk", "open", "fight"] },
+      { scene: "The horse sees a small wall.", sentence: "The horse can ___.", answer: "jump", choices: ["jump", "write", "sleep"] },
+      { scene: "The fish is in the lake.", sentence: "The fish can ___.", answer: "swim", choices: ["swim", "read", "take"] },
+      { scene: "The bird is in the sky.", sentence: "The bird can ___.", answer: "fly", choices: ["fly", "eat", "close"] },
+      { scene: "The guard is on the tower. He uses his eyes.", sentence: "The guard can ___.", answer: "look", choices: ["look", "drink", "sleep"] },
+      { scene: "The king and queen live behind stone walls.", sentence: "They live in a ___.", answer: "castle", choices: ["castle", "farm", "lake"] },
+      { scene: "A man with a crown sits on the throne.", sentence: "He is the ___.", answer: "king", choices: ["king", "dog", "fish"] },
+      { scene: "A woman with a crown sits by the king.", sentence: "She is the ___.", answer: "queen", choices: ["queen", "wolf", "tree"] },
+      { scene: "The king's son rides a horse.", sentence: "He is a ___.", answer: "prince", choices: ["prince", "camp", "cloud"] },
+      { scene: "The king's daughter reads a book.", sentence: "She is a ___.", answer: "princess", choices: ["princess", "bridge", "apple"] },
+      { scene: "A brave man has armor and a sword.", sentence: "He is a ___.", answer: "knight", choices: ["knight", "rabbit", "flower"] },
+      { scene: "A man uses magic near a portal.", sentence: "He is a ___.", answer: "wizard", choices: ["wizard", "road", "cheese"] },
+      { scene: "A woman makes a potion in a cave.", sentence: "She is a ___.", answer: "witch", choices: ["witch", "chair", "juice"] },
+      { scene: "A big animal has wings and fire.", sentence: "It is a ___.", answer: "dragon", choices: ["dragon", "book", "coin"] },
+      { scene: "A small green enemy runs near the wall.", sentence: "It is a ___.", answer: "goblin", choices: ["goblin", "milk", "window"] },
+      { scene: "A kind forest person helps the fairy.", sentence: "It is an ___.", answer: "elf", choices: ["elf", "bag", "meat"] },
+      { scene: "A small magic helper flies near a flower.", sentence: "It is a ___.", answer: "fairy", choices: ["fairy", "dungeon", "helmet"] },
+      { scene: "A very big person stands near the mountain.", sentence: "It is a ___.", answer: "giant", choices: ["giant", "egg", "letter"] },
+      { scene: "A brave person saves the village.", sentence: "This person is a ___.", answer: "hero", choices: ["hero", "table", "rain"] },
+      { scene: "A person lives and works on the farm.", sentence: "This person is a ___.", answer: "villager", choices: ["villager", "torch", "cake"] },
+      { scene: "A person protects the castle gate.", sentence: "This person is a ___.", answer: "guard", choices: ["guard", "island", "candy"] },
+      { scene: "A sea thief has a flag and a ship.", sentence: "This person is a ___.", answer: "pirate", choices: ["pirate", "grass", "tea"] },
+      { scene: "A ship leader gives orders to the team.", sentence: "This person is a ___.", answer: "captain", choices: ["captain", "map", "potato"] },
+      { scene: "A scary creature comes from the dungeon.", sentence: "It is a ___.", answer: "monster", choices: ["monster", "bread", "beach"] },
+      { scene: "A kind person helps you on the quest.", sentence: "This person is a ___.", answer: "friend", choices: ["friend", "snow", "arrow"] },
+      { scene: "It says meow and sits under the table.", sentence: "It is a ___.", answer: "cat", choices: ["cat", "gold", "tower"] },
+      { scene: "It says woof and runs near the tree.", sentence: "It is a ___.", answer: "dog", choices: ["dog", "ring", "soup"] },
+      { scene: "It has wings and can fly.", sentence: "It is a ___.", answer: "bird", choices: ["bird", "shield", "carrot"] },
+      { scene: "It carries a knight on the road.", sentence: "It is a ___.", answer: "horse", choices: ["horse", "potion", "camp"] },
+      { scene: "It swims in the lake.", sentence: "It is a ___.", answer: "fish", choices: ["fish", "sword", "village"] },
+      { scene: "It howls in the forest at night.", sentence: "It is a ___.", answer: "wolf", choices: ["wolf", "book", "farm"] },
+      { scene: "It sees well at night and sits in a tree.", sentence: "It is an ___.", answer: "owl", choices: ["owl", "coin", "road"] },
+      { scene: "It has long ears and eats near the grass.", sentence: "It is a ___.", answer: "rabbit", choices: ["rabbit", "key", "river"] },
+      { scene: "It is big and strong in the forest.", sentence: "It is a ___.", answer: "bear", choices: ["bear", "bow", "apple"] },
+      { scene: "It is small, red, and runs on the road.", sentence: "It is a ___.", answer: "fox", choices: ["fox", "armor", "milk"] },
+      { scene: "Many trees grow there.", sentence: "This place is a ___.", answer: "forest", choices: ["forest", "letter", "tea"] },
+      { scene: "A bird sits on it in the garden.", sentence: "It is a ___.", answer: "tree", choices: ["tree", "cheese", "helmet"] },
+      { scene: "It grows in the grass and looks pretty.", sentence: "It is a ___.", answer: "flower", choices: ["flower", "meat", "portal"] },
+      { scene: "A rabbit sits on the green ground.", sentence: "It sits on the ___.", answer: "grass", choices: ["grass", "chest", "cake"] },
+      { scene: "Water moves past the bridge.", sentence: "It is a ___.", answer: "river", choices: ["river", "bag", "candy"] },
+      { scene: "Fish swim in this water.", sentence: "It is a ___.", answer: "lake", choices: ["lake", "torch", "egg"] },
+      { scene: "The giant stands on a very high place.", sentence: "It is a ___.", answer: "mountain", choices: ["mountain", "chair", "juice"] },
+      { scene: "The bear sleeps inside the rock place.", sentence: "It sleeps in a ___.", answer: "cave", choices: ["cave", "window", "bread"] },
+      { scene: "People cross the river on it.", sentence: "They cross a ___.", answer: "bridge", choices: ["bridge", "apple", "ring"] },
+      { scene: "Many villagers live there.", sentence: "This place is a ___.", answer: "village", choices: ["village", "sword", "water"] },
+      { scene: "A villager grows carrots and potatoes there.", sentence: "This place is a ___.", answer: "farm", choices: ["farm", "shield", "soup"] },
+      { scene: "The horse runs on it.", sentence: "It runs on the ___.", answer: "road", choices: ["road", "potion", "milk"] },
+      { scene: "The team sleeps outside by a fire.", sentence: "They sleep at a ___.", answer: "camp", choices: ["camp", "gold", "book"] },
+      { scene: "The guard looks far from a high place.", sentence: "He stands in the ___.", answer: "tower", choices: ["tower", "fish", "cake"] },
+      { scene: "The monster is under the castle.", sentence: "It is in the ___.", answer: "dungeon", choices: ["dungeon", "bird", "coin"] },
+      { scene: "Water is all around this land.", sentence: "It is an ___.", answer: "island", choices: ["island", "dog", "arrow"] },
+      { scene: "Sand is near the water.", sentence: "This place is the ___.", answer: "beach", choices: ["beach", "cat", "helmet"] },
+      { scene: "White cold water falls from the sky.", sentence: "It is ___.", answer: "snow", choices: ["snow", "map", "meat"] },
+      { scene: "Water falls from a dark cloud.", sentence: "It is ___.", answer: "rain", choices: ["rain", "ring", "cheese"] },
+      { scene: "It is white and high in the sky.", sentence: "It is a ___.", answer: "cloud", choices: ["cloud", "key", "carrot"] },
+      { scene: "The knight fights with it.", sentence: "The knight has a ___.", answer: "sword", choices: ["sword", "rabbit", "juice"] },
+      { scene: "The hero holds it to stay safe.", sentence: "The hero has a ___.", answer: "shield", choices: ["shield", "fox", "bread"] },
+      { scene: "The archer uses it with arrows.", sentence: "The archer has a ___.", answer: "bow", choices: ["bow", "lake", "egg"] },
+      { scene: "It flies from the bow.", sentence: "It is an ___.", answer: "arrow", choices: ["arrow", "farm", "tea"] },
+      { scene: "The knight wears it on his head.", sentence: "He wears a ___.", answer: "helmet", choices: ["helmet", "tree", "candy"] },
+      { scene: "The knight wears it on his body.", sentence: "He wears ___.", answer: "armor", choices: ["armor", "grass", "soup"] },
+      { scene: "The queen wears it on her finger.", sentence: "It is a ___.", answer: "ring", choices: ["ring", "river", "apple"] },
+      { scene: "The guard opens the chest with it.", sentence: "He uses a ___.", answer: "key", choices: ["key", "horse", "potato"] },
+      { scene: "It shows the road to the treasure.", sentence: "It is a ___.", answer: "map", choices: ["map", "wolf", "water"] },
+      { scene: "Gold and gems are in the chest.", sentence: "It is ___.", answer: "treasure", choices: ["treasure", "owl", "milk"] },
+      { scene: "The king has yellow treasure.", sentence: "The treasure is ___.", answer: "gold", choices: ["gold", "camp", "bread"] },
+      { scene: "One small piece of gold is on the table.", sentence: "It is a ___.", answer: "coin", choices: ["coin", "bear", "flower"] },
+      { scene: "The key and ring are inside it.", sentence: "They are in a ___.", answer: "chest", choices: ["chest", "bridge", "cake"] },
+      { scene: "The princess reads it at night.", sentence: "It is a ___.", answer: "book", choices: ["book", "mountain", "meat"] },
+      { scene: "The king writes it to a friend.", sentence: "It is a ___.", answer: "letter", choices: ["letter", "village", "cheese"] },
+      { scene: "The hero carries food in it.", sentence: "The food is in a ___.", answer: "bag", choices: ["bag", "dragon", "tea"] },
+      { scene: "It gives bright light in the cave.", sentence: "It is a ___.", answer: "torch", choices: ["torch", "queen", "carrot"] },
+      { scene: "The cake is on it.", sentence: "The cake is on the ___.", answer: "table", choices: ["table", "pirate", "juice"] },
+      { scene: "The king sits on it.", sentence: "The king sits on a ___.", answer: "chair", choices: ["chair", "captain", "egg"] },
+      { scene: "You can look outside through it.", sentence: "It is a ___.", answer: "window", choices: ["window", "monster", "soup"] },
+      { scene: "It is red and good to eat.", sentence: "It is an ___.", answer: "apple", choices: ["apple", "castle", "shield"] },
+      { scene: "The guard eats it with soup.", sentence: "It is ___.", answer: "bread", choices: ["bread", "king", "river"] },
+      { scene: "It is sweet and used for a party.", sentence: "It is a ___.", answer: "cake", choices: ["cake", "knight", "map"] },
+      { scene: "It is white and good to drink.", sentence: "It is ___.", answer: "milk", choices: ["milk", "wizard", "road"] },
+      { scene: "It is clear and good to drink.", sentence: "It is ___.", answer: "water", choices: ["water", "witch", "tower"] },
+      { scene: "The mouse likes this food.", sentence: "It is ___.", answer: "cheese", choices: ["cheese", "dragon", "key"] },
+      { scene: "The cook puts hot food in a bowl.", sentence: "It is ___.", answer: "soup", choices: ["soup", "elf", "helmet"] },
+      { scene: "The guard eats this with bread.", sentence: "It is ___.", answer: "meat", choices: ["meat", "fairy", "coin"] },
+      { scene: "A bird gives this food.", sentence: "It is an ___.", answer: "egg", choices: ["egg", "giant", "grass"] },
+      { scene: "A rabbit likes this orange food.", sentence: "It is a ___.", answer: "carrot", choices: ["carrot", "hero", "chest"] },
+      { scene: "This food grows on the farm under the ground.", sentence: "It is a ___.", answer: "potato", choices: ["potato", "guard", "cloud"] },
+      { scene: "The child likes this sweet food.", sentence: "It is ___.", answer: "candy", choices: ["candy", "friend", "bow"] },
+      { scene: "The prince drinks fruit in a cup.", sentence: "He drinks ___.", answer: "juice", choices: ["juice", "prince", "armor"] },
+      { scene: "The queen drinks this hot drink.", sentence: "She drinks ___.", answer: "tea", choices: ["tea", "princess", "arrow"] },
+      { scene: "The wizard uses a bright power.", sentence: "He uses ___.", answer: "magic", choices: ["magic", "cat", "bread"] },
+      { scene: "The wizard says magic words.", sentence: "He uses a ___.", answer: "spell", choices: ["spell", "dog", "milk"] },
+      { scene: "The witch drinks magic in a bottle.", sentence: "She drinks a ___.", answer: "potion", choices: ["potion", "bird", "water"] },
+      { scene: "A bright stone is on the table.", sentence: "It is a ___.", answer: "crystal", choices: ["crystal", "horse", "cake"] },
+      { scene: "A small bright treasure is in the chest.", sentence: "It is a ___.", answer: "gem", choices: ["gem", "fish", "apple"] },
+      { scene: "The wizard opens a magic door.", sentence: "It is a ___.", answer: "portal", choices: ["portal", "wolf", "cheese"] },
+      { scene: "The hero has a job to find treasure.", sentence: "It is a ___.", answer: "quest", choices: ["quest", "owl", "soup"] },
+      { scene: "The knight and monster fight.", sentence: "This is a ___.", answer: "battle", choices: ["battle", "rabbit", "meat"] },
+      { scene: "The team goes on a long quest.", sentence: "It is an ___.", answer: "adventure", choices: ["adventure", "bear", "egg"] },
+      { scene: "The map shows a hidden place.", sentence: "It shows a ___.", answer: "secret", choices: ["secret", "fox", "carrot"] },
+      { scene: "The road is not safe.", sentence: "There is ___.", answer: "danger", choices: ["danger", "forest", "potato"] },
+      { scene: "The team wins the battle.", sentence: "The team has ___.", answer: "victory", choices: ["victory", "flower", "candy"] },
+      { scene: "The hero and friend work together.", sentence: "They are a ___.", answer: "team", choices: ["team", "tree", "juice"] },
+      { scene: "The final stage has a strong boss.", sentence: "This is the last ___.", answer: "level", choices: ["level", "cloud", "tea"] },
+      { scene: "The strongest enemy waits at the end.", sentence: "It is the ___.", answer: "boss", choices: ["boss", "snow", "gold"] },
+      { scene: "The flag is the color of fire.", sentence: "The flag is ___.", answer: "red", choices: ["red", "lake", "book"] },
+      { scene: "The river is the color of the sky.", sentence: "The river is ___.", answer: "blue", choices: ["blue", "cave", "letter"] },
+      { scene: "The grass has this color.", sentence: "The grass is ___.", answer: "green", choices: ["green", "island", "bag"] },
+      { scene: "The coin has this color.", sentence: "The coin is ___.", answer: "yellow", choices: ["yellow", "beach", "torch"] }
     ];
 
     const enemyTypes = [
       { name: "Goblin", skin: "#4f9a3d", shirt: "#7c3aed", speed: 36, hp: 42, damage: 8, coins: 1 },
-      { name: "Orc", skin: "#3f7f45", shirt: "#8b3a2f", speed: 30, hp: 56, damage: 13, coins: 2 },
-      { name: "Raider", skin: "#5c8a43", shirt: "#9a6a2f", speed: 44, hp: 48, damage: 10, coins: 1 }
+      { name: "Monster", skin: "#3f7f45", shirt: "#8b3a2f", speed: 30, hp: 56, damage: 13, coins: 2 },
+      { name: "Pirate", skin: "#5c8a43", shirt: "#9a6a2f", speed: 44, hp: 48, damage: 10, coins: 1 }
     ];
 
     const upgrades = [
@@ -869,6 +1479,18 @@
       return next;
     }
 
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function vocabIconHtml(word, className = "castleChoiceIcon") {
+      return window.KINGDOM_VOCAB_ICONS?.markup(word, { className }) || "";
+    }
+
     function shuffledChoices(round) {
       const choices = [...round.choices];
       for (let i = choices.length - 1; i > 0; i -= 1) {
@@ -919,7 +1541,11 @@
       sceneText.textContent = round.scene;
       sentenceText.innerHTML = round.sentence.replace("___", "<strong>___</strong>");
       choicesEl.innerHTML = activeChoices.map((choice, index) => (
-        `<button class="choice" type="button" data-choice="${choice}" ${inputLocked ? "disabled" : ""}>${index + 1}. ${choice}</button>`
+        `<button class="choice" type="button" data-choice="${escapeHtml(choice)}" ${inputLocked ? "disabled" : ""}>
+          <span class="choice-number">${index + 1}.</span>
+          ${vocabIconHtml(choice)}
+          <span class="choice-word">${escapeHtml(choice)}</span>
+        </button>`
       )).join("");
     }
 
@@ -1115,7 +1741,7 @@
       shopPanel.hidden = true;
       endTitle.textContent = victory ? "The castle stands" : "The gate has fallen";
       endText.textContent = `Score: ${score}. Coins: ${coins}. You reached wave ${wave} of ${maxWave}.`;
-      lastAnswer.textContent = `Last correct sentence: ${lastSolvedRound.sentence.replace("___", lastSolvedRound.answer)}`;
+      lastAnswer.innerHTML = `Last correct sentence: ${escapeHtml(lastSolvedRound.sentence.replace("___", lastSolvedRound.answer))} ${vocabIconHtml(lastSolvedRound.answer)}`;
       stopMusic();
       playChord(victory ? [261.63, 329.63, 392, 523.25] : [196, 164.81, 146.83], 0.24, victory ? "triangle" : "sawtooth", 0.08);
       updateControlButtons();
@@ -1123,20 +1749,20 @@
     }
 
     function waveEnemyTotal() {
-      return 8 + wave * 4;
+      return 10 + wave * 5;
     }
 
     function spawnEnemy() {
       const type = enemyTypes[(wave + spawnLeft + Math.floor(Math.random() * enemyTypes.length)) % enemyTypes.length];
       const lane = Math.floor(Math.random() * 4);
       const groundY = height * 0.72;
-      const difficultyHpScale = 1.05 + wave * 0.05;
-      const maxHp = Math.round((type.hp + wave * 3 + Math.floor(wave / 5) * 6) * difficultyHpScale * 0.7);
+      const difficultyHpScale = 1 + wave * 0.07;
+      const maxHp = Math.round((type.hp + wave * 4 + Math.floor(wave / 3) * 5) * difficultyHpScale * 0.7);
       enemies.push({
         type,
         x: width + 70 + Math.random() * 130,
         y: groundY - 4 - lane * 5,
-        speed: type.speed * 1.1 + wave * 2.1 + Math.random() * 5,
+        speed: type.speed * 1.1 + wave * 2.6 + Math.random() * 5,
         maxHp,
         hp: maxHp,
         damage: type.damage + Math.floor(wave / 3),
@@ -1323,7 +1949,7 @@
       if (spawnLeft > 0 && spawnTimer <= 0) {
         spawnEnemy();
         spawnLeft -= 1;
-        spawnTimer = Math.max(0.58, 1.35 - wave * 0.035);
+        spawnTimer = Math.max(0.62, 1.25 - wave * 0.037);
         updateHud();
       }
       updateKnights(delta);
@@ -1387,7 +2013,7 @@
     }
 
     function upgradeCost(upgrade) {
-      return upgrade.base + upgradeLevels[upgrade.id] * 14 + Math.floor(wave * 2);
+      return upgrade.base + upgradeLevels[upgrade.id] * 10 + Math.floor(wave * 1.5);
     }
 
     function renderShop() {

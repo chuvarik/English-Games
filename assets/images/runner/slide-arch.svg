@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 150" role="img" aria-label="slide obstacle">
+  <ellipse cx="90" cy="132" rx="70" ry="10" fill="#4b2a12" opacity=".2"/>
+  <path d="M30 128V72c0-35 25-58 60-58s60 23 60 58v56h-34V75c0-16-10-27-26-27S64 59 64 75v53z" fill="#9f9b8d" stroke="#5f5a50" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M45 126V76c0-26 19-44 45-44s45 18 45 44v50" fill="none" stroke="#d6d0bf" stroke-width="6" stroke-linecap="round"/>
+  <path d="M33 92h28M119 92h28M45 56h22M113 56h22M72 27h36" stroke="#6c6658" stroke-width="7" stroke-linecap="round"/>
+  <path d="M76 128h28" stroke="#3a1d08" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,1388 +1,1738 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Cyberpunk Syllable Runner</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-
-*{
-    box-sizing:border-box;
-}
-
-body{
-    margin:0;
-    font-family:'Orbitron',sans-serif;
-    background:
-        radial-gradient(circle at top,#1f1147 0%,#090014 40%,#000000 100%);
-    overflow:hidden;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    color:white;
-}
-
-/* animated cyber background */
-
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:
-        linear-gradient(rgba(0,255,255,0.08) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,0,255,0.08) 1px, transparent 1px);
-    background-size:50px 50px;
-    animation:gridMove 12s linear infinite;
-    pointer-events:none;
-}
-
-@keyframes gridMove{
-    from{
-        transform:translateY(0);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 2 - Syllable Runner</title>
+  <style>
+    * {
+      box-sizing: border-box;
     }
-    to{
-        transform:translateY(50px);
+
+    :root {
+      --ink: #35200c;
+      --ink-soft: #6b3d15;
+      --paper: #fff4ca;
+      --paper-light: #fffbe7;
+      --gold: #ffd057;
+      --gold-dark: #b66a11;
+      --red: #d94635;
+      --blue: #2b7fc2;
+      --green: #2ea55f;
+      --grass: #5dbc5a;
+      --wood: #714016;
+      --wood-dark: #46220c;
+      --sky: #83d7ff;
+      --shadow: rgba(58, 30, 8, 0.28);
     }
-}
 
-#game{
-    width:1050px;
-    padding:30px;
-    border-radius:25px;
-    background:rgba(10,10,30,0.85);
-    border:2px solid #00eaff;
-    box-shadow:
-        0 0 20px #00eaff,
-        0 0 40px rgba(255,0,255,0.5);
-    backdrop-filter:blur(8px);
-    text-align:center;
-    position:relative;
-}
-
-h1{
-    margin-top:0;
-    font-size:48px;
-    color:#00eaff;
-    text-shadow:
-        0 0 10px #00eaff,
-        0 0 20px #00eaff;
-}
-
-#word{
-    font-size:60px;
-    font-weight:bold;
-    margin-bottom:25px;
-    color:#ff4dff;
-    text-shadow:
-        0 0 12px #ff4dff,
-        0 0 24px #ff4dff;
-    letter-spacing:4px;
-}
-
-#inputArea{
-    margin-top:20px;
-}
-
-#answerInput{
-    width:380px;
-    padding:16px;
-    border-radius:14px;
-    border:2px solid #00eaff;
-    background:#111122;
-    color:white;
-    font-size:22px;
-    text-align:center;
-    outline:none;
-    box-shadow:0 0 15px rgba(0,234,255,0.5);
-}
-
-#answerInput::placeholder{
-    color:#9cc;
-}
-
-#submitBtn{
-    padding:16px 28px;
-    margin-left:10px;
-    border:none;
-    border-radius:14px;
-    background:linear-gradient(45deg,#00eaff,#ff00ff);
-    color:white;
-    font-size:22px;
-    font-family:'Orbitron',sans-serif;
-    cursor:pointer;
-    transition:0.25s;
-    box-shadow:
-        0 0 10px #00eaff,
-        0 0 20px #ff00ff;
-}
-
-#submitBtn:hover{
-    transform:scale(1.08);
-    box-shadow:
-        0 0 20px #00eaff,
-        0 0 35px #ff00ff;
-}
-
-#musicToggle{
-    position:absolute;
-    top:18px;
-    right:18px;
-    width:48px;
-    height:48px;
-    border:1px solid rgba(0,234,255,0.9);
-    border-radius:50%;
-    background:rgba(8,8,28,0.75);
-    color:#00eaff;
-    font-size:14px;
-    font-family:'Orbitron',sans-serif;
-    font-weight:700;
-    cursor:pointer;
-    box-shadow:
-        0 0 10px rgba(0,234,255,0.55),
-        inset 0 0 10px rgba(255,0,255,0.2);
-    transition:0.2s;
-}
-
-#musicToggle:hover{
-    transform:scale(1.08);
-    color:#ff4dff;
-}
-
-#musicToggle.is-off{
-    color:#7c87a8;
-    border-color:rgba(124,135,168,0.8);
-    box-shadow:inset 0 0 10px rgba(124,135,168,0.18);
-}
-
-.screen{
-    min-height:560px;
-}
-
-.is-hidden{
-    display:none;
-}
-
-.menuPanel{
-    display:grid;
-    gap:18px;
-    max-width:760px;
-    margin:0 auto;
-}
-
-.menuStats,
-.hud{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:14px;
-    margin:10px 0 20px;
-}
-
-.statBox,
-.levelCard,
-.skinCard{
-    border:1px solid rgba(0,234,255,0.45);
-    border-radius:8px;
-    background:rgba(6,10,35,0.72);
-    box-shadow:inset 0 0 18px rgba(0,234,255,0.12);
-    padding:14px;
-}
-
-.statLabel,
-.cardMeta{
-    color:#9fd7ff;
-    font-size:12px;
-    margin-bottom:6px;
-}
-
-.statValue{
-    color:#00ffae;
-    font-size:24px;
-    text-shadow:0 0 10px rgba(0,255,174,0.75);
-}
-
-.menuActions{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:14px;
-}
-
-.cyberBtn{
-    min-height:54px;
-    border:none;
-    border-radius:8px;
-    background:linear-gradient(45deg,#00eaff,#ff00ff);
-    color:white;
-    font-size:18px;
-    font-family:'Orbitron',sans-serif;
-    font-weight:700;
-    cursor:pointer;
-    transition:0.2s;
-    box-shadow:
-        0 0 10px rgba(0,234,255,0.65),
-        0 0 20px rgba(255,0,255,0.45);
-}
-
-.cyberBtn:hover{
-    transform:translateY(-2px) scale(1.02);
-}
-
-.cyberBtn.secondary{
-    background:rgba(12,20,55,0.9);
-    border:1px solid rgba(0,234,255,0.65);
-}
-
-.cyberBtn:disabled,
-.levelCard.locked,
-.skinCard.locked{
-    cursor:not-allowed;
-    opacity:0.45;
-    filter:saturate(0.55);
-}
-
-.levelGrid,
-.shopGrid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:16px;
-    margin:20px 0;
-}
-
-.levelCard,
-.skinCard{
-    min-height:170px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    text-align:left;
-}
-
-.cardTitle{
-    color:#ff4dff;
-    font-size:22px;
-    margin-bottom:8px;
-    text-shadow:0 0 10px rgba(255,77,255,0.75);
-}
-
-.skinPreview{
-    font-size:48px;
-    text-align:center;
-    filter:
-        drop-shadow(0 0 8px #00eaff)
-        drop-shadow(0 0 14px #ff00ff);
-}
-
-#menuSubtitle,
-#endSummary{
-    color:#b8b8ff;
-    line-height:1.6;
-}
-
-#levelTitle{
-    color:#00eaff;
-    margin-bottom:0;
-}
-
-#scene{
-    position:relative;
-    width:100%;
-    height:320px;
-    margin-top:45px;
-    overflow:hidden;
-    border-radius:20px;
-    background:
-        linear-gradient(to top,
-        #120021 0%,
-        #1a1040 35%,
-        #120033 100%);
-    border:3px solid #00eaff;
-    box-shadow:
-        inset 0 0 30px rgba(0,255,255,0.2),
-        0 0 25px rgba(255,0,255,0.4);
-}
-
-/* neon city */
-
-.city{
-    position:absolute;
-    bottom:0;
-    width:100%;
-    height:120px;
-    background:
-        repeating-linear-gradient(
-            to right,
-            #0ff 0 20px,
-            transparent 20px 40px,
-            #f0f 40px 60px,
-            transparent 60px 90px
-        );
-    opacity:0.15;
-}
-
-.road{
-    position:absolute;
-    bottom:0;
-    width:100%;
-    height:70px;
-    background:#050505;
-    border-top:4px solid #ff00ff;
-}
-
-.road::before{
-    content:"";
-    position:absolute;
-    top:30px;
-    width:100%;
-    height:5px;
-    background:
-        repeating-linear-gradient(
-            to right,
-            #00eaff 0 40px,
-            transparent 40px 80px
-        );
-    animation:roadMove 1s linear infinite;
-}
-
-@keyframes roadMove{
-    from{
-        background-position-x:0;
+    html,
+    body {
+      min-height: 100%;
     }
-    to{
-        background-position-x:-80px;
+
+    body {
+      margin: 0;
+      padding: 18px;
+      color: var(--ink);
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      background:
+        linear-gradient(180deg, rgba(121, 205, 255, 0.42), rgba(255, 230, 138, 0.55)),
+        url("../../assets/images/kingdom-hero.png");
+      background-size: cover;
+      background-position: center top;
+      overflow-x: hidden;
     }
-}
 
-#character{
-    position:absolute;
-    left:50px;
-    bottom:40px;
-    font-size:80px;
-    transition:0.4s;
-    transform:scaleX(-1);
-    filter:
-        drop-shadow(0 0 10px #00eaff)
-        drop-shadow(0 0 20px #ff00ff);
-    z-index:10;
-}
-
-.obstacle{
-    position:absolute;
-    font-size:75px;
-    filter:
-        drop-shadow(0 0 10px #ff0000)
-        drop-shadow(0 0 20px #ff00ff);
-}
-
-.slide{
-    transform:scaleX(-1) translateY(45px);
-}
-
-.hit{
-    transform:scaleX(-1) rotate(-25deg);
-}
-
-#score{
-    margin-top:20px;
-    font-size:30px;
-    color:#00ffae;
-    text-shadow:0 0 10px #00ffae;
-}
-
-#progress{
-    margin-top:10px;
-    color:#b8b8ff;
-    font-size:18px;
-}
-
-.correctFlash{
-    animation:greenFlash 0.5s;
-}
-
-.wrongFlash{
-    animation:redFlash 0.5s;
-}
-
-@keyframes greenFlash{
-    0%{
-        box-shadow:
-            0 0 50px #00ff88;
+    button,
+    input,
+    a {
+      font: inherit;
     }
-    100%{
-        box-shadow:
-            0 0 20px #00eaff;
-    }
-}
 
-@keyframes redFlash{
-    0%{
-        box-shadow:
-            0 0 50px #ff003c;
+    button {
+      border: 0;
+      cursor: pointer;
     }
-    100%{
-        box-shadow:
-            0 0 20px #00eaff;
+
+    a {
+      color: inherit;
+      text-decoration: none;
     }
-}
 
-/* stars */
-
-.star{
-    position:absolute;
-    width:3px;
-    height:3px;
-    background:white;
-    border-radius:50%;
-    opacity:0.8;
-    animation:blink 2s infinite alternate;
-}
-
-@keyframes blink{
-    from{
-        opacity:0.2;
+    .game {
+      position: relative;
+      width: min(1180px, 100%);
+      min-height: calc(100vh - 36px);
+      margin: 0 auto;
+      border: 4px solid var(--wood);
+      border-radius: 8px;
+      background: rgba(255, 244, 202, 0.97);
+      box-shadow: 0 14px 0 #7e4b1d, 0 24px 70px var(--shadow);
+      overflow: hidden;
     }
-    to{
-        opacity:1;
-    }
-}
 
-</style>
+    .game::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(113, 64, 22, 0.08) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(176, 99, 28, 0.08));
+      background-size: 44px 44px, auto;
+      pointer-events: none;
+    }
+
+    .screen {
+      position: relative;
+      z-index: 1;
+      display: none;
+      min-height: calc(100vh - 44px);
+      padding: clamp(14px, 2.4vw, 28px);
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .crest {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, transparent 0 48%, rgba(255, 255, 255, 0.22) 50%, transparent 52%),
+        linear-gradient(160deg, #e33d35 0 50%, #f9c94b 50% 100%);
+      box-shadow: inset 0 -5px rgba(92, 45, 11, 0.18), 0 5px 0 #7b4718;
+    }
+
+    .crest::before {
+      content: "";
+      width: 21px;
+      height: 28px;
+      border-radius: 4px 4px 10px 10px;
+      background: #2b7fc2;
+      clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+      box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.26);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 66px);
+      line-height: 0.95;
+      letter-spacing: 0;
+      color: #4a250d;
+      text-shadow: 0 3px 0 #ffd86a;
+    }
+
+    h2 {
+      font-size: clamp(24px, 3.5vw, 42px);
+      line-height: 1;
+      color: #4a250d;
+      text-shadow: 0 2px 0 #ffe18a;
+    }
+
+    h3 {
+      font-size: 20px;
+      color: #4a250d;
+    }
+
+    .kicker {
+      margin-bottom: 5px;
+      color: var(--ink-soft);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      color: #351a08;
+      font-weight: 900;
+      background: linear-gradient(180deg, #fff1a7, #ffc54a);
+      box-shadow: 0 5px 0 #8c5017;
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 #8c5017;
+    }
+
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #8c5017;
+    }
+
+    .btn.secondary {
+      background: linear-gradient(180deg, #fffbe6, #f5d889);
+    }
+
+    .btn.blue {
+      color: white;
+      background: linear-gradient(180deg, #5bb5ff, #236eb5);
+      box-shadow: 0 5px 0 #154574;
+    }
+
+    .btn.green {
+      color: white;
+      background: linear-gradient(180deg, #57d983, #23854c);
+      box-shadow: 0 5px 0 #155b34;
+    }
+
+    .btn.red {
+      color: white;
+      background: linear-gradient(180deg, #ff7b68, #bf3328);
+      box-shadow: 0 5px 0 #802016;
+    }
+
+    .btn:disabled {
+      cursor: default;
+      filter: grayscale(0.45);
+      opacity: 0.68;
+      transform: none;
+    }
+
+    .hero-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+      gap: clamp(18px, 3vw, 34px);
+      align-items: center;
+      min-height: 560px;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 18px;
+      align-content: center;
+    }
+
+    .hero-copy p {
+      max-width: 520px;
+      color: #5b3110;
+      font-size: clamp(18px, 2.4vw, 24px);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .stat {
+      min-width: 130px;
+      padding: 10px 12px;
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      background: rgba(255, 251, 231, 0.92);
+      box-shadow: 0 5px 0 rgba(113, 64, 22, 0.32);
+      font-weight: 900;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--ink-soft);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .hero-stage {
+      position: relative;
+      min-height: 410px;
+      border: 4px solid #6d3d14;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, #8bd8ff 0 48%, #77c75a 48% 74%, #d59746 74% 100%);
+      box-shadow: inset 0 -16px rgba(89, 45, 11, 0.16), 0 10px 0 #7f4a1b;
+      overflow: hidden;
+    }
+
+    .hero-stage::before {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 22%;
+      height: 22%;
+      border: 5px solid #7a4317;
+      border-radius: 50% 50% 0 0;
+      background: #b96b26;
+      box-shadow:
+        76px -42px 0 -12px #b96b26,
+        150px -72px 0 -22px #b96b26,
+        inset 0 12px rgba(255, 255, 255, 0.22);
+    }
+
+    .hero-stage::after {
+      content: "";
+      position: absolute;
+      left: -6%;
+      right: -6%;
+      bottom: 0;
+      height: 26%;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 235, 169, 0.22) 0 32px, transparent 32px 64px),
+        linear-gradient(180deg, #c28036, #925018);
+    }
+
+    .hero-runner {
+      position: absolute;
+      left: 11%;
+      bottom: 10%;
+      z-index: 3;
+      width: clamp(120px, 20vw, 180px);
+      height: clamp(178px, 30vw, 270px);
+      object-fit: contain;
+      filter: drop-shadow(0 10px 0 rgba(72, 35, 9, 0.25));
+      animation: idleFloat 1.5s ease-in-out infinite;
+    }
+
+    .hero-target {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 300px;
+      padding: 12px;
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      background: rgba(255, 251, 231, 0.96);
+      box-shadow: 0 7px 0 rgba(113, 64, 22, 0.32);
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .hero-target img {
+      width: 82px;
+      height: 82px;
+      flex: 0 0 auto;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fff8d9;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .level-grid,
+    .skin-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .panel,
+    .level-card,
+    .skin-card,
+    .result-card,
+    .word-card {
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      background: rgba(255, 251, 231, 0.95);
+      box-shadow: 0 7px 0 rgba(113, 64, 22, 0.34);
+    }
+
+    .level-card,
+    .skin-card {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      padding: 14px;
+    }
+
+    .level-card.locked {
+      opacity: 0.62;
+    }
+
+    .level-card .badge,
+    .skin-card .badge {
+      display: inline-flex;
+      width: fit-content;
+      padding: 5px 9px;
+      border: 2px solid var(--wood);
+      border-radius: 999px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--blue);
+    }
+
+    .level-card p,
+    .skin-card p {
+      color: var(--ink-soft);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .skin-preview {
+      display: grid;
+      min-height: 150px;
+      place-items: center;
+      border: 3px solid rgba(113, 64, 22, 0.35);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, #8bd8ff 0 52%, #72c95d 52% 100%);
+      overflow: hidden;
+    }
+
+    .skin-preview img {
+      width: 126px;
+      height: 126px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 0 rgba(72, 35, 9, 0.22));
+    }
+
+    .play-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.78fr) minmax(420px, 1.22fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side {
+      display: grid;
+      gap: 14px;
+    }
+
+    .target-card {
+      display: grid;
+      grid-template-columns: 116px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fffbe7, #ffe9a4);
+      box-shadow: 0 7px 0 rgba(113, 64, 22, 0.36);
+    }
+
+    .target-card img {
+      width: 116px;
+      height: 116px;
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fffdf1;
+    }
+
+    .target-word {
+      min-width: 0;
+      font-size: clamp(30px, 5vw, 50px);
+      font-weight: 900;
+      line-height: 1;
+      color: #4a250d;
+      word-break: break-word;
+    }
+
+    .target-actions {
+      margin-top: 10px;
+    }
+
+    .btn.small {
+      min-height: 36px;
+      padding: 7px 12px;
+      font-size: 14px;
+      box-shadow: 0 4px 0 #8c5017;
+    }
+
+    .word-rail {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+      max-height: 336px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .word-card {
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      min-height: 72px;
+      padding: 7px;
+    }
+
+    .word-card img {
+      width: 54px;
+      height: 54px;
+      border: 2px solid rgba(113, 64, 22, 0.38);
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fffdf1;
+    }
+
+    .word-card b,
+    .word-card span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .word-card b {
+      font-size: 16px;
+      color: #4a250d;
+    }
+
+    .word-card span {
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .word-card.current {
+      outline: 4px solid var(--gold);
+      background: #fff2a8;
+    }
+
+    .word-card.correct {
+      background: #dff8df;
+    }
+
+    .word-card.wrong {
+      background: #ffd8d3;
+    }
+
+    .builder,
+    .stage-panel,
+    .hud,
+    .review {
+      padding: 12px;
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      border: 3px solid var(--wood);
+      border-radius: 8px;
+      background: rgba(255, 251, 231, 0.92);
+      box-shadow: 0 7px 0 rgba(113, 64, 22, 0.28);
+    }
+
+    .hud .stat {
+      min-width: 0;
+      box-shadow: none;
+    }
+
+    .builder {
+      display: grid;
+      gap: 12px;
+    }
+
+    .syllable-input {
+      width: 100%;
+      min-height: 58px;
+      padding: 12px 14px;
+      border: 3px dashed rgba(113, 64, 22, 0.45);
+      border-radius: 8px;
+      color: #351a08;
+      background: rgba(255, 255, 255, 0.35);
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 900;
+      outline: none;
+    }
+
+    .syllable-input:focus {
+      border-color: var(--gold-dark);
+      background: #fffdf1;
+    }
+
+    .input-example {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      color: #5b3110;
+      font-weight: 900;
+    }
+
+    .input-example strong {
+      padding: 5px 10px;
+      border: 2px solid var(--wood);
+      border-radius: 8px;
+      background: #fff2a8;
+      color: #4a250d;
+      font-size: 22px;
+    }
+
+    .hint-box {
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 3px solid rgba(113, 64, 22, 0.45);
+      border-radius: 8px;
+      color: #4a250d;
+      background: #fff2a8;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .builder-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .message {
+      min-height: 28px;
+      color: #4a250d;
+      font-weight: 900;
+    }
+
+    .stage-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .stage {
+      position: relative;
+      min-height: 330px;
+      border: 4px solid var(--wood);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.55), transparent 18%),
+        linear-gradient(180deg, var(--sky) 0 54%, var(--grass) 54% 75%, #ca8034 75% 100%);
+      box-shadow: inset 0 -12px rgba(79, 41, 10, 0.14);
+      overflow: hidden;
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      left: 2%;
+      right: 2%;
+      bottom: 11%;
+      height: 72px;
+      border-top: 5px solid #744016;
+      border-bottom: 5px solid #744016;
+      background:
+        repeating-linear-gradient(90deg, rgba(255, 231, 156, 0.28) 0 34px, transparent 34px 68px),
+        linear-gradient(180deg, #d79748, #a95d1f);
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      bottom: 39%;
+      height: 88px;
+      border: 5px solid #7d4519;
+      border-bottom: 0;
+      border-radius: 70px 70px 0 0;
+      background: rgba(185, 106, 38, 0.78);
+      box-shadow:
+        78px -35px 0 -16px rgba(185, 106, 38, 0.78),
+        156px -58px 0 -26px rgba(185, 106, 38, 0.78),
+        inset 0 10px rgba(255, 255, 255, 0.18);
+    }
+
+    .runner {
+      position: absolute;
+      left: 34px;
+      bottom: 58px;
+      z-index: 5;
+      width: clamp(94px, 13vw, 128px);
+      height: clamp(142px, 19vw, 184px);
+      object-fit: contain;
+      filter: drop-shadow(0 8px 0 rgba(72, 35, 9, 0.26));
+      transition: left 0.48s ease, transform 0.36s ease;
+      transform-origin: 50% 100%;
+    }
+
+    .runner.jump {
+      transform: translateY(-105px) rotate(-5deg);
+    }
+
+    .runner.slide {
+      transform: translateY(12px) scaleY(0.66);
+    }
+
+    .runner.hit {
+      animation: hit 0.56s ease;
+    }
+
+    .obstacles {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .obstacle {
+      position: absolute;
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      width: 118px;
+      transform: translateX(-50%);
+    }
+
+    .obstacle img {
+      display: block;
+      width: 118px;
+      height: 118px;
+      object-fit: contain;
+      filter: drop-shadow(0 7px 0 rgba(72, 35, 9, 0.22));
+    }
+
+    .obstacle.jump {
+      bottom: 62px;
+    }
+
+    .obstacle.jump img {
+      width: 132px;
+      height: 74px;
+    }
+
+    .obstacle.slide {
+      bottom: 62px;
+    }
+
+    .obstacle.slide img {
+      width: 120px;
+      height: 124px;
+    }
+
+    .obstacle span {
+      min-width: 54px;
+      max-width: 112px;
+      padding: 4px 7px;
+      border: 2px solid var(--wood);
+      border-radius: 8px;
+      color: #351a08;
+      font-size: 13px;
+      font-weight: 900;
+      text-align: center;
+      background: #fff6bd;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .progress {
+      height: 18px;
+      border: 3px solid var(--wood);
+      border-radius: 999px;
+      background: #f2cf83;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #56cf7b, #ffd057);
+      transition: width 0.28s ease;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .result-card {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 9px;
+    }
+
+    .result-card img {
+      width: 64px;
+      height: 64px;
+      border: 2px solid rgba(113, 64, 22, 0.38);
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fffdf1;
+    }
+
+    .result-card b,
+    .result-card span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .result-card.correct {
+      background: #dff8df;
+    }
+
+    .result-card.wrong {
+      background: #ffd8d3;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes idleFloat {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    @keyframes hit {
+      0%,
+      100% {
+        transform: translateX(0) rotate(0);
+      }
+      25% {
+        transform: translateX(-12px) rotate(-6deg);
+      }
+      55% {
+        transform: translateX(10px) rotate(6deg);
+      }
+      80% {
+        transform: translateX(-5px) rotate(-3deg);
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 10px;
+      }
+
+      .screen {
+        min-height: calc(100vh - 28px);
+      }
+
+      .hero-layout,
+      .play-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stage {
+        min-height: 340px;
+      }
+
+      .target-card {
+        grid-template-columns: 96px minmax(0, 1fr);
+      }
+
+      .target-card img {
+        width: 96px;
+        height: 96px;
+      }
+
+      .stage {
+        min-height: 290px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .hero-actions,
+      .builder-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .stat-row,
+      .hud {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-target {
+        left: 14px;
+        right: 14px;
+        top: 14px;
+      }
+
+      .hero-runner {
+        left: 26%;
+      }
+
+      .word-rail {
+        max-height: none;
+      }
+    }
+  </style>
 </head>
-
 <body>
-
-<div id="game">
-
-    <button id="musicToggle" type="button" aria-label="Toggle music" title="Toggle music">
-        M
-    </button>
-
-    <h1>&#9889; CYBER SYLLABLE RUNNER &#9889;</h1>
-
-    <div id="mainMenu" class="screen">
-
-        <div class="menuPanel">
-
-            <div id="menuSubtitle">
-                Train syllables, clear cyber missions, earn credits, and unlock runner skins.
+  <main class="game">
+    <section id="homeScreen" class="screen active">
+      <div class="hero-layout">
+        <div class="hero-copy">
+          <div class="brand">
+            <div class="crest" aria-hidden="true"></div>
+            <div>
+              <p class="kicker">The Kingdom</p>
+              <h1>Chapter 2</h1>
             </div>
-
-            <div class="menuStats">
-                <div class="statBox">
-                    <div class="statLabel">CREDITS</div>
-                    <div class="statValue" id="creditsStat">0</div>
-                </div>
-                <div class="statBox">
-                    <div class="statLabel">LEVEL</div>
-                    <div class="statValue" id="levelStat">1</div>
-                </div>
-                <div class="statBox">
-                    <div class="statLabel">SKINS</div>
-                    <div class="statValue" id="skinsStat">1</div>
-                </div>
-            </div>
-
-            <div class="menuActions">
-                <button class="cyberBtn" id="playBtn">PLAY</button>
-                <button class="cyberBtn secondary" id="levelsBtn">LEVELS</button>
-                <button class="cyberBtn secondary" id="shopBtn">SHOP</button>
-            </div>
-
+          </div>
+          <p>Syllable Runner</p>
+          <div class="stat-row">
+            <div class="stat"><span>Gold</span><strong id="homeCredits">0</strong></div>
+            <div class="stat"><span>Unlocked</span><strong id="homeUnlocked">1</strong></div>
+            <div class="stat"><span>Skin</span><strong id="homeSkin">Prince</strong></div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn green" type="button" data-open="levelsScreen">Play</button>
+            <button class="btn blue" type="button" data-open="skinsScreen">Skins</button>
+            <a class="btn secondary" href="../../index.html">The Kingdom</a>
+          </div>
         </div>
-
-    </div>
-
-    <div id="levelsScreen" class="screen is-hidden">
-
-        <h2 id="levelTitle">SELECT LEVEL</h2>
-
-        <div id="levelGrid" class="levelGrid"></div>
-
-        <button class="cyberBtn secondary" id="backFromLevels">BACK</button>
-
-    </div>
-
-    <div id="shopScreen" class="screen is-hidden">
-
-        <h2 id="levelTitle">NEON SHOP</h2>
-
-        <div id="shopGrid" class="shopGrid"></div>
-
-        <button class="cyberBtn secondary" id="backFromShop">BACK</button>
-
-    </div>
-
-    <div id="playScreen" class="screen is-hidden">
-
-        <div class="hud">
-            <div class="statBox">
-                <div class="statLabel">MISSION SCORE</div>
-                <div class="statValue" id="score">0</div>
-            </div>
-            <div class="statBox">
-                <div class="statLabel">CREDITS</div>
-                <div class="statValue" id="creditsHud">0</div>
-            </div>
-            <div class="statBox">
-                <div class="statLabel">PROGRESS</div>
-                <div class="statValue" id="progressPercent">0%</div>
-            </div>
+        <div class="hero-stage" aria-hidden="true">
+          <img id="heroRunner" class="hero-runner" src="../../assets/images/runner/generated-prince-runner.png" alt="">
+          <div class="hero-target">
+            <img src="../../assets/images/vocab/syllable-runner/treasure.png" alt="">
+            <span>treasure</span>
+          </div>
         </div>
+      </div>
+    </section>
 
-        <div id="word"></div>
+    <section id="levelsScreen" class="screen">
+      <div class="topbar">
+        <div class="brand">
+          <div class="crest" aria-hidden="true"></div>
+          <div>
+            <p class="kicker">Syllable Runner</p>
+            <h2>Choose Level</h2>
+          </div>
+        </div>
+        <div class="nav">
+          <button class="btn secondary" type="button" data-open="homeScreen">Home</button>
+          <button class="btn blue" type="button" data-open="skinsScreen">Skins</button>
+        </div>
+      </div>
+      <div id="levelGrid" class="grid level-grid"></div>
+    </section>
 
-        <div id="inputArea">
+    <section id="skinsScreen" class="screen">
+      <div class="topbar">
+        <div class="brand">
+          <div class="crest" aria-hidden="true"></div>
+          <div>
+            <p class="kicker">Syllable Runner</p>
+            <h2>Choose Skin</h2>
+          </div>
+        </div>
+        <div class="nav">
+          <button class="btn secondary" type="button" data-open="homeScreen">Home</button>
+          <button class="btn green" type="button" data-open="levelsScreen">Play</button>
+        </div>
+      </div>
+      <div class="stat-row" style="margin-bottom: 14px;">
+        <div class="stat"><span>Gold</span><strong id="shopCredits">0</strong></div>
+        <div class="stat"><span>Selected</span><strong id="shopSelected">Prince</strong></div>
+      </div>
+      <div id="skinGrid" class="grid skin-grid"></div>
+    </section>
 
-            <input
-                type="text"
-                id="answerInput"
-                placeholder="Type syllables like: ba na na"
-                autocomplete="off"
-            >
+    <section id="playScreen" class="screen">
+      <div class="topbar">
+        <div class="brand">
+          <div class="crest" aria-hidden="true"></div>
+          <div>
+            <p id="playKicker" class="kicker">Level 1</p>
+            <h2>Chapter 2</h2>
+          </div>
+        </div>
+        <div class="nav">
+          <button class="btn secondary" type="button" data-open="levelsScreen">Levels</button>
+          <button class="btn red" type="button" data-open="homeScreen">Exit</button>
+        </div>
+      </div>
 
-            <button id="submitBtn">
-                RUN
+      <div class="play-layout">
+        <aside class="side">
+          <div class="hud">
+            <div class="stat"><span>Score</span><strong id="scoreValue">0</strong></div>
+            <div class="stat"><span>Gold</span><strong id="goldValue">0</strong></div>
+            <div class="stat"><span>Word</span><strong id="wordCount">1/6</strong></div>
+          </div>
+
+          <div class="target-card">
+            <img id="targetImage" src="../../assets/images/vocab/syllable-runner/rabbit.png" alt="">
+            <div>
+              <div id="targetWord" class="target-word">rabbit</div>
+              <div class="target-actions">
+                <button id="speakButton" class="btn secondary small" type="button">Speak</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="wordRail" class="word-rail"></div>
+        </aside>
+
+        <section class="side">
+          <div class="panel builder">
+            <h3>Build The Word</h3>
+            <div class="input-example">Example <strong>Ba na na</strong></div>
+            <input id="syllableInput" class="syllable-input" type="text" autocomplete="off" spellcheck="false" placeholder="Type syllables">
+            <div id="hintBox" class="hint-box hidden" aria-live="polite"></div>
+            <div class="builder-actions">
+              <button id="runButton" class="btn green" type="button">Run</button>
+              <button id="hintButton" class="btn blue" type="button">Hint</button>
+              <button id="clearButton" class="btn secondary" type="button">Clear</button>
+              <button id="skipButton" class="btn red" type="button">Skip</button>
+            </div>
+            <div id="message" class="message" aria-live="polite"></div>
+          </div>
+
+          <div class="panel stage-panel">
+            <div class="progress" aria-hidden="true"><span id="progressFill"></span></div>
+            <div class="stage">
+              <div id="obstacles" class="obstacles"></div>
+              <img id="runner" class="runner" src="../../assets/images/runner/generated-prince-runner.png" alt="">
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="endScreen" class="screen">
+      <div class="topbar">
+        <div class="brand">
+          <div class="crest" aria-hidden="true"></div>
+          <div>
+            <p class="kicker">Syllable Runner</p>
+            <h2 id="endTitle">Level Complete</h2>
+          </div>
+        </div>
+        <div class="nav">
+          <button id="nextLevelButton" class="btn green" type="button">Next Level</button>
+          <button class="btn blue" type="button" data-open="levelsScreen">Levels</button>
+          <button class="btn secondary" type="button" data-open="homeScreen">Home</button>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><span>Score</span><strong id="endScore">0</strong></div>
+        <div class="stat"><span>Gold Earned</span><strong id="endGold">0</strong></div>
+        <div class="stat"><span>Correct</span><strong id="endCorrect">0</strong></div>
+      </div>
+      <div id="reviewGrid" class="review-grid"></div>
+    </section>
+  </main>
+
+  <script>
+    const WORD_IMAGE_BASE = "../../assets/images/vocab/syllable-runner/";
+    const RUNNER_IMAGE_BASE = "../../assets/images/runner/";
+
+    const WORDS = Object.freeze([
+      { word: "bridge", level: 1, syllables: ["bridge"], types: ["closed"] },
+      { word: "rabbit", level: 1, syllables: ["rab", "bit"], types: ["closed", "closed"] },
+      { word: "forest", level: 1, syllables: ["for", "est"], types: ["closed", "closed"] },
+      { word: "flower", level: 1, syllables: ["flow", "er"], types: ["open", "closed"] },
+      { word: "tower", level: 1, syllables: ["tow", "er"], types: ["open", "closed"] },
+      { word: "table", level: 1, syllables: ["ta", "ble"], types: ["open", "closed"] },
+      { word: "candy", level: 1, syllables: ["can", "dy"], types: ["closed", "open"] },
+      { word: "mountain", level: 2, syllables: ["moun", "tain"], types: ["closed", "closed"] },
+      { word: "helmet", level: 2, syllables: ["hel", "met"], types: ["closed", "closed"] },
+      { word: "carrot", level: 2, syllables: ["car", "rot"], types: ["closed", "closed"] },
+      { word: "potato", level: 2, syllables: ["po", "ta", "to"], types: ["open", "open", "open"] },
+      { word: "potion", level: 2, syllables: ["po", "tion"], types: ["open", "closed"] },
+      { word: "window", level: 2, syllables: ["win", "dow"], types: ["closed", "open"] },
+      { word: "listen", level: 2, syllables: ["lis", "ten"], types: ["closed", "closed"] },
+      { word: "dungeon", level: 3, syllables: ["dun", "geon"], types: ["closed", "closed"] },
+      { word: "treasure", level: 3, syllables: ["trea", "sure"], types: ["open", "closed"] },
+      { word: "armor", level: 3, syllables: ["ar", "mor"], types: ["closed", "closed"] },
+      { word: "crystal", level: 3, syllables: ["crys", "tal"], types: ["closed", "closed"] },
+      { word: "purple", level: 3, syllables: ["pur", "ple"], types: ["closed", "closed"] },
+      { word: "pirate", level: 3, syllables: ["pi", "rate"], types: ["open", "closed"] },
+      { word: "secret", level: 3, syllables: ["se", "cret"], types: ["open", "closed"] },
+      { word: "adventure", level: 4, syllables: ["ad", "ven", "ture"], types: ["closed", "closed", "closed"] },
+      { word: "monster", level: 4, syllables: ["mon", "ster"], types: ["closed", "closed"] },
+      { word: "captain", level: 4, syllables: ["cap", "tain"], types: ["closed", "closed"] },
+      { word: "villager", level: 4, syllables: ["vil", "lag", "er"], types: ["closed", "closed", "closed"] },
+      { word: "portal", level: 4, syllables: ["por", "tal"], types: ["closed", "closed"] },
+      { word: "danger", level: 4, syllables: ["dan", "ger"], types: ["closed", "closed"] },
+      { word: "victory", level: 4, syllables: ["vic", "to", "ry"], types: ["closed", "open", "open"] }
+    ]);
+
+    const LEVELS = Object.freeze([
+      { id: 1, title: "Bridge Route", count: 7, reward: 10 },
+      { id: 2, title: "Tower Route", count: 7, reward: 14 },
+      { id: 3, title: "Dungeon Route", count: 7, reward: 18 },
+      { id: 4, title: "Victory Route", count: 7, reward: 24 }
+    ]);
+
+    const SKINS = Object.freeze([
+      { id: "prince", name: "Prince", file: "generated-prince-runner.png", price: 0 },
+      { id: "knight", name: "Knight", file: "knight-runner.svg", price: 35 },
+      { id: "pirate", name: "Pirate", file: "pirate-runner.svg", price: 45 },
+      { id: "captain", name: "Captain", file: "captain-runner.svg", price: 55 },
+      { id: "wizard", name: "Wizard", file: "wizard-runner.svg", price: 65 },
+      { id: "horse", name: "Horse", file: "horse-runner.svg", price: 75 }
+    ]);
+
+    const STORAGE = {
+      credits: "csrCredits",
+      high: "csrHighestLevel",
+      skin: "csrSelectedSkin",
+      owned: "csrOwnedSkins"
+    };
+
+    const screens = Array.from(document.querySelectorAll(".screen"));
+    const homeCredits = document.getElementById("homeCredits");
+    const homeUnlocked = document.getElementById("homeUnlocked");
+    const homeSkin = document.getElementById("homeSkin");
+    const heroRunner = document.getElementById("heroRunner");
+    const levelGrid = document.getElementById("levelGrid");
+    const skinGrid = document.getElementById("skinGrid");
+    const shopCredits = document.getElementById("shopCredits");
+    const shopSelected = document.getElementById("shopSelected");
+    const playKicker = document.getElementById("playKicker");
+    const scoreValue = document.getElementById("scoreValue");
+    const goldValue = document.getElementById("goldValue");
+    const wordCount = document.getElementById("wordCount");
+    const targetImage = document.getElementById("targetImage");
+    const targetWord = document.getElementById("targetWord");
+    const speakButton = document.getElementById("speakButton");
+    const wordRail = document.getElementById("wordRail");
+    const syllableInput = document.getElementById("syllableInput");
+    const hintBox = document.getElementById("hintBox");
+    const runButton = document.getElementById("runButton");
+    const hintButton = document.getElementById("hintButton");
+    const clearButton = document.getElementById("clearButton");
+    const skipButton = document.getElementById("skipButton");
+    const message = document.getElementById("message");
+    const progressFill = document.getElementById("progressFill");
+    const obstacles = document.getElementById("obstacles");
+    const runner = document.getElementById("runner");
+    const endTitle = document.getElementById("endTitle");
+    const endScore = document.getElementById("endScore");
+    const endGold = document.getElementById("endGold");
+    const endCorrect = document.getElementById("endCorrect");
+    const reviewGrid = document.getElementById("reviewGrid");
+    const nextLevelButton = document.getElementById("nextLevelButton");
+
+    const state = {
+      credits: readNumber(STORAGE.credits, 0),
+      highestLevel: clamp(readNumber(STORAGE.high, 1), 1, LEVELS.length),
+      selectedSkin: localStorage.getItem(STORAGE.skin) || "prince",
+      ownedSkins: readOwnedSkins()
+    };
+
+    let session = null;
+    let busy = false;
+    let audioContext = null;
+
+    sanitizeState();
+    bindEvents();
+    renderAll();
+
+    function bindEvents() {
+      document.addEventListener("click", (event) => {
+        unlockAudio();
+        const openButton = event.target.closest("[data-open]");
+        if (openButton) {
+          playSound("click");
+          showScreen(openButton.dataset.open);
+        }
+      });
+
+      speakButton.addEventListener("click", () => {
+        if (!session) return;
+        unlockAudio();
+        playSound("speak");
+        speakWord(getCurrentWord().word);
+      });
+      runButton.addEventListener("click", checkAnswer);
+      clearButton.addEventListener("click", clearAnswer);
+      hintButton.addEventListener("click", showHint);
+      skipButton.addEventListener("click", () => {
+        if (busy || !session) return;
+        playSound("wrong");
+        markCurrent(false);
+        animateRun(false, nextWord);
+      });
+
+      syllableInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          checkAnswer();
+        }
+      });
+
+      nextLevelButton.addEventListener("click", () => {
+        unlockAudio();
+        playSound("click");
+        if (!session) {
+          showScreen("levelsScreen");
+          return;
+        }
+        const nextId = session.level.id + 1;
+        if (nextId <= LEVELS.length && nextId <= state.highestLevel) {
+          startLevel(nextId);
+        } else {
+          showScreen("levelsScreen");
+        }
+      });
+    }
+
+    function renderAll() {
+      renderHome();
+      renderLevels();
+      renderSkins();
+    }
+
+    function renderHome() {
+      const skin = getSelectedSkin();
+      homeCredits.textContent = String(state.credits);
+      homeUnlocked.textContent = String(state.highestLevel);
+      homeSkin.textContent = skin.name;
+      heroRunner.src = runnerImage(skin.file);
+    }
+
+    function renderLevels() {
+      levelGrid.innerHTML = LEVELS.map((level) => {
+        const locked = level.id > state.highestLevel;
+        return `
+          <article class="level-card ${locked ? "locked" : ""}">
+            <span class="badge">Level ${level.id}</span>
+            <h3>${escapeHtml(level.title)}</h3>
+            <p>${level.count} words - ${level.reward} gold</p>
+            <button class="btn ${locked ? "secondary" : "green"}" type="button" ${locked ? "disabled" : ""} data-level="${level.id}">
+              ${locked ? "Locked" : "Start"}
             </button>
+          </article>
+        `;
+      }).join("");
 
-        </div>
+      levelGrid.querySelectorAll("[data-level]").forEach((button) => {
+        button.addEventListener("click", () => {
+          unlockAudio();
+          playSound("click");
+          startLevel(Number(button.dataset.level));
+        });
+      });
+    }
 
-        <div id="scene">
+    function renderSkins() {
+      shopCredits.textContent = String(state.credits);
+      shopSelected.textContent = getSelectedSkin().name;
 
-            <div class="city"></div>
-            <div class="road"></div>
-
-            <div id="character">&#129302;</div>
-
-        </div>
-
-        <div id="progress"></div>
-
-    </div>
-
-    <div id="endScreen" class="screen is-hidden">
-
-        <div class="menuPanel">
-            <h2 id="levelTitle">MISSION COMPLETE</h2>
-            <div id="endSummary"></div>
-            <div class="menuActions">
-                <button class="cyberBtn" id="nextLevelBtn">NEXT LEVEL</button>
-                <button class="cyberBtn secondary" id="replayBtn">REPLAY</button>
-                <button class="cyberBtn secondary" id="menuBtn">MENU</button>
+      skinGrid.innerHTML = SKINS.map((skin) => {
+        const owned = state.ownedSkins.has(skin.id);
+        const selected = state.selectedSkin === skin.id;
+        const affordable = state.credits >= skin.price;
+        let buttonText = "Select";
+        if (selected) buttonText = "Selected";
+        if (!owned) buttonText = affordable ? `Buy ${skin.price}` : `${skin.price} gold`;
+        return `
+          <article class="skin-card">
+            <span class="badge">${owned ? "Owned" : "Shop"}</span>
+            <div class="skin-preview">
+              <img src="${runnerImage(skin.file)}" alt="${escapeHtml(skin.name)}">
             </div>
-        </div>
-
-    </div>
-
-</div>
-
-<script>
-
-/* stars */
-
-for(let i=0;i<60;i++){
-
-    const star=document.createElement("div");
-
-    star.classList.add("star");
-
-    star.style.left=Math.random()*100+"vw";
-    star.style.top=Math.random()*100+"vh";
-
-    star.style.animationDuration=
-        (1+Math.random()*3)+"s";
-
-    document.body.appendChild(star);
-
-}
-
-function shuffle(array){
-
-    return array.sort(() => Math.random() - 0.5);
-
-}
-
-const words = [
-
-{word:"banana",correct:["ba","na","na"],types:["open","open","open"]},
-{word:"basket",correct:["bas","ket"],types:["closed","closed"]},
-{word:"robot",correct:["ro","bot"],types:["open","closed"]},
-{word:"window",correct:["win","dow"],types:["closed","open"]},
-{word:"tomato",correct:["to","ma","to"],types:["open","open","open"]},
-{word:"paper",correct:["pa","per"],types:["open","closed"]},
-{word:"music",correct:["mu","sic"],types:["open","closed"]},
-{word:"hotel",correct:["ho","tel"],types:["open","closed"]},
-{word:"student",correct:["stu","dent"],types:["open","closed"]},
-{word:"family",correct:["fa","mi","ly"],types:["open","open","closed"]}
-
-];
-
-const levels = [
-    {
-        id:1,
-        name:"Neon Rookie",
-        count:4,
-        reward:12,
-        unlockScore:0
-    },
-    {
-        id:2,
-        name:"Data Dash",
-        count:6,
-        reward:18,
-        unlockScore:30
-    },
-    {
-        id:3,
-        name:"Chrome Storm",
-        count:8,
-        reward:25,
-        unlockScore:80
-    }
-];
-
-const skins = [
-    {id:"bot",name:"Default Bot",icon:"&#129302;",price:0},
-    {id:"ninja",name:"Neon Ninja",icon:"&#129399;",price:60},
-    {id:"alien",name:"Star Runner",icon:"&#128125;",price:90},
-    {id:"ghost",name:"Glitch Ghost",icon:"&#128123;",price:120},
-    {id:"rocket",name:"Rocket Unit",icon:"&#128640;",price:160},
-    {id:"dragon",name:"Cyber Dragon",icon:"&#128009;",price:220}
-];
-
-let gameWords = [];
-let current = 0;
-let score = 0;
-let earnedThisRun = 0;
-let selectedLevel = 1;
-let acceptingAnswer = false;
-let totalCredits = Number(localStorage.getItem("csrCredits")) || 0;
-let highestLevel = Number(localStorage.getItem("csrHighestLevel")) || 1;
-let selectedSkin = localStorage.getItem("csrSelectedSkin") || "bot";
-let ownedSkins = JSON.parse(localStorage.getItem("csrOwnedSkins") || "[\"bot\"]");
-let musicStarted = false;
-let musicMuted = false;
-let audioCtx;
-let musicMaster;
-let bassTimer;
-let padTimer;
-let pulseTimer;
-
-const wordDiv = document.getElementById("word");
-const answerInput = document.getElementById("answerInput");
-const submitBtn = document.getElementById("submitBtn");
-const musicToggle = document.getElementById("musicToggle");
-const mainMenu = document.getElementById("mainMenu");
-const levelsScreen = document.getElementById("levelsScreen");
-const shopScreen = document.getElementById("shopScreen");
-const playScreen = document.getElementById("playScreen");
-const endScreen = document.getElementById("endScreen");
-const playBtn = document.getElementById("playBtn");
-const levelsBtn = document.getElementById("levelsBtn");
-const shopBtn = document.getElementById("shopBtn");
-const backFromLevels = document.getElementById("backFromLevels");
-const backFromShop = document.getElementById("backFromShop");
-const levelGrid = document.getElementById("levelGrid");
-const shopGrid = document.getElementById("shopGrid");
-const creditsStat = document.getElementById("creditsStat");
-const levelStat = document.getElementById("levelStat");
-const skinsStat = document.getElementById("skinsStat");
-const creditsHud = document.getElementById("creditsHud");
-const progressPercent = document.getElementById("progressPercent");
-const endSummary = document.getElementById("endSummary");
-const nextLevelBtn = document.getElementById("nextLevelBtn");
-const replayBtn = document.getElementById("replayBtn");
-const menuBtn = document.getElementById("menuBtn");
-const scene = document.getElementById("scene");
-const character = document.getElementById("character");
-const scoreDiv = document.getElementById("score");
-const progressDiv = document.getElementById("progress");
-const gameDiv = document.getElementById("game");
-
-function saveProgress(){
-
-    localStorage.setItem("csrCredits",String(totalCredits));
-    localStorage.setItem("csrHighestLevel",String(highestLevel));
-    localStorage.setItem("csrSelectedSkin",selectedSkin);
-    localStorage.setItem("csrOwnedSkins",JSON.stringify(ownedSkins));
-
-}
-
-function activeSkin(){
-
-    return skins.find(skin => skin.id === selectedSkin) || skins[0];
-
-}
-
-function showScreen(screen){
-
-    [mainMenu,levelsScreen,shopScreen,playScreen,endScreen]
-        .forEach(item => item.classList.add("is-hidden"));
-
-    screen.classList.remove("is-hidden");
-
-}
-
-function updateStats(){
-
-    creditsStat.textContent = totalCredits;
-    levelStat.textContent = highestLevel;
-    skinsStat.textContent = ownedSkins.length;
-    creditsHud.textContent = totalCredits;
-
-}
-
-function renderLevels(){
-
-    levelGrid.innerHTML = "";
-
-    levels.forEach(level => {
-
-        const isLocked = level.id > highestLevel;
-        const card = document.createElement("div");
-        card.className = "levelCard" + (isLocked ? " locked" : "");
-
-        card.innerHTML =
-            "<div>" +
-                "<div class='cardMeta'>LEVEL " + level.id + "</div>" +
-                "<div class='cardTitle'>" + level.name + "</div>" +
-                "<div class='cardMeta'>" + level.count + " words · +" + level.reward + " credits per correct answer</div>" +
-            "</div>" +
-            "<button class='cyberBtn' " + (isLocked ? "disabled" : "") + ">" +
-                (isLocked ? "LOCKED" : "START") +
-            "</button>";
-
-        card.querySelector("button").onclick = () => {
-
-            if(!isLocked){
-
-                startLevel(level.id);
-
-            }
-
-        };
-
-        levelGrid.appendChild(card);
-
-    });
-
-}
-
-function renderShop(){
-
-    shopGrid.innerHTML = "";
-
-    skins.forEach(skin => {
-
-        const owned = ownedSkins.includes(skin.id);
-        const selected = selectedSkin === skin.id;
-        const canBuy = totalCredits >= skin.price;
-        const card = document.createElement("div");
-        card.className = "skinCard" + (!owned && !canBuy ? " locked" : "");
-        const buttonText = selected ? "EQUIPPED" : owned ? "EQUIP" : "BUY " + skin.price;
-
-        card.innerHTML =
-            "<div>" +
-                "<div class='skinPreview'>" + skin.icon + "</div>" +
-                "<div class='cardTitle'>" + skin.name + "</div>" +
-                "<div class='cardMeta'>" + (owned ? "Owned" : skin.price + " credits") + "</div>" +
-            "</div>" +
-            "<button class='cyberBtn' " + (selected || (!owned && !canBuy) ? "disabled" : "") + ">" +
-                buttonText +
-            "</button>";
-
-        card.querySelector("button").onclick = () => {
-
-            if(!owned){
-
-                totalCredits -= skin.price;
-                ownedSkins.push(skin.id);
-
-            }
-
-            selectedSkin = skin.id;
-            character.innerHTML = activeSkin().icon;
-            saveProgress();
-            updateStats();
-            renderShop();
-
-        };
-
-        shopGrid.appendChild(card);
-
-    });
-
-}
-
-function showMenu(){
-
-    updateStats();
-    showScreen(mainMenu);
-
-}
-
-function startLevel(levelId){
-
-    const level = levels.find(item => item.id === levelId) || levels[0];
-
-    selectedLevel = level.id;
-    gameWords = shuffle([...words]).slice(0,level.count);
-    current = 0;
-    score = 0;
-    earnedThisRun = 0;
-    acceptingAnswer = true;
-    character.innerHTML = activeSkin().icon;
-    scoreDiv.textContent = "0";
-    progressPercent.textContent = "0%";
-    answerInput.style.display = "";
-    submitBtn.style.display = "";
-
-    showScreen(playScreen);
-    updateStats();
-    loadWord();
-
-}
-
-function createObstacles(types){
-
-    document
-        .querySelectorAll(".obstacle")
-        .forEach(o => o.remove());
-
-    let startX = 300;
-
-    types.forEach((type,index)=>{
-
-        const obstacle =
-            document.createElement("div");
-
-        obstacle.classList.add("obstacle");
-
-        obstacle.innerHTML = "&#9889;";
-
-        obstacle.style.left =
-            (startX + index * 180) + "px";
-
-        if(type === "open"){
-
-            obstacle.style.bottom = "50px";
-
-        }
-
-        else{
-
-            obstacle.style.top = "40px";
-
-        }
-
-        scene.appendChild(obstacle);
-
-    });
-
-}
-
-function loadWord(){
-
-    character.style.left = "50px";
-
-    character.style.bottom = "40px";
-
-    character.className = "";
-
-    const item = gameWords[current];
-
-    wordDiv.textContent = item.word;
-
-    speakWord(item.word);
-
-    progressDiv.textContent =
-        "LEVEL " +
-        selectedLevel +
-        " · MISSION " +
-        (current + 1) +
-        " / " +
-        gameWords.length;
-
-    progressPercent.textContent =
-        Math.round((current / gameWords.length) * 100) + "%";
-
-    createObstacles(item.types);
-
-    answerInput.value = "";
-
-    acceptingAnswer = true;
-
-    answerInput.focus();
-
-}
-
-function playTone(frequency,start,duration,type,gain,filterFrequency){
-
-    if(!audioCtx || !musicMaster){
-
-        return;
-
-    }
-
-    const oscillator = audioCtx.createOscillator();
-    const filter = audioCtx.createBiquadFilter();
-    const amp = audioCtx.createGain();
-
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(frequency,start);
-
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(filterFrequency,start);
-    filter.Q.setValueAtTime(1.8,start);
-
-    amp.gain.setValueAtTime(0.0001,start);
-    amp.gain.exponentialRampToValueAtTime(gain,start + 0.03);
-    amp.gain.exponentialRampToValueAtTime(0.0001,start + duration);
-
-    oscillator.connect(filter);
-    filter.connect(amp);
-    amp.connect(musicMaster);
-
-    oscillator.start(start);
-    oscillator.stop(start + duration + 0.08);
-
-}
-
-function startCyberMusic(){
-
-    if(musicStarted || musicMuted){
-
-        return;
-
-    }
-
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    musicMaster = audioCtx.createGain();
-    const compressor = audioCtx.createDynamicsCompressor();
-
-    musicMaster.gain.value = 0.11;
-    compressor.threshold.value = -26;
-    compressor.knee.value = 24;
-    compressor.ratio.value = 8;
-    compressor.attack.value = 0.02;
-    compressor.release.value = 0.25;
-
-    musicMaster.connect(compressor);
-    compressor.connect(audioCtx.destination);
-
-    musicStarted = true;
-    musicToggle.classList.remove("is-off");
-    musicToggle.textContent = "M";
-
-    const beat = 60 / 86;
-    const bass = [55,55,82.41,73.42,49,49,73.42,82.41];
-    const padChords = [
-        [220,277.18,329.63],
-        [196,246.94,293.66],
-        [164.81,220,261.63],
-        [184.99,233.08,277.18]
-    ];
-    let bassStep = 0;
-    let padStep = 0;
-    let pulseStep = 0;
-
-    function scheduleBass(){
-
-        const now = audioCtx.currentTime;
-
-        for(let i=0;i<8;i++){
-
-            const note = bass[(bassStep + i) % bass.length];
-            playTone(note,now + i * beat * 0.5,beat * 0.42,"sawtooth",0.08,260);
-
-        }
-
-        bassStep = (bassStep + 8) % bass.length;
-
-    }
-
-    function schedulePads(){
-
-        const now = audioCtx.currentTime;
-        const chord = padChords[padStep % padChords.length];
-
-        chord.forEach((note)=>{
-
-            playTone(note,now,beat * 3.8,"triangle",0.025,900);
-            playTone(note * 2,now + 0.02,beat * 3.6,"sine",0.012,1200);
-
+            <h3>${escapeHtml(skin.name)}</h3>
+            <p>${skin.price === 0 ? "Free" : `${skin.price} gold`}</p>
+            <button class="btn ${selected ? "secondary" : "blue"}" type="button" data-skin="${skin.id}" ${(!owned && !affordable) || selected ? "disabled" : ""}>
+              ${buttonText}
+            </button>
+          </article>
+        `;
+      }).join("");
+
+      skinGrid.querySelectorAll("[data-skin]").forEach((button) => {
+        button.addEventListener("click", () => {
+          unlockAudio();
+          playSound("click");
+          chooseSkin(button.dataset.skin);
         });
-
-        padStep++;
-
+      });
     }
 
-    function schedulePulse(){
+    function startLevel(levelId) {
+      const level = LEVELS.find((item) => item.id === levelId);
+      if (!level || level.id > state.highestLevel) return;
 
-        const now = audioCtx.currentTime;
-        const note = pulseStep % 2 === 0 ? 880 : 659.25;
+      const words = shuffle(WORDS.filter((item) => item.level === level.id));
+      session = {
+        level,
+        words,
+        index: 0,
+        score: 0,
+        earned: 0,
+        results: words.map((item) => ({ word: item.word, status: "pending", answer: "" }))
+      };
 
-        playTone(note,now,beat * 0.22,"square",0.012,1800);
-        pulseStep++;
-
+      playKicker.textContent = `Level ${level.id} - ${level.title}`;
+      runner.src = runnerImage(getSelectedSkin().file);
+      showScreen("playScreen");
+      loadWord();
     }
 
-    scheduleBass();
-    schedulePads();
-    schedulePulse();
-
-    bassTimer = setInterval(scheduleBass,beat * 4 * 1000);
-    padTimer = setInterval(schedulePads,beat * 4 * 1000);
-    pulseTimer = setInterval(schedulePulse,beat * 2 * 1000);
-
-}
-
-function toggleMusic(){
-
-    if(!musicStarted){
-
-        musicMuted = false;
-        startCyberMusic();
-        return;
-
-    }
-
-    musicMuted = !musicMuted;
-
-    if(musicMaster){
-
-        musicMaster.gain.setTargetAtTime(
-            musicMuted ? 0.0001 : 0.11,
-            audioCtx.currentTime,
-            0.08
-        );
-
-    }
-
-    musicToggle.classList.toggle("is-off",musicMuted);
-    musicToggle.textContent = musicMuted ? "OFF" : "M";
-
-}
-
-function animateRun(types, success, callback){
-
-    let index = 0;
-
-    function nextObstacle(){
-
-        if(index >= types.length){
-
-            callback();
-            return;
-        }
-
-        const type = types[index];
-
-        const obstacleX =
-            300 + index * 180;
-
-        character.style.left =
-            obstacleX - 140 + "px";
-
-        setTimeout(()=>{
-
-            if(!success && index === 0){
-
-                character.classList.add("hit");
-
-                character.style.left =
-                    obstacleX - 20 + "px";
-
-                setTimeout(()=>{
-
-                    character.classList.remove("hit");
-
-                    callback();
-
-                },700);
-
-                return;
-            }
-
-            if(type === "open"){
-
-                character.style.left =
-                    obstacleX + 20 + "px";
-
-                character.style.bottom = "190px";
-
-                setTimeout(()=>{
-
-                    character.style.left =
-                        obstacleX + 120 + "px";
-
-                    character.style.bottom = "40px";
-
-                    setTimeout(()=>{
-
-                        index++;
-                        nextObstacle();
-
-                    },350);
-
-                },450);
-
-            }
-
-            else{
-
-                character.classList.add("slide");
-
-                character.style.left =
-                    obstacleX + 40 + "px";
-
-                setTimeout(()=>{
-
-                    character.classList.remove("slide");
-
-                    character.style.left =
-                        obstacleX + 120 + "px";
-
-                    setTimeout(()=>{
-
-                        index++;
-                        nextObstacle();
-
-                    },250);
-
-                },450);
-
-            }
-
-        },350);
-
-    }
-
-    nextObstacle();
-
-}
-
-function checkAnswer(answer){
-
-    if(!acceptingAnswer){
-
-        return;
-
-    }
-
-    acceptingAnswer = false;
-    startCyberMusic();
-
-    const item = gameWords[current];
-
-    const correct =
-        item.correct.join(" ")
-        .toLowerCase()
-        .trim();
-
-    const userAnswer =
-        answer
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g," ");
-
-    if(userAnswer === correct){
-
-        score++;
-        const level = levels.find(item => item.id === selectedLevel) || levels[0];
-        totalCredits += level.reward;
-        earnedThisRun += level.reward;
-
-        scoreDiv.textContent =
-            score;
-
-        updateStats();
-        saveProgress();
-
-        gameDiv.classList.add("correctFlash");
-
-        setTimeout(()=>{
-
-            gameDiv.classList.remove("correctFlash");
-
-        },500);
-
-        animateRun(item.types,true,()=>{
-
-            nextWord();
-
-        });
-
-    }
-
-    else{
-
-        gameDiv.classList.add("wrongFlash");
-
-        setTimeout(()=>{
-
-            gameDiv.classList.remove("wrongFlash");
-
-        },500);
-
-        animateRun(item.types,false,()=>{
-
-            nextWord();
-
-        });
-
-    }
-
-}
-
-function nextWord(){
-
-    current++;
-
-    if(current >= gameWords.length){
-
-        document
-            .querySelectorAll(".obstacle")
-            .forEach(o=>o.remove());
-
+    function loadWord() {
+      if (!session) return;
+      if (session.index >= session.words.length) {
         finishLevel();
         return;
+      }
+
+      busy = false;
+      const current = getCurrentWord();
+      targetWord.textContent = current.word;
+      targetImage.src = wordImage(current.word);
+      targetImage.alt = current.word;
+      syllableInput.value = "";
+      syllableInput.disabled = false;
+      hintBox.textContent = "";
+      hintBox.classList.add("hidden");
+      scoreValue.textContent = String(session.score);
+      goldValue.textContent = String(state.credits);
+      wordCount.textContent = `${session.index + 1}/${session.words.length}`;
+      message.textContent = "";
+      progressFill.style.width = `${Math.round((session.index / session.words.length) * 100)}%`;
+      resetRunner();
+      renderWordRail();
+      renderObstacles();
+      speakWord(current.word);
+      window.setTimeout(() => syllableInput.focus(), 80);
     }
 
-    loadWord();
-
-}
-
-function finishLevel(){
-
-    acceptingAnswer = false;
-
-    const level = levels.find(item => item.id === selectedLevel) || levels[0];
-    const accuracy = Math.round((score / gameWords.length) * 100);
-    const nextLevel = selectedLevel + 1;
-
-    if(nextLevel <= levels.length && accuracy >= 60){
-
-        highestLevel = Math.max(highestLevel,nextLevel);
-
+    function renderWordRail() {
+      wordRail.innerHTML = session.words.map((item, index) => {
+        const result = session.results[index];
+        const classes = ["word-card"];
+        if (index === session.index) classes.push("current");
+        if (result.status === "correct") classes.push("correct");
+        if (result.status === "wrong") classes.push("wrong");
+        return `
+          <article class="${classes.join(" ")}">
+            <img src="${wordImage(item.word)}" alt="${escapeHtml(item.word)}">
+            <div>
+              <b>${escapeHtml(item.word)}</b>
+              <span>${wordStatusLabel(result.status, index)}</span>
+            </div>
+          </article>
+        `;
+      }).join("");
     }
 
-    saveProgress();
-    updateStats();
-    progressPercent.textContent = "100%";
-
-    endSummary.innerHTML =
-        "Accuracy: " + accuracy + "%<br>" +
-        "Correct answers: " + score + " / " + gameWords.length + "<br>" +
-        "Credits earned: +" + earnedThisRun + "<br>" +
-        (accuracy >= 60
-            ? "Progression unlocked. The neon route is open."
-            : "Score 60% or higher to unlock the next route.");
-
-    nextLevelBtn.style.display =
-        nextLevel <= highestLevel && nextLevel <= levels.length ? "" : "none";
-
-    showScreen(endScreen);
-
-}
-
-submitBtn.onclick = ()=>{
-
-    checkAnswer(answerInput.value);
-
-};
-
-musicToggle.onclick = ()=>{
-
-    toggleMusic();
-
-};
-
-playBtn.onclick = ()=>{
-
-    startLevel(highestLevel);
-
-};
-
-levelsBtn.onclick = ()=>{
-
-    renderLevels();
-    showScreen(levelsScreen);
-
-};
-
-shopBtn.onclick = ()=>{
-
-    renderShop();
-    showScreen(shopScreen);
-
-};
-
-backFromLevels.onclick = ()=>{
-
-    showMenu();
-
-};
-
-backFromShop.onclick = ()=>{
-
-    showMenu();
-
-};
-
-nextLevelBtn.onclick = ()=>{
-
-    startLevel(selectedLevel + 1);
-
-};
-
-replayBtn.onclick = ()=>{
-
-    startLevel(selectedLevel);
-
-};
-
-menuBtn.onclick = ()=>{
-
-    showMenu();
-
-};
-
-answerInput.addEventListener("keydown",(e)=>{
-
-    if(e.key === "Enter"){
-
-        checkAnswer(answerInput.value);
-
+    function renderObstacles() {
+      const current = getCurrentWord();
+      const total = current.syllables.length;
+      obstacles.innerHTML = current.syllables.map((_, index) => {
+        const kind = obstacleKindForSyllable(current, index);
+        const file = kind === "jump" ? "generated-jump-log.png" : "generated-slide-arch.png";
+        return `
+          <div class="obstacle ${kind}" style="left: ${obstacleLeft(index, total)}%;">
+            <img src="${runnerImage(file)}" alt="">
+          </div>
+        `;
+      }).join("");
     }
 
-});
+    function checkAnswer() {
+      if (busy || !session) return;
+      const current = getCurrentWord();
+      const rawAnswer = syllableInput.value.trim();
+      if (!rawAnswer) {
+        message.textContent = "Type the syllables first.";
+        syllableInput.focus();
+        return;
+      }
 
-function speakWord(word){
+      const isCorrect = normalizeSyllableAnswer(rawAnswer) === normalizeSyllableAnswer(current.syllables.join(" "));
+      markCurrent(isCorrect, rawAnswer);
+      message.textContent = isCorrect ? "Correct run!" : "Not quite. Try again or press Hint.";
+      playSound(isCorrect ? "correct" : "wrong");
+      animateRun(isCorrect, isCorrect ? nextWord : retryWord);
+    }
 
-    const speech =
-        new SpeechSynthesisUtterance(word);
+    function clearAnswer() {
+      if (busy) return;
+      playSound("click");
+      syllableInput.value = "";
+      hintBox.textContent = "";
+      hintBox.classList.add("hidden");
+      message.textContent = "";
+      syllableInput.focus();
+    }
 
-    speech.lang = "en-US";
+    function showHint() {
+      if (busy || !session) return;
+      const current = getCurrentWord();
+      playSound("hint");
+      hintBox.textContent = `Hint: ${current.syllables.join(" / ")}`;
+      hintBox.classList.remove("hidden");
+      syllableInput.focus();
+    }
 
-    speech.rate = 0.9;
+    function markCurrent(correct, answer = syllableInput.value.trim()) {
+      const current = getCurrentWord();
+      session.results[session.index] = {
+        word: current.word,
+        status: correct ? "correct" : "wrong",
+        answer
+      };
 
-    speech.pitch = 1;
+      if (correct) {
+        session.score += 10;
+        session.earned += 2;
+      }
 
-    speech.volume = 1;
+      renderWordRail();
+      scoreValue.textContent = String(session.score);
+    }
 
-    speechSynthesis.speak(speech);
+    function nextWord() {
+      busy = false;
+      session.index += 1;
+      setTimeout(loadWord, 200);
+    }
 
-}
+    function retryWord() {
+      busy = false;
+      syllableInput.value = "";
+      resetRunner();
+      renderWordRail();
+      syllableInput.focus();
+    }
 
-character.innerHTML = activeSkin().icon;
-showMenu();
+    function finishLevel() {
+      const correctCount = session.results.filter((item) => item.status === "correct").length;
+      const perfect = correctCount === session.words.length;
+      const bonus = perfect ? session.level.reward : Math.ceil(session.level.reward / 2);
+      session.earned += bonus;
+      state.credits += session.earned;
 
-</script>
+      if (perfect && session.level.id < LEVELS.length) {
+        state.highestLevel = Math.max(state.highestLevel, session.level.id + 1);
+      }
 
+      saveState();
+      progressFill.style.width = "100%";
+      endTitle.textContent = perfect ? "Perfect Run" : "Run Complete";
+      endScore.textContent = String(session.score);
+      endGold.textContent = String(session.earned);
+      endCorrect.textContent = `${correctCount}/${session.words.length}`;
+      nextLevelButton.classList.toggle("hidden", !(session.level.id < LEVELS.length && session.level.id < state.highestLevel));
+      reviewGrid.innerHTML = session.results.map((result) => {
+        return `
+          <article class="result-card ${result.status === "correct" ? "correct" : "wrong"}">
+            <img src="${wordImage(result.word)}" alt="${escapeHtml(result.word)}">
+            <div>
+              <b>${escapeHtml(result.word)}</b>
+              <span>${result.status === "correct" ? "Correct" : "Try again"}</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+      renderAll();
+      showScreen("endScreen");
+      playSound(perfect ? "complete" : "finish");
+    }
+
+    function animateRun(success, done) {
+      busy = true;
+      setControlsDisabled(true);
+      resetRunner();
+
+      const current = getCurrentWord();
+      const steps = current.syllables.map((_, index) => obstacleKindForSyllable(current, index));
+      let stepIndex = 0;
+
+      const move = () => {
+        if (stepIndex >= steps.length) {
+          runner.style.left = "calc(86% - 64px)";
+          window.setTimeout(() => {
+            setControlsDisabled(false);
+            done();
+          }, 520);
+          return;
+        }
+
+        runner.style.left = `calc(${obstacleLeft(stepIndex, steps.length)}% - 58px)`;
+
+        if (!success && stepIndex === 0) {
+          window.setTimeout(() => {
+            runner.classList.add("hit");
+            window.setTimeout(() => {
+              runner.classList.remove("hit");
+              setControlsDisabled(false);
+              done();
+            }, 620);
+          }, 230);
+          return;
+        }
+
+        const action = steps[stepIndex];
+        window.setTimeout(() => {
+          runner.classList.add(action);
+          playSound(action);
+        }, 90);
+        window.setTimeout(() => {
+          runner.classList.remove(action);
+          stepIndex += 1;
+          move();
+        }, action === "jump" ? 680 : 560);
+      };
+
+      window.setTimeout(move, 90);
+    }
+
+    function speakWord(word) {
+      if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = "en-US";
+      utterance.rate = 0.82;
+      utterance.pitch = 1.08;
+      utterance.volume = 1;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function unlockAudio() {
+      const context = getAudioContext();
+      if (context?.state === "suspended") {
+        context.resume().catch(() => {});
+      }
+    }
+
+    function getAudioContext() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!audioContext) audioContext = new AudioContextClass();
+      return audioContext;
+    }
+
+    function playSound(kind) {
+      const context = getAudioContext();
+      if (!context) return;
+      if (context.state === "suspended") {
+        context.resume().catch(() => {});
+      }
+
+      const now = context.currentTime;
+      const patterns = {
+        click: [[260, 0, 0.045, "triangle", 0.035]],
+        speak: [[440, 0, 0.055, "sine", 0.035]],
+        hint: [[392, 0, 0.07, "sine", 0.04], [523, 0.08, 0.09, "sine", 0.04]],
+        correct: [[523, 0, 0.08, "triangle", 0.045], [659, 0.08, 0.08, "triangle", 0.045], [784, 0.16, 0.12, "triangle", 0.05]],
+        wrong: [[180, 0, 0.13, "sawtooth", 0.035], [130, 0.12, 0.16, "sawtooth", 0.03]],
+        jump: [[620, 0, 0.08, "sine", 0.035]],
+        slide: [[240, 0, 0.11, "triangle", 0.035]],
+        finish: [[392, 0, 0.1, "triangle", 0.04], [330, 0.1, 0.13, "triangle", 0.04]],
+        complete: [[523, 0, 0.09, "triangle", 0.045], [659, 0.1, 0.09, "triangle", 0.045], [784, 0.2, 0.16, "triangle", 0.055]]
+      };
+
+      (patterns[kind] || patterns.click).forEach(([frequency, delay, duration, type, volume]) => {
+        playTone(context, frequency, now + delay, duration, type, volume);
+      });
+    }
+
+    function playTone(context, frequency, start, duration, type, volume) {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + duration + 0.02);
+    }
+
+    function setControlsDisabled(disabled) {
+      runButton.disabled = disabled;
+      hintButton.disabled = disabled;
+      clearButton.disabled = disabled;
+      skipButton.disabled = disabled;
+      speakButton.disabled = disabled;
+      syllableInput.disabled = disabled;
+    }
+
+    function resetRunner() {
+      runner.className = "runner";
+      runner.style.left = "34px";
+    }
+
+    function chooseSkin(id) {
+      const skin = SKINS.find((item) => item.id === id);
+      if (!skin) return;
+
+      if (!state.ownedSkins.has(id)) {
+        if (state.credits < skin.price) return;
+        state.credits -= skin.price;
+        state.ownedSkins.add(id);
+      }
+
+      state.selectedSkin = id;
+      saveState();
+      renderAll();
+    }
+
+    function showScreen(id) {
+      screens.forEach((screen) => screen.classList.toggle("active", screen.id === id));
+      if (id === "skinsScreen") renderSkins();
+      if (id === "levelsScreen") renderLevels();
+      if (id === "homeScreen") renderHome();
+    }
+
+    function getCurrentWord() {
+      return session.words[session.index];
+    }
+
+    function getSelectedSkin() {
+      return SKINS.find((skin) => skin.id === state.selectedSkin) || SKINS[0];
+    }
+
+    function wordStatusLabel(status, index) {
+      if (status === "correct") return "Correct";
+      if (status === "wrong") return "Try again";
+      if (index === session.index) return "Current";
+      return "Waiting";
+    }
+
+    function normalizeSyllableAnswer(value) {
+      return String(value)
+        .toLowerCase()
+        .replace(/[^a-z]+/g, "|")
+        .replace(/^\|+|\|+$/g, "")
+        .replace(/\|+/g, "|");
+    }
+
+    function obstacleKindForSyllable(wordData, index) {
+      const type = wordData.types?.[index] || inferSyllableType(wordData.syllables[index]);
+      return type === "open" ? "jump" : "slide";
+    }
+
+    function inferSyllableType(syllable) {
+      return /[aeiouy]$/i.test(syllable) ? "open" : "closed";
+    }
+
+    function wordImage(word) {
+      return `${WORD_IMAGE_BASE}${word}.png`;
+    }
+
+    function runnerImage(file) {
+      return `${RUNNER_IMAGE_BASE}${file}`;
+    }
+
+    function obstacleLeft(index, total) {
+      if (total <= 1) return 52;
+      return 34 + index * (42 / (total - 1));
+    }
+
+    function shuffle(items) {
+      for (let index = items.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
+      }
+      return items;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function readNumber(key, fallback) {
+      const value = Number(localStorage.getItem(key));
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function readOwnedSkins() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE.owned) || "[]");
+        if (Array.isArray(parsed)) return new Set(parsed);
+      } catch (error) {
+        return new Set(["prince"]);
+      }
+      return new Set(["prince"]);
+    }
+
+    function sanitizeState() {
+      state.ownedSkins.add("prince");
+      if (!SKINS.some((skin) => skin.id === state.selectedSkin)) {
+        state.selectedSkin = "prince";
+      }
+      if (!state.ownedSkins.has(state.selectedSkin)) {
+        state.selectedSkin = "prince";
+      }
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE.credits, String(state.credits));
+      localStorage.setItem(STORAGE.high, String(state.highestLevel));
+      localStorage.setItem(STORAGE.skin, state.selectedSkin);
+      localStorage.setItem(STORAGE.owned, JSON.stringify([...state.ownedSkins]));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+  </script>
 </body>
 </html>
-
-

@@ -3,32 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grammar Galaxy Rescue</title>
+  <title>Royal Grammar Messenger</title>
   <style>
     * {
       box-sizing: border-box;
     }
 
     :root {
-      --ink: #102236;
-      --paper: #f8fbff;
-      --sea: #14b8a6;
-      --sun: #f59e0b;
-      --rose: #ef476f;
-      --blue: #2563eb;
-      --space: #0d1326;
+      --ink: #3a1d08;
+      --paper: #fff4c7;
+      --sea: #25a55f;
+      --sun: #f6b332;
+      --rose: #d94030;
+      --blue: #1f75bd;
+      --space: #7fc8f2;
+      --wood: #8b4a1d;
+      --gold: #ffd766;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
       color: var(--paper);
-      font-family: "Segoe UI", Arial, sans-serif;
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
       background:
-        radial-gradient(circle at 18% 14%, rgba(245, 158, 11, 0.35), transparent 20rem),
-        radial-gradient(circle at 82% 18%, rgba(20, 184, 166, 0.28), transparent 22rem),
-        linear-gradient(145deg, #080d1f, #172554 48%, #0f172a);
+        linear-gradient(180deg, #7fc8f2 0%, #bde8ff 36%, #8fd176 37%, #3e9b50 100%);
       overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(255, 247, 181, 0.34), transparent 18rem),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(46, 27, 8, 0.08));
+      pointer-events: none;
     }
 
     body.is-menu .sentence-banner,
@@ -50,9 +60,12 @@
       justify-content: space-between;
       gap: 10px;
       padding: 8px clamp(10px, 3vw, 24px);
-      background: rgba(4, 10, 24, 0.72);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      position: relative;
+      z-index: 3;
+      background: linear-gradient(180deg, rgba(130, 68, 24, 0.94), rgba(83, 38, 13, 0.92));
+      border-bottom: 3px solid rgba(255, 215, 102, 0.9);
       backdrop-filter: blur(12px);
+      box-shadow: 0 8px 26px rgba(50, 23, 6, 0.32);
     }
 
     h1 {
@@ -60,6 +73,8 @@
       font-size: clamp(18px, 3vw, 32px);
       letter-spacing: 0;
       line-height: 1;
+      color: #fff1a8;
+      text-shadow: 0 2px 0 #7b2615, 0 5px 16px rgba(0, 0, 0, 0.28);
     }
 
     .hud {
@@ -73,11 +88,12 @@
     .pill {
       min-width: 72px;
       padding: 5px 8px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 2px solid rgba(255, 229, 106, 0.72);
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.1);
+      background: linear-gradient(180deg, rgba(255, 244, 199, 0.22), rgba(123, 61, 22, 0.24));
       text-align: center;
       white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
     }
 
     main {
@@ -102,11 +118,16 @@
       overflow: auto;
       transform: translate(-50%, -50%);
       padding: clamp(12px, 2.4vw, 20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 3px solid #744019;
       border-radius: 8px;
-      background: rgba(248, 251, 255, 0.94);
+      background:
+        linear-gradient(180deg, rgba(255, 250, 218, 0.98), rgba(255, 232, 157, 0.96)),
+        radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.5), transparent 18rem);
       color: var(--ink);
-      box-shadow: 0 24px 90px rgba(0, 0, 0, 0.45);
+      box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, 0.36),
+        0 10px 0 #7d4a1c,
+        0 24px 70px rgba(73, 36, 10, 0.38);
     }
 
     .panel[hidden] {
@@ -129,8 +150,9 @@
       margin: 10px 0;
       padding: 10px 12px;
       border-radius: 8px;
-      background: #e0f2fe;
-      color: #0f3b62;
+      border: 2px solid #c37a28;
+      background: linear-gradient(180deg, #fff8d2, #ffe9a6);
+      color: #65310d;
       font-size: clamp(16px, 3vw, 24px);
       font-weight: 800;
       line-height: 1.2;
@@ -147,15 +169,15 @@
       align-items: center;
       justify-content: center;
       padding: 8px 12px;
-      border: 2px solid rgba(255, 255, 255, 0.75);
+      border: 3px solid #7d4a1c;
       border-radius: 8px;
-      background: rgba(248, 251, 255, 0.94);
-      color: #07162b;
+      background: linear-gradient(180deg, rgba(255, 250, 218, 0.98), rgba(255, 231, 159, 0.97));
+      color: #4c2108;
       font-size: clamp(18px, 3.7vw, 34px);
       font-weight: 900;
       line-height: 1.08;
       text-align: center;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), inset 0 0 0 2px rgba(255,255,255,0.32);
       pointer-events: none;
     }
 
@@ -179,18 +201,25 @@
       justify-items: center;
       align-content: center;
       padding: 8px;
-      border: 2px solid #d4dce8;
+      border: 2px solid #9a5a21;
       border-radius: 8px;
-      background: #f8fbff;
+      background: linear-gradient(180deg, #fff8d2, #ffe7a0);
       color: var(--ink);
-      box-shadow: none;
+      box-shadow: 0 4px 0 rgba(122, 74, 34, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .ship-card:hover,
+    .difficulty-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 rgba(122, 74, 34, 0.32), 0 12px 24px rgba(122, 74, 34, 0.16);
     }
 
     .ship-card.is-selected,
     .difficulty-card.is-selected {
       border-color: var(--sea);
-      background: #ccfbf1;
-      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.18);
+      background: linear-gradient(180deg, #e9ffe3, #c7f5bf);
+      box-shadow: 0 0 0 4px rgba(37, 165, 95, 0.18), 0 5px 0 rgba(28, 112, 61, 0.42);
     }
 
     .ship-icon {
@@ -212,7 +241,7 @@
     .ship-stats {
       font-size: 12px;
       font-weight: 700;
-      color: #31506f;
+      color: #6a3c13;
       text-align: center;
       line-height: 1.25;
     }
@@ -221,7 +250,7 @@
       margin: 10px 0 5px;
       font-size: 13px;
       font-weight: 900;
-      color: #243f5c;
+      color: #6a3c13;
       text-transform: uppercase;
     }
 
@@ -233,45 +262,58 @@
     }
 
     button, a.home-link {
-      border: 0;
+      border: 3px solid #6f2a14;
       border-radius: 8px;
       padding: 9px 13px;
-      color: white;
-      background: var(--blue);
+      color: #542008;
+      background: linear-gradient(180deg, #ffe56a, #ff9f24);
       font: inherit;
       font-weight: 800;
       text-decoration: none;
       cursor: pointer;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+      box-shadow: 0 5px 0 #9b4317;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    button:hover, a.home-link:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 0 #9b4317, 0 10px 18px rgba(77, 34, 8, 0.2);
+    }
+
+    button:active, a.home-link:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #9b4317;
     }
 
     button.secondary, a.home-link {
       color: var(--ink);
-      background: #cbd5e1;
+      background: #fff0b8;
       box-shadow: none;
     }
 
     .word-tray {
       position: absolute;
-      left: clamp(12px, 3vw, 28px);
-      right: clamp(12px, 3vw, 28px);
-      bottom: clamp(8px, 2vw, 14px);
-      display: flex;
+      right: clamp(10px, 2vw, 18px);
+      top: clamp(76px, 12vh, 116px);
+      width: min(240px, calc(100vw - 20px));
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       align-items: center;
-      justify-content: space-between;
       gap: 8px;
-      pointer-events: none;
+      pointer-events: auto;
     }
 
     .target {
-      min-height: 40px;
-      flex: 1;
-      padding: 8px 12px;
+      grid-column: 1 / -1;
+      min-height: 34px;
+      padding: 7px 9px;
       border-radius: 8px;
-      background: rgba(248, 251, 255, 0.9);
+      border: 3px solid #7d4a1c;
+      background: linear-gradient(180deg, rgba(255, 250, 218, 0.96), rgba(255, 232, 157, 0.94));
       color: var(--ink);
       font-weight: 800;
-      font-size: clamp(13px, 2vw, 18px);
+      font-size: 12px;
       line-height: 1.2;
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
     }
@@ -282,24 +324,25 @@
 
     .sound {
       pointer-events: auto;
-      min-width: 94px;
-      height: 40px;
-      padding: 0 10px;
-      background: var(--sea);
+      min-width: 0;
+      height: 34px;
+      padding: 0 8px;
+      background: linear-gradient(180deg, #88e66f, #25a55f);
+      font-size: 12px;
     }
 
     .leaderboard {
       margin-top: 10px;
       border-radius: 8px;
       overflow: hidden;
-      border: 1px solid #d4dce8;
-      background: white;
+      border: 2px solid #9a5a21;
+      background: #fff8d2;
     }
 
     .leaderboard-title {
       padding: 8px 10px;
-      background: #dbeafe;
-      color: #12345c;
+      background: linear-gradient(180deg, #ffe98d, #f5c44e);
+      color: #5f2a0b;
       font-weight: 900;
     }
 
@@ -308,8 +351,8 @@
       grid-template-columns: 42px 1fr 86px 74px;
       gap: 8px;
       padding: 7px 10px;
-      border-top: 1px solid #e5edf7;
-      color: #18324f;
+      border-top: 1px solid rgba(154, 90, 33, 0.22);
+      color: #4d250a;
       font-size: 13px;
       font-weight: 700;
     }
@@ -346,13 +389,19 @@
       .panel {
         max-height: calc(100vh - 28px);
       }
+
+      .word-tray {
+        right: 8px;
+        top: 62px;
+        width: min(190px, calc(100vw - 16px));
+      }
     }
   </style>
 </head>
 <body>
   <div class="screen">
     <header>
-      <h1>Grammar Galaxy Rescue</h1>
+      <h1>Royal Grammar Messenger</h1>
       <div class="hud" aria-live="polite">
         <div class="pill">Score <span id="score">0</span></div>
         <div class="pill">Errors <span id="lives">5</span></div>
@@ -360,24 +409,23 @@
         <div class="pill">Progress <span id="progress">0</span></div>
         <div class="pill">Best <span id="bestScore">0</span></div>
         <div class="pill">Mode <span id="difficultyName">Easy</span></div>
-        <div class="pill">Ship <span id="shipName">Comet</span></div>
+        <div class="pill">Messenger <span id="shipName">Royal Envoy</span></div>
       </div>
     </header>
 
     <main>
-      <canvas id="game" aria-label="Grammar Galaxy Rescue game"></canvas>
-      <div class="sentence-banner" id="bigSentence">She <strong>___</strong> apples every day.</div>
+      <canvas id="game" aria-label="Royal Grammar Messenger game"></canvas>
+      <div class="sentence-banner" id="bigSentence">I <strong>___</strong> apple.</div>
 
       <div class="word-tray">
-        <div class="target" id="targetSentence">Choose a ship and press Start Mission.</div>
-        <button class="sound" id="soundToggle" type="button" aria-label="Toggle music">Music On</button>
+        <div class="target" id="targetSentence">Choose a messenger and press Start Journey.</div>
         <button class="sound" id="gameMenuButton" type="button">Menu</button>
       </div>
 
       <section class="panel" id="startPanel">
-        <h2>Main Menu</h2>
-        <p>Fly through the galaxy and catch the word that completes each English sentence. Dodge the wrong words and keep your shields alive.</p>
-        <div class="sentence" id="previewSentence">She ___ apples every day.</div>
+        <h2>Messenger Stable</h2>
+        <p>Guide the royal messenger on horseback and collect the word that completes each English sentence. Avoid the wrong scrolls and keep the journey alive.</p>
+        <div class="sentence" id="previewSentence">I ___ apple.</div>
         <div class="menu-label">Difficulty</div>
         <div class="menu-grid" id="difficultyMenu">
           <button class="difficulty-card is-selected" type="button" data-difficulty="easy">
@@ -393,29 +441,28 @@
             <span class="ship-stats">Mixed grammar<br>Fast speed growth</span>
           </button>
         </div>
-        <div class="menu-label">Ship</div>
+        <div class="menu-label">Messenger</div>
         <div class="menu-grid" id="shipMenu">
           <button class="ship-card is-selected" type="button" data-ship="comet">
-            <span class="ship-icon" style="background:#2563eb;">C</span>
-            <span class="ship-title">Comet</span>
-            <span class="ship-stats">Balanced speed<br>+100 base points</span>
+            <span class="ship-icon" style="background:#d94030;">RE</span>
+            <span class="ship-title">Royal Envoy</span>
+            <span class="ship-stats">Balanced horse<br>+100 base points</span>
           </button>
           <button class="ship-card" type="button" data-ship="scout">
-            <span class="ship-icon" style="background:#14b8a6;">S</span>
-            <span class="ship-title">Scout</span>
-            <span class="ship-stats">Very fast ship<br>+80 base points</span>
+            <span class="ship-icon" style="background:#25a55f;">SC</span>
+            <span class="ship-title">Swift Courier</span>
+            <span class="ship-stats">Very fast horse<br>+80 base points</span>
           </button>
           <button class="ship-card" type="button" data-ship="cruiser">
-            <span class="ship-icon" style="background:#ef476f;">R</span>
-            <span class="ship-title">Cruiser</span>
-            <span class="ship-stats">Slow heavy ship<br>+140 base points</span>
+            <span class="ship-icon" style="background:#7b4ed6;">KH</span>
+            <span class="ship-title">Knight Herald</span>
+            <span class="ship-stats">Strong slow horse<br>+140 base points</span>
           </button>
         </div>
         <p>Move with WASD, mouse, or touch. Press Space to start.</p>
         <div class="actions">
-          <button id="startButton" type="button">Start Mission</button>
-          <button class="secondary" id="menuMusicButton" type="button">Music On</button>
-          <a class="home-link" href="../../index.html">Home</a>
+          <button id="startButton" type="button">Start Journey</button>
+          <a class="home-link" href="../../index.html">The Kingdom</a>
         </div>
         <div class="leaderboard">
           <div class="leaderboard-title">Records</div>
@@ -424,13 +471,13 @@
       </section>
 
       <section class="panel" id="endPanel" hidden>
-        <h2 id="endTitle">Mission complete</h2>
+        <h2 id="endTitle">Journey complete</h2>
         <p id="endText"></p>
         <div class="sentence" id="finalSentence"></div>
         <div class="actions">
           <button id="againButton" type="button">Play Again</button>
           <button class="secondary" id="backToMenuButton" type="button">Menu</button>
-          <a class="home-link" href="../../index.html">Home</a>
+          <a class="home-link" href="../../index.html">The Kingdom</a>
         </div>
         <div class="leaderboard">
           <div class="leaderboard-title">Records</div>
@@ -440,6 +487,7 @@
     </main>
   </div>
 
+  <script src="../../assets/images/vocab/vocab-icons.js"></script>
   <script>
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
@@ -461,8 +509,6 @@
     const againButton = document.getElementById("againButton");
     const backToMenuButton = document.getElementById("backToMenuButton");
     const gameMenuButton = document.getElementById("gameMenuButton");
-    const soundToggle = document.getElementById("soundToggle");
-    const menuMusicButton = document.getElementById("menuMusicButton");
     const menuScores = document.getElementById("menuScores");
     const endScores = document.getElementById("endScores");
     const shipButtons = [...document.querySelectorAll(".ship-card")];
@@ -470,85 +516,88 @@
 
     const promptSets = {
       easy: [
-        { text: "She ___ apples every day.", answer: "eats", options: ["eat", "eats", "eating"] },
-        { text: "They ___ soccer after school.", answer: "play", options: ["plays", "play", "playing"] },
-        { text: "I ___ a blue backpack.", answer: "have", options: ["has", "have", "having"] },
-        { text: "The dog ___ very happy.", answer: "is", options: ["am", "are", "is"] },
-        { text: "We ___ English on Monday.", answer: "study", options: ["studies", "study", "studying"] },
-        { text: "My brother ___ milk.", answer: "drinks", options: ["drink", "drinks", "drinking"] },
-        { text: "There ___ three books here.", answer: "are", options: ["is", "are", "am"] },
-        { text: "The cat is ___ the chair.", answer: "under", options: ["under", "quickly", "happy"] },
-        { text: "I can ___ a kite.", answer: "fly", options: ["flies", "flying", "fly"] },
-        { text: "This pencil is ___ than that one.", answer: "longer", options: ["long", "longer", "longest"] }
+        { text: "I ___ apple.", answer: "eat", options: ["eat", "drink", "sleep"] },
+        { text: "we ___ water.", answer: "drink", options: ["drink", "read", "fight"] },
+        { text: "the dog is ___.", answer: "happy", options: ["happy", "under", "three"] },
+        { text: "the cat is ___ the table.", answer: "under", options: ["under", "but", "can"] },
+        { text: "she can ___.", answer: "fly", options: ["fly", "bread", "purple"] },
+        { text: "he can ___ a book.", answer: "read", options: ["read", "water", "near"] },
+        { text: "this flower is ___.", answer: "yellow", options: ["yellow", "cannot", "behind"] },
+        { text: "my horse can ___.", answer: "run", options: ["run", "milk", "the"] },
+        { text: "the queen is ___.", answer: "sad", options: ["sad", "on", "five"] },
+        { text: "they can ___.", answer: "jump", options: ["jump", "chest", "white"] }
       ],
       medium: [
-        { text: "He ___ to school yesterday.", answer: "went", options: ["go", "goes", "went"] },
-        { text: "I am ___ a book now.", answer: "reading", options: ["read", "reads", "reading"] },
-        { text: "We have ___ our homework.", answer: "finished", options: ["finish", "finished", "finishing"] },
-        { text: "They will ___ the museum tomorrow.", answer: "visit", options: ["visited", "visit", "visiting"] },
-        { text: "She was ___ when the phone rang.", answer: "sleeping", options: ["sleep", "slept", "sleeping"] },
-        { text: "If it rains, we ___ inside.", answer: "will stay", options: ["will stay", "stayed", "staying"] },
-        { text: "The cake was ___ by my aunt.", answer: "baked", options: ["bake", "baked", "baking"] },
-        { text: "I have lived here ___ 2021.", answer: "since", options: ["for", "since", "during"] },
-        { text: "My sister is ___ than me.", answer: "taller", options: ["tall", "taller", "tallest"] },
-        { text: "We ___ dinner when Dad arrived.", answer: "were cooking", options: ["cook", "were cooking", "cooked"] },
-        { text: "Please speak ___ in the library.", answer: "quietly", options: ["quiet", "quietly", "quieter"] },
-        { text: "This is the ___ movie I have seen.", answer: "best", options: ["good", "better", "best"] }
+        { text: "the knight can ___ the dragon.", answer: "fight", options: ["fight", "tea", "yellow"] },
+        { text: "the guard can ___ the chest.", answer: "open", options: ["open", "eat", "rain"] },
+        { text: "the wizard can ___ a portal.", answer: "open", options: ["open", "sleep", "brown"] },
+        { text: "the princess is in the ___.", answer: "castle", options: ["castle", "drink", "weak"] },
+        { text: "the treasure is under the ___.", answer: "tree", options: ["tree", "he", "ten"] },
+        { text: "where is the ___?", answer: "tower", options: ["tower", "but", "walk"] },
+        { text: "who is your ___?", answer: "friend", options: ["friend", "near", "black"] },
+        { text: "the elf and fairy ___.", answer: "play", options: ["play", "key", "cold"] },
+        { text: "the pirate can ___ gold.", answer: "take", options: ["take", "under", "blue"] },
+        { text: "the captain can ___ the map.", answer: "read", options: ["read", "horse", "dark"] },
+        { text: "the dragon is ___ and strong.", answer: "big", options: ["big", "an", "fish"] },
+        { text: "the river is near the ___.", answer: "forest", options: ["forest", "my", "cake"] }
       ],
       hard: [
-        { text: "If I ___ more time, I would learn piano.", answer: "had", options: ["have", "had", "will have"] },
-        { text: "The letter ___ before I arrived.", answer: "had been sent", options: ["sent", "had been sent", "has sending"] },
-        { text: "She asked me where I ___ from.", answer: "came", options: ["come", "came", "will come"] },
-        { text: "Neither of the answers ___ correct.", answer: "is", options: ["are", "is", "were"] },
-        { text: "I wish I ___ spoken more clearly.", answer: "had", options: ["have", "had", "will"] },
-        { text: "By next June, they ___ here for five years.", answer: "will have lived", options: ["live", "will have lived", "lived"] },
-        { text: "The student, along with his friends, ___ ready.", answer: "is", options: ["are", "is", "were"] },
-        { text: "This is the house ___ roof was damaged.", answer: "whose", options: ["who", "whose", "which"] },
-        { text: "Had I known, I ___ earlier.", answer: "would have called", options: ["called", "will call", "would have called"] },
-        { text: "The project must ___ by Friday.", answer: "be completed", options: ["complete", "be completed", "completed"] },
-        { text: "No sooner had we left ___ it began to snow.", answer: "than", options: ["then", "than", "when"] },
-        { text: "The teacher suggested that he ___ again.", answer: "try", options: ["tries", "try", "trying"] },
-        { text: "I am used to ___ early.", answer: "waking up", options: ["wake up", "waking up", "woke up"] },
-        { text: "The book ___ on the desk is mine.", answer: "lying", options: ["lay", "lying", "lied"] }
+        { text: "the dragon is big ___ slow.", answer: "but", options: ["but", "under", "six"] },
+        { text: "the knight is strong ___ the wizard is weak.", answer: "but", options: ["but", "near", "apple"] },
+        { text: "I cannot ___ in the cave.", answer: "swim", options: ["swim", "book", "yellow"] },
+        { text: "what can you ___?", answer: "find", options: ["find", "purple", "the"] },
+        { text: "the key is ___ the chest.", answer: "in", options: ["in", "but", "dragon"] },
+        { text: "the pirate and captain can ___.", answer: "fight", options: ["fight", "coin", "white"] },
+        { text: "this is a ___.", answer: "sword", options: ["sword", "are", "happy"] },
+        { text: "that is an ___.", answer: "owl", options: ["owl", "road", "can"] },
+        { text: "the road is near the ___.", answer: "farm", options: ["farm", "you", "hot"] },
+        { text: "why can the bird ___?", answer: "fly", options: ["fly", "milk", "there"] },
+        { text: "how can we ___ the team?", answer: "help", options: ["help", "orange", "under"] },
+        { text: "where can they ___ the secret?", answer: "find", options: ["find", "pink", "cannot"] },
+        { text: "the wizard is here ___ the witch is there.", answer: "and", options: ["and", "black", "eat"] },
+        { text: "my shield is small ___ strong.", answer: "but", options: ["but", "river", "an"] }
       ]
     };
 
     const difficulties = {
-      easy: { id: "easy", name: "Easy", baseFall: 92, speedGain: 9, randomFall: 22, pointBonus: 0, mistakes: 5 },
-      medium: { id: "medium", name: "Medium", baseFall: 120, speedGain: 16, randomFall: 28, pointBonus: 25, mistakes: 4 },
-      hard: { id: "hard", name: "Hard", baseFall: 150, speedGain: 24, randomFall: 34, pointBonus: 55, mistakes: 3 }
+      easy: { id: "easy", name: "Easy", baseFall: 34, speedGain: 3, randomFall: 7, pointBonus: 0, mistakes: 5 },
+      medium: { id: "medium", name: "Medium", baseFall: 44, speedGain: 5, randomFall: 9, pointBonus: 25, mistakes: 4 },
+      hard: { id: "hard", name: "Hard", baseFall: 56, speedGain: 7, randomFall: 11, pointBonus: 55, mistakes: 3 }
     };
 
     const ships = {
       comet: {
         id: "comet",
-        name: "Comet",
-        body: "#2563eb",
-        wing: "#14b8a6",
-        glass: "#93c5fd",
-        flame: "#f59e0b",
+        name: "Royal Envoy",
+        body: "#d94030",
+        wing: "#ffd766",
+        glass: "#fff4c7",
+        flame: "#8b4a1d",
+        horse: "#8b4a1d",
         speed: 520,
         basePoints: 100,
         shape: "classic"
       },
       scout: {
         id: "scout",
-        name: "Scout",
-        body: "#14b8a6",
-        wing: "#f59e0b",
-        glass: "#ccfbf1",
-        flame: "#2563eb",
+        name: "Swift Courier",
+        body: "#25a55f",
+        wing: "#ffd766",
+        glass: "#fff4c7",
+        flame: "#8b4a1d",
+        horse: "#b96f36",
         speed: 650,
         basePoints: 80,
         shape: "needle"
       },
       cruiser: {
         id: "cruiser",
-        name: "Cruiser",
-        body: "#ef476f",
-        wing: "#f59e0b",
-        glass: "#fecdd3",
-        flame: "#14b8a6",
+        name: "Knight Herald",
+        body: "#7b4ed6",
+        wing: "#ffd766",
+        glass: "#fff4c7",
+        flame: "#8b4a1d",
+        horse: "#5b351c",
         speed: 440,
         basePoints: 140,
         shape: "wide"
@@ -568,14 +617,61 @@
     let running = false;
     let lastTime = 0;
     let spawnTimer = 0;
-    let audioContext = null;
-    let soundOn = true;
     let selectedShip = ships.comet;
     let selectedDifficulty = difficulties.easy;
     let prompts = promptSets.easy;
-    let musicTimer = null;
-    let musicStep = 0;
-    const scoreKey = "grammarGalaxyRecords";
+    const scoreKey = "royalGrammarMessengerRecords";
+    const vocabImageCache = new Map();
+
+    function vocabIconData(word) {
+      return window.KINGDOM_VOCAB_ICONS?.find(word) || null;
+    }
+
+    function vocabAtlasImage(icon) {
+      if (!icon) return null;
+      if (!vocabImageCache.has(icon.src)) {
+        const image = new Image();
+        image.src = icon.src;
+        vocabImageCache.set(icon.src, image);
+      }
+      return vocabImageCache.get(icon.src);
+    }
+
+    function drawVocabIcon(label, x, y, size) {
+      const icon = vocabIconData(label);
+      const image = vocabAtlasImage(icon);
+      if (!icon || !image || !image.complete || !image.naturalWidth) return false;
+
+      const cellWidth = image.naturalWidth / icon.cols;
+      const cellHeight = image.naturalHeight / icon.rows;
+      const insetX = cellWidth * 0.055;
+      const insetY = cellHeight * 0.055;
+      const inner = size - 6;
+      ctx.save();
+      ctx.fillStyle = "#fff4c7";
+      ctx.strokeStyle = "#7d4a1c";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, size, size, 7);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.roundRect(x + 3, y + 3, inner, inner, 5);
+      ctx.clip();
+      ctx.drawImage(
+        image,
+        icon.col * cellWidth + insetX,
+        icon.row * cellHeight + insetY,
+        cellWidth - insetX * 2,
+        cellHeight - insetY * 2,
+        x + 3,
+        y + 3,
+        inner,
+        inner
+      );
+      ctx.restore();
+      return true;
+    }
 
     function resize() {
       const rect = canvas.parentElement.getBoundingClientRect();
@@ -597,6 +693,10 @@
 
     function currentPrompt() {
       return prompts[promptIndex % prompts.length];
+    }
+
+    function capitalizeSentence(text) {
+      return text.charAt(0).toUpperCase() + text.slice(1);
     }
 
     function loadRecords() {
@@ -628,7 +728,7 @@
             <span>${record.progress}</span>
           </div>
         `).join("")
-        : `<div class="score-row empty">No records yet. Start a mission.</div>`;
+        : `<div class="score-row empty">No records yet. Start a journey.</div>`;
       menuScores.innerHTML = html;
       endScores.innerHTML = html;
     }
@@ -656,78 +756,14 @@
       difficultyNameEl.textContent = selectedDifficulty.name;
       shipNameEl.textContent = selectedShip.name;
       const prompt = currentPrompt();
-      const visibleSentence = prompt.text.replace("___", "<strong>___</strong>");
+      const visibleSentence = capitalizeSentence(prompt.text).replace("___", "<strong>___</strong>");
       const round = Math.floor(promptIndex / prompts.length) + 1;
       bigSentenceEl.innerHTML = visibleSentence;
-      targetSentenceEl.innerHTML = `Round ${round} | Sentence ${promptIndex + 1} | Catch: ${visibleSentence}`;
+      targetSentenceEl.textContent = `Round ${round} | Sentence ${promptIndex + 1}`;
     }
 
     function fillSentence(prompt) {
-      return prompt.text.replace("___", prompt.answer);
-    }
-
-    function playTone(freq, duration, type = "sine") {
-      if (!soundOn) return;
-      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-      const now = audioContext.currentTime;
-      const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, now);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-      osc.connect(gain);
-      gain.connect(audioContext.destination);
-      osc.start(now);
-      osc.stop(now + duration + 0.02);
-    }
-
-    function playMusicNote() {
-      if (!soundOn) return;
-      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-      const notes = [220, 277.18, 329.63, 392, 329.63, 277.18, 246.94, 329.63];
-      const now = audioContext.currentTime;
-      const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(notes[musicStep % notes.length], now);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.045, now + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-      osc.connect(gain);
-      gain.connect(audioContext.destination);
-      osc.start(now);
-      osc.stop(now + 0.45);
-      musicStep += 1;
-    }
-
-    function startMusic() {
-      if (!soundOn || musicTimer) return;
-      playMusicNote();
-      musicTimer = setInterval(playMusicNote, 460);
-    }
-
-    function stopMusic() {
-      clearInterval(musicTimer);
-      musicTimer = null;
-    }
-
-    function updateMusicButtons() {
-      const label = soundOn ? "Music On" : "Music Off";
-      soundToggle.textContent = label;
-      menuMusicButton.textContent = label;
-      soundToggle.setAttribute("aria-label", soundOn ? "Turn music off" : "Turn music on");
-    }
-
-    function toggleMusic() {
-      soundOn = !soundOn;
-      updateMusicButtons();
-      if (soundOn) {
-        startMusic();
-      } else {
-        stopMusic();
-      }
+      return capitalizeSentence(prompt.text).replace("___", prompt.answer);
     }
 
     function selectShip(shipId) {
@@ -749,7 +785,7 @@
       difficultyButtons.forEach((button) => {
         button.classList.toggle("is-selected", button.dataset.difficulty === selectedDifficulty.id);
       });
-      document.getElementById("previewSentence").textContent = prompts[0].text;
+      document.getElementById("previewSentence").textContent = capitalizeSentence(prompts[0].text);
       updateHud();
       renderRecords();
       drawStars(0);
@@ -757,17 +793,47 @@
       drawShip();
     }
 
+    function getHorizonY() {
+      return height * 0.42;
+    }
+
+    function getRoadMetrics(y = height) {
+      const horizon = getHorizonY();
+      const bottomWidth = Math.max(360, Math.min(760, width * 0.72));
+      const topWidth = Math.max(280, Math.min(bottomWidth * 0.72, width * 0.56));
+      const travel = Math.max(1, height - horizon);
+      const t = Math.max(0, Math.min(1, (y - horizon) / travel));
+      const roadWidth = topWidth + (bottomWidth - topWidth) * t;
+      const center = width / 2;
+      return {
+        center,
+        horizon,
+        roadWidth,
+        left: center - roadWidth / 2,
+        right: center + roadWidth / 2,
+        topWidth,
+        bottomWidth
+      };
+    }
+
     function spawnWords() {
       const prompt = currentPrompt();
       const shuffled = [...prompt.options].sort(() => Math.random() - 0.5);
       const laneCount = shuffled.length;
+      const startY = getHorizonY() + 28;
+      const road = getRoadMetrics(startY);
       words = shuffled.map((label, index) => {
+        const wordWidth = Math.min(220, Math.max(126, label.length * 10 + 72));
         const lane = (index + 1) / (laneCount + 1);
+        const jitter = (Math.random() * 18 - 9);
+        const rawX = road.left + road.roadWidth * lane + jitter;
+        const minX = road.left + wordWidth / 2 + 12;
+        const maxX = road.right - wordWidth / 2 - 12;
         return {
           label,
-          x: width * lane + (Math.random() * 60 - 30),
-          y: -60 - Math.random() * 120,
-          width: Math.min(190, Math.max(92, label.length * 10 + 28)),
+          x: Math.max(minX, Math.min(maxX, rawX)),
+          y: startY + Math.random() * 18,
+          width: wordWidth,
           radius: 34,
           speed: selectedDifficulty.baseFall
             + promptIndex * selectedDifficulty.speedGain
@@ -794,7 +860,6 @@
       endPanel.hidden = true;
       updateHud();
       spawnWords();
-      startMusic();
       requestAnimationFrame(loop);
     }
 
@@ -804,7 +869,7 @@
       document.body.classList.remove("is-playing");
       document.body.classList.add("is-ended");
       endPanel.hidden = false;
-      endTitle.textContent = "Mission ended";
+      endTitle.textContent = "Journey ended";
       endText.textContent = `You scored ${score} points and completed ${promptIndex} sentences on ${selectedDifficulty.name}.`;
       finalSentence.textContent = `Best ${selectedDifficulty.name} score: ${bestForCurrentMode()}`;
       updateHud();
@@ -829,78 +894,301 @@
     }
 
     function drawStars(delta) {
-      ctx.fillStyle = "#081020";
+      const roadBottom = getRoadMetrics(height);
+      const roadTop = getRoadMetrics(roadBottom.horizon);
+      const laneCenter = roadBottom.center;
+      const sky = ctx.createLinearGradient(0, 0, 0, height);
+      sky.addColorStop(0, "#7fc8f2");
+      sky.addColorStop(0.42, "#c7eeff");
+      sky.addColorStop(0.43, "#7acb69");
+      sky.addColorStop(1, "#3f9a4f");
+      ctx.fillStyle = sky;
       ctx.fillRect(0, 0, width, height);
-      for (const star of stars) {
-        star.y += star.speed * delta;
-        if (star.y > height) {
-          star.y = 0;
-          star.x = Math.random() * width;
+
+      const scroll = (performance.now() * 0.08) % 80;
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.beginPath();
+      ctx.arc(80, 74, 28, 0, Math.PI * 2);
+      ctx.arc(112, 68, 24, 0, Math.PI * 2);
+      ctx.arc(140, 76, 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "rgba(255, 215, 102, 0.92)";
+      ctx.beginPath();
+      ctx.arc(width - 96, 78, 32, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#5caf5c";
+      ctx.fillRect(0, roadBottom.horizon, width, height - roadBottom.horizon);
+
+      ctx.strokeStyle = "rgba(45, 120, 57, 0.42)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, roadBottom.horizon);
+      ctx.lineTo(width, roadBottom.horizon);
+      ctx.stroke();
+
+      const treeTravel = height - roadBottom.horizon + 120;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, roadBottom.horizon, width, height - roadBottom.horizon);
+      ctx.clip();
+      for (let i = 0; i < 9; i += 1) {
+        const y = roadBottom.horizon + ((scroll * 1.55 + i * 116) % treeTravel);
+        const roadAtY = getRoadMetrics(y);
+        const scale = 0.62 + Math.max(0, Math.min(1, (y - roadBottom.horizon) / (height - roadBottom.horizon))) * 0.85;
+        const leftX = roadAtY.left - 42 - (i % 2) * 38;
+        const rightX = roadAtY.right + 42 + (i % 2) * 34;
+        for (const treeX of [leftX, rightX]) {
+          if (treeX < -60 || treeX > width + 60) continue;
+          ctx.fillStyle = "#6b3a18";
+          ctx.fillRect(treeX - 4 * scale, y + 12 * scale, 8 * scale, 28 * scale);
+          ctx.fillStyle = "#1f7a3c";
+          ctx.beginPath();
+          ctx.arc(treeX, y, 18 * scale, 0, Math.PI * 2);
+          ctx.arc(treeX - 13 * scale, y + 8 * scale, 13 * scale, 0, Math.PI * 2);
+          ctx.arc(treeX + 13 * scale, y + 8 * scale, 13 * scale, 0, Math.PI * 2);
+          ctx.fill();
         }
-        ctx.fillStyle = `rgba(255,255,255,${0.45 + star.size / 4})`;
+      }
+      ctx.restore();
+
+      const road = ctx.createLinearGradient(roadBottom.left, 0, roadBottom.right, 0);
+      road.addColorStop(0, "#b9823d");
+      road.addColorStop(0.18, "#e5bc73");
+      road.addColorStop(0.5, "#f2d18a");
+      road.addColorStop(0.82, "#e5bc73");
+      road.addColorStop(1, "#b9823d");
+      ctx.fillStyle = road;
+      ctx.beginPath();
+      ctx.moveTo(roadTop.left, roadBottom.horizon);
+      ctx.lineTo(roadTop.right, roadBottom.horizon);
+      ctx.lineTo(roadBottom.right, height);
+      ctx.lineTo(roadBottom.left, height);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(111, 66, 25, 0.36)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(roadTop.left, roadBottom.horizon);
+      ctx.lineTo(roadBottom.left, height);
+      ctx.moveTo(roadTop.right, roadBottom.horizon);
+      ctx.lineTo(roadBottom.right, height);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(110, 66, 25, 0.26)";
+      ctx.lineWidth = 3;
+      ctx.setLineDash([18, 30]);
+      ctx.lineDashOffset = -scroll;
+      ctx.beginPath();
+      ctx.moveTo(laneCenter, roadBottom.horizon);
+      ctx.lineTo(laneCenter, height);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, roadBottom.horizon, width, height - roadBottom.horizon);
+      ctx.clip();
+      for (let i = 0; i < 16; i += 1) {
+        const y = roadBottom.horizon + ((scroll * 1.15 + i * 61) % (height - roadBottom.horizon + 80));
+        const roadAtY = getRoadMetrics(y);
+        const side = i % 2 === 0 ? -1 : 1;
+        const x = side < 0 ? roadAtY.left - 20 - (i % 4) * 18 : roadAtY.right + 20 + (i % 4) * 16;
+        if (x < 0 || x > width) continue;
+        ctx.fillStyle = "#2d8a40";
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.ellipse(x, y, 10, 18, side * 0.35, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#ffd766";
+        ctx.beginPath();
+        ctx.arc(x + side * 5, y - 5, 3, 0, Math.PI * 2);
+        ctx.arc(x - side * 3, y + 3, 2.5, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.restore();
     }
 
     function drawPlanet() {
-      const grd = ctx.createRadialGradient(width - 120, 90, 20, width - 90, 120, 160);
-      grd.addColorStop(0, "rgba(245,158,11,0.95)");
-      grd.addColorStop(0.55, "rgba(239,71,111,0.85)");
-      grd.addColorStop(1, "rgba(239,71,111,0)");
-      ctx.fillStyle = grd;
-      ctx.beginPath();
-      ctx.arc(width - 90, 120, 150, 0, Math.PI * 2);
-      ctx.fill();
+      const horizon = getHorizonY();
+      const road = getRoadMetrics(horizon);
+      const scale = Math.max(0.24, Math.min(0.34, width / 2800));
+      const castleWidth = 236 * scale;
+      const x = Math.max(14, Math.min(width - castleWidth - 8, road.right + 64));
+      const baseY = horizon - 190 * scale;
+
+      function castleRect(rx, ry, rw, rh, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(
+          Math.round(x + rx * scale),
+          Math.round(baseY + ry * scale),
+          Math.round(rw * scale),
+          Math.round(rh * scale)
+        );
+      }
+
+      ctx.save();
+      ctx.shadowColor = "rgba(58, 29, 8, 0.22)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 5;
+
+      castleRect(0, 62, 210, 128, "#3f4a56");
+      castleRect(22, 10, 58, 122, "#6f7a87");
+      castleRect(126, -18, 66, 152, "#6f7a87");
+      castleRect(72, 45, 80, 92, "#7d8794");
+      castleRect(15, 132, 184, 28, "#576371");
+
+      for (let bx = 18; bx < 204; bx += 28) {
+        castleRect(bx, 2 + (bx % 56 ? 28 : 0), 18, 16, "#46515f");
+      }
+      castleRect(42, -6, 18, 16, "#46515f");
+      castleRect(62, -6, 18, 16, "#46515f");
+      castleRect(128, -34, 18, 16, "#46515f");
+      castleRect(150, -34, 18, 16, "#46515f");
+      castleRect(172, -34, 18, 16, "#46515f");
+
+      castleRect(24, -18, 54, 18, "#9f332f");
+      castleRect(132, -46, 56, 18, "#9f332f");
+      castleRect(81, 28, 62, 20, "#8f5d1d");
+
+      for (let bx = 18; bx < 188; bx += 38) {
+        castleRect(bx, 72, 20, 8, "#9fa9b5");
+        castleRect(bx + 12, 104, 22, 8, "#566371");
+        castleRect(bx + 4, 158, 24, 8, "#7d8794");
+      }
+
+      castleRect(43, 44, 12, 30, "#162033");
+      castleRect(151, 18, 12, 30, "#162033");
+      castleRect(169, 18, 12, 30, "#162033");
+      castleRect(95, 62, 14, 28, "#162033");
+      castleRect(180, -62, 8, 48, "#4a2c18");
+      castleRect(188, -62, 48, 26, "#9f332f");
+      castleRect(188, -36, 48, 7, "#7d2825");
+      castleRect(5, 48, 24, 92, "#566371");
+      castleRect(184, 42, 20, 96, "#566371");
+      ctx.restore();
     }
 
     function drawShip() {
       const x = ship.x;
       const y = ship.y;
-      const pulse = Math.sin(performance.now() / 70) * 8;
+      const bob = Math.sin(performance.now() / 130) * 2;
+      const wide = selectedShip.shape === "wide";
+      const narrow = selectedShip.shape === "needle";
+      const scale = wide ? 1.08 : narrow ? 0.92 : 1;
+      const stride = Math.sin(performance.now() / 95);
+
       ctx.save();
-      ctx.translate(x, y);
-      ctx.fillStyle = selectedShip.body;
-      ctx.strokeStyle = selectedShip.wing;
-      ctx.lineWidth = 4;
+      ctx.translate(x, y + bob);
+      ctx.scale(scale, scale);
+      ctx.shadowColor = "rgba(58, 29, 8, 0.34)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 6;
+
+      ctx.fillStyle = "rgba(58, 29, 8, 0.24)";
       ctx.beginPath();
-      if (selectedShip.shape === "needle") {
-        ctx.moveTo(0, -34);
-        ctx.lineTo(24, 20);
-        ctx.lineTo(7, 11);
-        ctx.lineTo(0, 26);
-        ctx.lineTo(-7, 11);
-        ctx.lineTo(-24, 20);
-      } else if (selectedShip.shape === "wide") {
-        ctx.moveTo(0, -24);
-        ctx.lineTo(44, 13);
-        ctx.lineTo(19, 19);
-        ctx.lineTo(0, 28);
-        ctx.lineTo(-19, 19);
-        ctx.lineTo(-44, 13);
-      } else {
-        ctx.moveTo(0, -28);
-        ctx.lineTo(35, 19);
-        ctx.lineTo(10, 12);
-        ctx.lineTo(0, 25);
-        ctx.lineTo(-10, 12);
-        ctx.lineTo(-35, 19);
-      }
+      ctx.ellipse(0, 36, 42, 9, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowColor = "rgba(58, 29, 8, 0.38)";
+      ctx.shadowBlur = 12;
+      ctx.shadowOffsetY = 5;
+
+      const horseColor = selectedShip.horse;
+      ctx.fillStyle = horseColor;
+      ctx.strokeStyle = "#4b2a12";
+      ctx.lineWidth = 3;
+
+      ctx.beginPath();
+      ctx.ellipse(-3, 6, 35, 16, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(24, -2);
+      ctx.quadraticCurveTo(36, -24, 50, -16);
+      ctx.quadraticCurveTo(60, -10, 50, 0);
+      ctx.quadraticCurveTo(38, 3, 29, 10);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
-      ctx.fillStyle = selectedShip.glass;
+
+      ctx.fillStyle = "#2b1708";
       ctx.beginPath();
-      ctx.arc(0, -3, 10, 0, Math.PI * 2);
+      ctx.moveTo(-34, 4);
+      ctx.quadraticCurveTo(-54, 0, -58, -16);
+      ctx.quadraticCurveTo(-46, -11, -31, -5);
       ctx.fill();
-      ctx.fillStyle = selectedShip.flame;
+
+      ctx.strokeStyle = "#3b200d";
+      ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.moveTo(-10, 23);
-      ctx.lineTo(0, 38 + pulse * 0.65);
-      ctx.lineTo(10, 23);
-      ctx.closePath();
+      ctx.moveTo(-24, 17);
+      ctx.lineTo(-30 - stride * 6, 34);
+      ctx.moveTo(-8, 19);
+      ctx.lineTo(-2 + stride * 7, 35);
+      ctx.moveTo(12, 18);
+      ctx.lineTo(5 - stride * 7, 35);
+      ctx.moveTo(28, 14);
+      ctx.lineTo(36 + stride * 6, 33);
+      ctx.stroke();
+
+      ctx.fillStyle = "#1f1309";
+      ctx.beginPath();
+      ctx.arc(55, -12, 2.2, 0, Math.PI * 2);
       ctx.fill();
+
+      ctx.fillStyle = selectedShip.wing;
+      ctx.beginPath();
+      ctx.roundRect(-19, -7, 34, 16, 6);
+      ctx.fill();
+
+      ctx.strokeStyle = "#5c3214";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(-2, -8);
+      ctx.lineTo(18, -2);
+      ctx.lineTo(36, -9);
+      ctx.stroke();
+
+      ctx.fillStyle = selectedShip.body;
+      ctx.beginPath();
+      ctx.roundRect(-16, -34, 22, 30, 7);
+      ctx.fill();
+      ctx.strokeStyle = selectedShip.wing;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "#d8b98c";
+      ctx.beginPath();
+      ctx.arc(-5, -43, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#5b351c";
+      ctx.beginPath();
+      ctx.arc(-5, -50, 10, Math.PI, Math.PI * 2);
+      ctx.fillRect(-18, -50, 26, 4);
+      ctx.fill();
+
+      ctx.strokeStyle = selectedShip.flame;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(4, -28);
+      ctx.lineTo(22, -13);
+      ctx.moveTo(3, -22);
+      ctx.lineTo(-18, -12);
+      ctx.stroke();
+
+      ctx.fillStyle = "#fff4c7";
+      ctx.strokeStyle = "#8b4a1d";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(17, -27, 25, 16, 5);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
       ctx.restore();
     }
 
@@ -908,18 +1196,26 @@
       ctx.save();
       ctx.translate(word.x, word.y);
       ctx.rotate(Math.sin(word.spin) * 0.08);
-      ctx.fillStyle = "#2563eb";
-      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.shadowColor = "rgba(58, 29, 8, 0.26)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 5;
+      ctx.fillStyle = "#fff4c7";
+      ctx.strokeStyle = "#8b4a1d";
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.roundRect(-word.width / 2, -22, word.width, 44, 8);
+      ctx.roundRect(-word.width / 2, -28, word.width, 56, 8);
       ctx.fill();
       ctx.stroke();
-      ctx.fillStyle = "white";
-      ctx.font = `${word.label.length > 14 ? "800 14px" : "800 17px"} Segoe UI, Arial`;
-      ctx.textAlign = "center";
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+      drawVocabIcon(word.label, -word.width / 2 + 10, -19, 38);
+      ctx.fillStyle = "#5b210c";
+      ctx.font = `${word.label.length > 14 ? "800 14px" : "800 17px"} Trebuchet MS, Segoe UI, Arial`;
+      ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      ctx.fillText(word.label, 0, 1);
+      ctx.fillText(word.label, -word.width / 2 + 58, 1);
       ctx.restore();
     }
 
@@ -947,8 +1243,6 @@
     function advancePrompt() {
       const prompt = currentPrompt();
       score += selectedShip.basePoints + selectedDifficulty.pointBonus + promptIndex * 20;
-      playTone(660, 0.12, "triangle");
-      playTone(880, 0.18, "triangle");
       promptIndex += 1;
       updateHud();
       spawnWords();
@@ -956,7 +1250,6 @@
 
     function missWord() {
       lives -= 1;
-      playTone(150, 0.22, "sawtooth");
       updateHud();
       if (lives <= 0) {
         endGame();
@@ -1032,8 +1325,6 @@
     againButton.addEventListener("click", startGame);
     backToMenuButton.addEventListener("click", showMenu);
     gameMenuButton.addEventListener("click", showMenu);
-    soundToggle.addEventListener("click", toggleMusic);
-    menuMusicButton.addEventListener("click", toggleMusic);
     shipButtons.forEach((button) => {
       button.addEventListener("click", () => selectShip(button.dataset.ship));
     });
@@ -1045,7 +1336,6 @@
     document.body.classList.add("is-menu");
     selectShip("comet");
     selectDifficulty("easy");
-    updateMusicButtons();
     renderRecords();
     updateHud();
     drawStars(0);

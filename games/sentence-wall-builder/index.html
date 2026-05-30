@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentence Wall Builder</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #172033;
+      --paper: #fff7df;
+      --blueprint: #155e75;
+      --blueprint-light: #dff8ff;
+      --sky: #7cc4e8;
+      --grass: #36a15d;
+      --gold: #f2bd35;
+      --orange: #e46b3f;
+      --red: #c93b3f;
+      --teal: #16a394;
+      --violet: #7751c9;
+      --stone: #aab3bd;
+      --stone-dark: #687583;
+      --wood: #70401d;
+      --shadow: rgba(18, 25, 38, 0.28);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      background:
+        linear-gradient(180deg, rgba(61, 155, 207, 0.42), rgba(255, 214, 105, 0.18) 42%, rgba(29, 121, 67, 0.42)),
+        url("../../assets/images/kingdom-hero.png");
+      background-size: cover;
+      background-position: center top;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(234, 247, 255, 0.12) 46%, rgba(10, 71, 40, 0.22)),
+        radial-gradient(circle at 88% 12%, rgba(255, 224, 99, 0.55), transparent 16rem);
+      z-index: -1;
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header {
+      position: relative;
+      z-index: 7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px clamp(10px, 2.6vw, 26px);
+      border-bottom: 4px solid rgba(255, 216, 91, 0.92);
+      background: linear-gradient(180deg, rgba(22, 78, 99, 0.96), rgba(18, 55, 76, 0.94));
+      color: white;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.28);
+    }
+
+    h1 {
+      margin: 0;
+      color: #fff2a6;
+      font-size: clamp(20px, 3vw, 36px);
+      line-height: 1;
+      letter-spacing: 0;
+      text-shadow: 0 3px 0 #82411d, 0 8px 16px rgba(0, 0, 0, 0.22);
+      white-space: nowrap;
+    }
+
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 7px;
+      font-weight: 900;
+    }
+
+    .pill {
+      min-width: 82px;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 6px 9px;
+      border: 2px solid rgba(255, 229, 106, 0.74);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.13);
+      color: #f8fbff;
+      text-align: center;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    .pill strong {
+      color: #fff2a6;
+      font-size: 1.05em;
+    }
+
+    main {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .site {
+      position: relative;
+      z-index: 1;
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto auto;
+      gap: clamp(8px, 1.5vw, 12px);
+      padding: clamp(10px, 2vw, 18px);
+    }
+
+    .scene-art {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .hill {
+      position: absolute;
+      left: -8vw;
+      right: -8vw;
+      bottom: -14vh;
+      height: 38vh;
+      background:
+        radial-gradient(ellipse at 22% 0%, rgba(118, 196, 96, 0.96), transparent 34%),
+        radial-gradient(ellipse at 78% 8%, rgba(71, 159, 89, 0.96), transparent 36%),
+        linear-gradient(180deg, #4ea761, #217648);
+      border-top: 8px solid rgba(111, 173, 88, 0.8);
+    }
+
+    .blueprint {
+      position: relative;
+      z-index: 2;
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 12px;
+      border: 3px solid #e7fbff;
+      border-radius: 8px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(21, 94, 117, 0.98), rgba(12, 74, 110, 0.98));
+      background-size: 26px 26px, 26px 26px, auto;
+      color: var(--blueprint-light);
+      box-shadow: 0 12px 0 rgba(7, 50, 76, 0.5), 0 22px 46px var(--shadow);
+    }
+
+    .blueprint-title {
+      margin: 0 0 7px;
+      color: #fff2a6;
+      font-size: clamp(18px, 2.4vw, 28px);
+      font-weight: 900;
+      line-height: 1.05;
+    }
+
+    .clue {
+      margin: 0;
+      font-size: clamp(15px, 2vw, 20px);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .pattern {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      justify-content: flex-end;
+      gap: 6px;
+      max-width: 430px;
+    }
+
+    .role-chip {
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 9px;
+      border: 2px solid rgba(255, 255, 255, 0.66);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.13);
+      color: white;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .wall-yard {
+      position: relative;
+      z-index: 2;
+      width: min(1120px, 100%);
+      min-height: 270px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 8px;
+      margin: 0 auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .completed-wall {
+      position: relative;
+      min-height: 154px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 7px;
+      padding: 12px;
+      border: 5px solid #6f3a23;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 232, 184, 0.22), rgba(87, 43, 30, 0.18)),
+        repeating-linear-gradient(0deg, rgba(107, 55, 36, 0.42) 0 5px, rgba(234, 173, 119, 0.24) 5px 8px, transparent 8px 49px),
+        #75422f;
+      box-shadow:
+        inset 0 0 0 4px rgba(255, 229, 180, 0.14),
+        inset 0 -14px 0 rgba(79, 36, 24, 0.18);
+      overflow: hidden;
+    }
+
+    .completed-wall.is-receiving {
+      animation: wallReceive 0.42s ease;
+    }
+
+    .course {
+      position: relative;
+      z-index: 1;
+      min-height: 44px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      transform: translateX(var(--offset, 0));
+    }
+
+    .course.is-fill:nth-child(odd) {
+      --offset: 18px;
+    }
+
+    .course.is-built {
+      min-height: 52px;
+    }
+
+    .course.is-new .wall-word {
+      animation: pushIntoWall 0.64s ease;
+    }
+
+    .mini-brick {
+      min-width: 38px;
+      max-width: 140px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      border: 2px solid rgba(101, 43, 23, 0.55);
+      border-radius: 4px;
+      background: linear-gradient(180deg, #df7657, #bc4e3e);
+      color: #fff9ee;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      box-shadow: inset 0 -4px 0 rgba(84, 37, 20, 0.18);
+    }
+
+    .active-wall {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 88px;
+      padding: 12px;
+      border: 4px solid #5d6d7b;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(217, 226, 235, 0.82)),
+        repeating-linear-gradient(90deg, rgba(101, 116, 132, 0.14) 0 2px, transparent 2px 54px);
+      box-shadow:
+        inset 0 -9px 0 rgba(72, 84, 98, 0.12),
+        0 6px 0 rgba(85, 97, 112, 0.3);
+      overflow: hidden;
+    }
+
+    .active-wall::before,
+    .active-wall::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .active-wall::before {
+      display: none;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 232, 184, 0.22), transparent 18%),
+        radial-gradient(circle at 82% 68%, rgba(51, 24, 16, 0.18), transparent 24%);
+      opacity: 0.9;
+    }
+
+    .active-wall::after {
+      display: none;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 36%, rgba(48, 20, 13, 0.16));
+      opacity: 0.82;
+    }
+
+    .wall-course {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      min-height: 44px;
+    }
+
+    .wall-course.is-sentence {
+      min-height: 54px;
+      padding: 2px 0;
+    }
+
+    .wall-course.is-fill:nth-child(odd) {
+      transform: translateX(18px);
+    }
+
+    .active-wall.is-shaking {
+      animation: wallShake 0.35s ease;
+    }
+
+    .slot {
+      position: relative;
+      z-index: 1;
+      flex: 0 0 var(--hole-width, 92px);
+      width: var(--hole-width, 92px);
+      height: 48px;
+      min-height: 48px;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      padding: 0;
+      border: 3px solid rgba(74, 32, 21, 0.9);
+      border-radius: 6px;
+      background:
+        linear-gradient(180deg, rgba(16, 23, 29, 0.92), rgba(47, 31, 24, 0.96)),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0 8px, transparent 8px 16px);
+      box-shadow:
+        inset 0 7px 13px rgba(0, 0, 0, 0.54),
+        inset 0 -3px 0 rgba(255, 205, 143, 0.08),
+        0 4px 0 rgba(82, 38, 25, 0.5);
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+
+    .slot::before {
+      content: "";
+      position: absolute;
+      left: -3px;
+      right: -3px;
+      top: -3px;
+      height: 10px;
+      border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, rgba(255, 219, 159, 0.42), rgba(99, 43, 28, 0.16));
+      pointer-events: none;
+    }
+
+    .slot.is-ready {
+      border-style: solid;
+      background:
+        linear-gradient(180deg, rgba(99, 49, 32, 0.36), rgba(46, 30, 25, 0.58)),
+        rgba(231, 252, 243, 0.2);
+    }
+
+    .slot.is-wrong {
+      border-color: var(--red);
+      background:
+        linear-gradient(180deg, rgba(255, 123, 123, 0.34), rgba(74, 31, 28, 0.78)),
+        rgba(255, 231, 231, 0.35);
+    }
+
+    .slot.is-correct {
+      border-color: var(--teal);
+      background:
+        linear-gradient(180deg, rgba(85, 235, 199, 0.34), rgba(32, 62, 54, 0.72)),
+        rgba(224, 255, 246, 0.3);
+    }
+
+    .slot-label {
+      position: absolute;
+      left: 5px;
+      right: 5px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      color: rgba(255, 230, 184, 0.5);
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    .slot.is-ready .slot-label {
+      display: none;
+    }
+
+    .slot-placeholder {
+      position: absolute;
+      inset: 0;
+      border-radius: 4px;
+      border: 2px dashed rgba(255, 222, 175, 0.18);
+      background:
+        radial-gradient(circle at 24% 22%, rgba(255, 238, 199, 0.12), transparent 22%),
+        repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0 9px, rgba(255, 255, 255, 0.04) 9px 18px);
+      box-shadow: inset 0 5px 14px rgba(0, 0, 0, 0.36);
+    }
+
+    .quarry {
+      position: relative;
+      z-index: 2;
+      width: min(1120px, 100%);
+      min-height: 110px;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 auto;
+      padding: 12px;
+      border: 4px solid rgba(77, 47, 23, 0.76);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(116, 82, 54, 0.92), rgba(74, 55, 45, 0.95)),
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255, 255, 255, 0.08) 28px 30px);
+      box-shadow: 0 9px 0 rgba(59, 38, 21, 0.56), 0 18px 36px var(--shadow);
+    }
+
+    .brick,
+    .wall-brick {
+      --brick: var(--orange);
+      min-width: 76px;
+      max-width: 190px;
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 12px;
+      border: 3px solid rgba(82, 41, 22, 0.76);
+      border-radius: 6px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 42%),
+        linear-gradient(180deg, var(--brick), color-mix(in srgb, var(--brick) 72%, #561f18));
+      color: white;
+      font-size: clamp(15px, 1.8vw, 19px);
+      font-weight: 900;
+      line-height: 1.05;
+      text-align: center;
+      text-shadow: 0 1px 0 rgba(71, 25, 17, 0.42);
+      cursor: pointer;
+      box-shadow: inset 0 -7px 0 rgba(72, 28, 17, 0.18), 0 5px 0 rgba(58, 35, 22, 0.45);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+      overflow-wrap: anywhere;
+    }
+
+    .brick {
+      gap: 0;
+    }
+
+    .final-word {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .wall-brick {
+      flex: 0 0 var(--wall-brick-width, 86px);
+      width: var(--wall-brick-width, 86px);
+      max-width: none;
+      color: rgba(255, 249, 238, 0.32);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .wall-word {
+      flex: 0 0 var(--hole-width, 92px);
+      width: var(--hole-width, 92px);
+      min-width: 0;
+      max-width: none;
+      min-height: 44px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      cursor: default;
+      pointer-events: none;
+      transform-origin: center;
+      box-shadow:
+        inset 0 -8px 0 rgba(72, 28, 17, 0.2),
+        inset 0 3px 0 rgba(255, 235, 201, 0.22),
+        0 3px 0 rgba(45, 26, 18, 0.48);
+    }
+
+    .brick:hover,
+    .brick:focus-visible {
+      filter: brightness(1.06);
+      transform: translateY(-2px);
+      box-shadow: inset 0 -7px 0 rgba(72, 28, 17, 0.18), 0 7px 0 rgba(58, 35, 22, 0.42), 0 12px 20px rgba(0, 0, 0, 0.16);
+      outline: none;
+    }
+
+    .brick:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 -4px 0 rgba(72, 28, 17, 0.16), 0 2px 0 rgba(58, 35, 22, 0.42);
+    }
+
+    .brick.is-placed {
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      max-width: none;
+      min-height: 44px;
+      padding: 6px 8px;
+      border-color: rgba(72, 31, 20, 0.9);
+      border-radius: 4px;
+      box-shadow:
+        inset 0 -8px 0 rgba(72, 28, 17, 0.2),
+        inset 0 3px 0 rgba(255, 235, 201, 0.22),
+        0 3px 0 rgba(45, 26, 18, 0.48);
+    }
+
+    .brick[data-role="Subject"],
+    .brick[data-role="Noun"],
+    .brick[data-role="Pronoun"] {
+      --brick: #2563eb;
+    }
+
+    .brick[data-role="Verb"],
+    .brick[data-role="Action"],
+    .brick[data-role="Be verb"],
+    .brick[data-role="Modal"] {
+      --brick: #16a394;
+    }
+
+    .brick[data-role="Object"],
+    .brick[data-role="Place"],
+    .brick[data-role="Time"] {
+      --brick: #e46b3f;
+    }
+
+    .brick[data-role="Adjective"],
+    .brick[data-role="Adverb"] {
+      --brick: #7751c9;
+    }
+
+    .brick[data-role="Article"],
+    .brick[data-role="Preposition"],
+    .brick[data-role="Connector"] {
+      --brick: #c93b3f;
+    }
+
+    .brick[data-role="Helper"] {
+      --brick: #d99a20;
+    }
+
+    .controls {
+      position: relative;
+      z-index: 3;
+      width: min(1120px, 100%);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 auto;
+    }
+
+    .game-button,
+    .home-link {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 14px;
+      border: 3px solid #1f2937;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff06d, #f2bd35);
+      color: #33220b;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #70401d;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    .game-button:hover,
+    .home-link:hover,
+    .game-button:focus-visible,
+    .home-link:focus-visible {
+      filter: brightness(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 #70401d, 0 12px 20px rgba(0, 0, 0, 0.16);
+      outline: none;
+    }
+
+    .game-button:active,
+    .home-link:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #70401d;
+    }
+
+    .game-button.secondary,
+    .home-link {
+      background: linear-gradient(180deg, #e7f7ff, #9ed9f4);
+      color: #0f3347;
+    }
+
+    .game-button.danger {
+      background: linear-gradient(180deg, #ffd3d3, #f87171);
+      color: #541313;
+    }
+
+    .feedback {
+      position: relative;
+      z-index: 3;
+      min-height: 28px;
+      width: min(1120px, 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      padding: 4px 8px;
+      border-radius: 8px;
+      color: #0f2430;
+      background: rgba(225, 248, 255, 0.76);
+      font-size: clamp(14px, 1.8vw, 18px);
+      font-weight: 900;
+      text-align: center;
+      box-shadow: 0 5px 16px rgba(15, 23, 42, 0.15);
+    }
+
+    .panel {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 10;
+      width: min(760px, calc(100vw - 22px));
+      max-height: calc(100vh - 84px);
+      overflow: auto;
+      transform: translate(-50%, -50%);
+      padding: clamp(14px, 2.6vw, 22px);
+      border: 4px solid #164e63;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(240, 252, 255, 0.98), rgba(222, 244, 239, 0.98)),
+        var(--paper);
+      box-shadow: 0 12px 0 rgba(12, 74, 110, 0.66), 0 28px 70px rgba(15, 23, 42, 0.36);
+    }
+
+    .panel[hidden] {
+      display: none;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      color: #0f3d52;
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .panel p {
+      margin: 8px 0;
+      color: #244257;
+      font-size: clamp(15px, 2vw, 18px);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .mode-card {
+      min-height: 178px;
+      display: grid;
+      gap: 5px;
+      align-content: start;
+      justify-items: start;
+      padding: 10px;
+      border: 3px solid #164e63;
+      border-radius: 8px;
+      background: #eefaff;
+      color: #123447;
+      text-align: left;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 5px 0 rgba(12, 74, 110, 0.38);
+    }
+
+    .mode-card.is-selected {
+      border-color: #0f766e;
+      background: #dcfff7;
+      box-shadow: 0 0 0 4px rgba(22, 163, 148, 0.2), 0 5px 0 rgba(12, 74, 110, 0.38);
+    }
+
+    .mode-name {
+      color: #0f3d52;
+      font-size: clamp(17px, 2.3vw, 22px);
+    }
+
+    .mode-meta {
+      color: #3f5e72;
+      font-size: 13px;
+      line-height: 1.22;
+    }
+
+    .mode-grammar-list {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 4px;
+    }
+
+    .mode-grammar-chip {
+      min-height: 25px;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 7px;
+      border: 2px solid rgba(22, 78, 99, 0.22);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.68);
+      color: #174055;
+      font-size: 12px;
+      line-height: 1.05;
+    }
+
+    .sample-wall {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 12px 0;
+      padding: 10px;
+      border: 3px solid rgba(22, 78, 99, 0.3);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .sample-wall > span {
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 6px;
+      background: #df7657;
+      color: white;
+      font-weight: 900;
+      box-shadow: inset 0 -5px 0 rgba(74, 30, 18, 0.18);
+    }
+
+    .panel-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    body.is-menu .blueprint,
+    body.is-menu .wall-yard,
+    body.is-menu .quarry,
+    body.is-menu .controls,
+    body.is-menu .feedback,
+    body.is-ended .blueprint,
+    body.is-ended .wall-yard,
+    body.is-ended .quarry,
+    body.is-ended .controls,
+    body.is-ended .feedback {
+      filter: saturate(0.76) brightness(0.88);
+    }
+
+    @keyframes wallShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(7px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(4px); }
+    }
+
+    @keyframes lockIn {
+      0% { transform: translateY(0) scale(1); }
+      45% { transform: translateY(-8px) scale(1.02); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes wallReceive {
+      0% { transform: translateY(0); }
+      42% { transform: translateY(4px); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes pushIntoWall {
+      0% {
+        transform: translateY(36px) scale(1.08);
+        box-shadow: 0 20px 24px rgba(35, 18, 11, 0.28);
+      }
+      58% {
+        transform: translateY(-3px) scale(1.01);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .active-wall.is-locking .brick {
+      animation: lockIn 0.46s ease;
+    }
+
+    @media (max-width: 820px) {
+      body {
+        overflow: auto;
+      }
+
+      .screen {
+        min-height: 100vh;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      h1 {
+        white-space: normal;
+      }
+
+      .hud {
+        justify-content: flex-start;
+      }
+
+      .pill {
+        min-width: 70px;
+        min-height: 32px;
+        padding: 5px 7px;
+        font-size: 13px;
+      }
+
+      main {
+        overflow: visible;
+      }
+
+      .site {
+        min-height: calc(100vh - 120px);
+        grid-template-rows: auto auto auto auto auto;
+      }
+
+      .blueprint {
+        grid-template-columns: 1fr;
+      }
+
+      .pattern {
+        justify-content: flex-start;
+        max-width: none;
+      }
+
+      .wall-yard {
+        min-height: 260px;
+      }
+
+      .active-wall {
+        padding: 12px;
+      }
+
+      .wall-course {
+        gap: 5px;
+      }
+
+      .mode-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .site {
+        padding: 8px;
+      }
+
+      .blueprint,
+      .wall-yard,
+      .quarry {
+        border-width: 3px;
+      }
+
+      .active-wall {
+        gap: 6px;
+        padding: 8px;
+      }
+
+      .slot {
+        height: 44px;
+        min-height: 44px;
+      }
+
+      .brick,
+      .wall-brick,
+      .wall-word {
+        min-width: 68px;
+        padding: 6px 8px;
+      }
+    }
+
+    /* The Kingdom visual pass */
+    :root {
+      --ink: #35200c;
+      --paper: #fff4ca;
+      --paper-light: #fffbe7;
+      --wood: #714016;
+      --wood-dark: #46220c;
+      --gold: #ffd057;
+      --gold-dark: #b66a11;
+      --red: #d94635;
+      --green: #2ea55f;
+      --blue: #2b7fc2;
+      --stone: #c6c0b3;
+      --stone-dark: #7b7267;
+      --orange: #d95f38;
+      --teal: #2ea55f;
+      --violet: #7b4ed6;
+      --shadow: rgba(58, 30, 8, 0.28);
+    }
+
+    body {
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(121, 205, 255, 0.42), rgba(255, 230, 138, 0.55)),
+        url("../../assets/images/kingdom-hero.png");
+      background-size: cover;
+      background-position: center top;
+    }
+
+    body::before {
+      background:
+        linear-gradient(90deg, rgba(113, 64, 22, 0.06) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(176, 99, 28, 0.05));
+      background-size: 44px 44px, auto;
+    }
+
+    header {
+      margin: 12px clamp(10px, 2vw, 18px) 0;
+      border: 4px solid var(--wood);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 251, 231, 0.98), rgba(255, 232, 164, 0.94)),
+        var(--paper);
+      color: var(--ink);
+      box-shadow: 0 8px 0 #7e4b1d, 0 16px 34px var(--shadow);
+    }
+
+    h1,
+    .blueprint-title,
+    .panel h2 {
+      color: #4a250d;
+      text-shadow: 0 3px 0 #ffd86a;
+    }
+
+    .pill {
+      border-color: var(--wood);
+      background: rgba(255, 251, 231, 0.92);
+      color: #4a250d;
+      box-shadow: 0 4px 0 rgba(113, 64, 22, 0.24);
+    }
+
+    .pill strong {
+      color: #9b3a23;
+    }
+
+    .site {
+      padding: clamp(12px, 2vw, 20px);
+    }
+
+    .hill {
+      background:
+        radial-gradient(ellipse at 22% 0%, rgba(126, 197, 92, 0.96), transparent 34%),
+        radial-gradient(ellipse at 78% 8%, rgba(70, 162, 91, 0.96), transparent 36%),
+        linear-gradient(180deg, #62ba58, #2c8750);
+      border-top-color: rgba(255, 216, 91, 0.56);
+    }
+
+    .blueprint,
+    .quarry,
+    .panel,
+    .feedback {
+      border-color: var(--wood);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 251, 231, 0.96), rgba(255, 232, 164, 0.92)),
+        var(--paper);
+      color: var(--ink);
+      box-shadow: 0 8px 0 rgba(113, 64, 22, 0.46), 0 18px 42px var(--shadow);
+    }
+
+    .blueprint {
+      border-width: 4px;
+      background:
+        linear-gradient(90deg, rgba(113, 64, 22, 0.08) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(255, 251, 231, 0.98), rgba(255, 232, 164, 0.92));
+      background-size: 38px 38px, auto;
+    }
+
+    .clue,
+    .panel p,
+    .mode-meta {
+      color: #5b3110;
+    }
+
+    .role-chip,
+    .mode-grammar-chip {
+      border-color: rgba(113, 64, 22, 0.45);
+      background: rgba(255, 251, 231, 0.78);
+      color: #4a250d;
+    }
+
+    .completed-wall {
+      border-color: var(--wood);
+      background:
+        linear-gradient(180deg, rgba(255, 232, 184, 0.18), rgba(87, 43, 30, 0.14)),
+        repeating-linear-gradient(0deg, rgba(107, 55, 36, 0.42) 0 5px, rgba(234, 173, 119, 0.24) 5px 8px, transparent 8px 49px),
+        #8f4d32;
+      box-shadow:
+        inset 0 0 0 4px rgba(255, 229, 180, 0.14),
+        inset 0 -14px 0 rgba(79, 36, 24, 0.18),
+        0 7px 0 rgba(113, 64, 22, 0.42);
+    }
+
+    .active-wall {
+      border-color: var(--wood);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(224, 213, 192, 0.9)),
+        repeating-linear-gradient(90deg, rgba(113, 64, 22, 0.12) 0 2px, transparent 2px 54px);
+      box-shadow:
+        inset 0 -9px 0 rgba(72, 84, 98, 0.12),
+        0 6px 0 rgba(113, 64, 22, 0.34);
+    }
+
+    .slot {
+      border-color: rgba(74, 32, 21, 0.92);
+      background:
+        linear-gradient(180deg, rgba(42, 25, 14, 0.94), rgba(75, 43, 24, 0.98)),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0 8px, transparent 8px 16px);
+    }
+
+    .slot-label {
+      color: rgba(255, 231, 174, 0.58);
+    }
+
+    .quarry {
+      background:
+        linear-gradient(180deg, rgba(116, 82, 54, 0.94), rgba(74, 55, 45, 0.96)),
+        repeating-linear-gradient(90deg, transparent 0 28px, rgba(255, 255, 255, 0.08) 28px 30px);
+    }
+
+    .game-button,
+    .home-link {
+      border-color: var(--wood);
+      color: #351a08;
+      background: linear-gradient(180deg, #fff1a7, #ffc54a);
+      box-shadow: 0 5px 0 #8c5017;
+    }
+
+    .game-button.secondary,
+    .home-link {
+      color: #351a08;
+      background: linear-gradient(180deg, #fffbe6, #f5d889);
+    }
+
+    .game-button.danger {
+      color: white;
+      background: linear-gradient(180deg, #ff7b68, #bf3328);
+      box-shadow: 0 5px 0 #802016;
+    }
+
+    .panel {
+      background:
+        linear-gradient(180deg, rgba(255, 251, 231, 0.98), rgba(255, 232, 164, 0.96)),
+        var(--paper);
+    }
+
+    .mode-card {
+      border-color: var(--wood);
+      background: rgba(255, 251, 231, 0.92);
+      color: #4a250d;
+      box-shadow: 0 5px 0 rgba(113, 64, 22, 0.38);
+    }
+
+    .mode-card.is-selected {
+      border-color: var(--gold-dark);
+      background: #fff2a8;
+      box-shadow: 0 0 0 4px rgba(255, 208, 87, 0.26), 0 5px 0 rgba(113, 64, 22, 0.38);
+    }
+
+    .mode-name {
+      color: #4a250d;
+    }
+
+    .sample-wall {
+      border-color: rgba(113, 64, 22, 0.42);
+      background: rgba(255, 251, 231, 0.72);
+    }
+
+    .feedback {
+      background: rgba(255, 251, 231, 0.9);
+      color: #4a250d;
+    }
+
+    @media (max-width: 820px) {
+      header {
+        margin: 10px;
+      }
+    }
+  </style>
+</head>
+<body class="is-menu">
+  <div class="screen">
+    <header>
+      <h1>Sentence Wall Builder</h1>
+      <div class="hud" aria-live="polite">
+        <div class="pill">Score <strong id="score">0</strong></div>
+        <div class="pill">Level <strong id="level">1/1</strong></div>
+        <div class="pill">Mortar <strong id="mistakes">4</strong></div>
+        <div class="pill">Time <strong id="time">60</strong></div>
+        <div class="pill">Streak <strong id="streak">0</strong></div>
+        <div class="pill">Best <strong id="best">0</strong></div>
+      </div>
+    </header>
+
+    <main>
+      <div class="scene-art" aria-hidden="true">
+        <div class="hill"></div>
+      </div>
+
+      <div class="site">
+        <section class="blueprint" aria-live="polite">
+          <div>
+            <h2 class="blueprint-title" id="levelTitle">Blueprint</h2>
+            <p class="clue" id="clue">Build a sentence from the word bricks.</p>
+          </div>
+          <div class="pattern" id="pattern"></div>
+        </section>
+
+        <section class="wall-yard">
+          <div class="completed-wall" id="completedWall" aria-label="Completed sentence wall"></div>
+          <div class="active-wall" id="activeWall" aria-label="Active sentence wall"></div>
+        </section>
+
+        <section class="quarry" id="quarry" aria-label="Word brick quarry"></section>
+
+        <div class="controls">
+          <button class="game-button" id="checkButton" type="button">Check Wall</button>
+          <button class="game-button secondary" id="hintButton" type="button">Hint</button>
+          <button class="game-button secondary" id="undoButton" type="button">Undo</button>
+          <button class="game-button danger" id="clearButton" type="button">Clear</button>
+          <button class="game-button secondary" id="shuffleButton" type="button">Shuffle</button>
+          <button class="game-button secondary" id="soundButton" type="button">Sound On</button>
+          <button class="game-button secondary" id="menuButton" type="button">Menu</button>
+        </div>
+
+        <div class="feedback" id="feedback">Choose a crew and start building.</div>
+      </div>
+
+      <section class="panel" id="startPanel">
+        <h2>Sentence Wall Builder</h2>
+        <p>Build English sentences from word bricks and turn every correct line into a stronger castle wall.</p>
+
+        <div class="mode-grid" id="modeGrid"></div>
+
+        <div class="sample-wall" aria-hidden="true">
+          <span>I</span>
+          <span>can</span>
+          <span>build</span>
+          <span>a</span>
+          <span>sentence</span>
+        </div>
+
+        <div class="panel-actions">
+          <button class="game-button" id="startButton" type="button">Start Build</button>
+          <a class="home-link" href="../../index.html">The Kingdom</a>
+        </div>
+      </section>
+
+      <section class="panel" id="endPanel" hidden>
+        <h2 id="endTitle">Wall Complete</h2>
+        <p id="endText"></p>
+        <div class="sample-wall" id="finalWall"></div>
+        <div class="panel-actions">
+          <button class="game-button" id="againButton" type="button">Build Again</button>
+          <button class="game-button secondary" id="endMenuButton" type="button">Menu</button>
+          <a class="home-link" href="../../index.html">The Kingdom</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const scoreEl = document.getElementById("score");
+    const levelEl = document.getElementById("level");
+    const mistakesEl = document.getElementById("mistakes");
+    const timeEl = document.getElementById("time");
+    const streakEl = document.getElementById("streak");
+    const bestEl = document.getElementById("best");
+    const levelTitleEl = document.getElementById("levelTitle");
+    const clueEl = document.getElementById("clue");
+    const patternEl = document.getElementById("pattern");
+    const completedWallEl = document.getElementById("completedWall");
+    const activeWallEl = document.getElementById("activeWall");
+    const quarryEl = document.getElementById("quarry");
+    const feedbackEl = document.getElementById("feedback");
+    const modeGrid = document.getElementById("modeGrid");
+    const startPanel = document.getElementById("startPanel");
+    const endPanel = document.getElementById("endPanel");
+    const endTitle = document.getElementById("endTitle");
+    const endText = document.getElementById("endText");
+    const finalWall = document.getElementById("finalWall");
+    const startButton = document.getElementById("startButton");
+    const checkButton = document.getElementById("checkButton");
+    const hintButton = document.getElementById("hintButton");
+    const undoButton = document.getElementById("undoButton");
+    const clearButton = document.getElementById("clearButton");
+    const shuffleButton = document.getElementById("shuffleButton");
+    const soundButton = document.getElementById("soundButton");
+    const menuButton = document.getElementById("menuButton");
+    const againButton = document.getElementById("againButton");
+    const endMenuButton = document.getElementById("endMenuButton");
+
+    const scoreKey = "sentence-wall-builder-best-v1";
+
+    const modes = {
+      foundation: {
+        id: "foundation",
+        name: "Foundation",
+        meta: "Short sentences, four mortar bags",
+        time: 70,
+        mistakes: 4,
+        base: 100,
+        levels: [0, 1, 2, 3, 4, 5, 6, 7]
+      },
+      tower: {
+        id: "tower",
+        name: "Tower",
+        meta: "Longer sentences, mixed tenses",
+        time: 80,
+        mistakes: 4,
+        base: 130,
+        levels: [8, 9, 10, 11, 12, 13, 14, 15]
+      },
+      crown: {
+        id: "crown",
+        name: "Crown",
+        meta: "Clauses, questions, careful order",
+        time: 95,
+        mistakes: 3,
+        base: 170,
+        levels: [16, 17, 18, 19, 20, 21, 22, 23]
+      }
+    };
+
+    const levels = [
+      {
+        name: "Can ability",
+        grammar: "Subject + can + base verb",
+        clue: "Say that I have the ability to run.",
+        words: [
+          ["I", "Pronoun"],
+          ["can", "Modal"],
+          ["run", "Verb"]
+        ],
+        decoys: [
+          ["castle", "Noun"],
+          ["happy", "Adjective"]
+        ]
+      },
+      {
+        name: "Be adjective",
+        grammar: "Subject + be + adjective",
+        clue: "Describe the queen.",
+        words: [
+          ["the", "Article"],
+          ["queen", "Noun"],
+          ["is", "Be verb"],
+          ["happy", "Adjective"]
+        ],
+        decoys: [
+          ["run", "Verb"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Place preposition",
+        grammar: "Article + noun + be + preposition + place",
+        clue: "Put the cat below the table.",
+        words: [
+          ["the", "Article"],
+          ["cat", "Noun"],
+          ["is", "Be verb"],
+          ["under", "Preposition"],
+          ["the", "Article"],
+          ["table", "Place"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["run", "Verb"]
+        ]
+      },
+      {
+        name: "Can with object",
+        grammar: "Subject + can + base verb + object",
+        clue: "Say that you can read a book.",
+        words: [
+          ["you", "Pronoun"],
+          ["can", "Modal"],
+          ["read", "Verb"],
+          ["a", "Article"],
+          ["book", "Object"]
+        ],
+        decoys: [
+          ["blue", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Present simple",
+        grammar: "Plural subject + base verb + object",
+        clue: "Say what we play after school.",
+        words: [
+          ["we", "Pronoun"],
+          ["play", "Verb"],
+          ["soccer", "Object"],
+          ["after", "Preposition"],
+          ["school", "Time"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["blue", "Adjective"]
+        ]
+      },
+      {
+        name: "Present simple -s",
+        grammar: "She/he/it + verb-s + object",
+        clue: "Say what she reads every day.",
+        words: [
+          ["she", "Pronoun"],
+          ["reads", "Verb"],
+          ["a", "Article"],
+          ["book", "Object"],
+          ["every", "Adjective"],
+          ["day", "Time"]
+        ],
+        decoys: [
+          ["blue", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "There is",
+        grammar: "There + is + singular noun + place",
+        clue: "Say that one key is in the chest.",
+        words: [
+          ["there", "Helper"],
+          ["is", "Be verb"],
+          ["a", "Article"],
+          ["key", "Noun"],
+          ["in", "Preposition"],
+          ["the", "Article"],
+          ["chest", "Place"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["blue", "Adjective"]
+        ]
+      },
+      {
+        name: "There are",
+        grammar: "There + are + plural noun + place",
+        clue: "Say that two towers are near the gate.",
+        words: [
+          ["there", "Helper"],
+          ["are", "Be verb"],
+          ["two", "Adjective"],
+          ["towers", "Noun"],
+          ["near", "Preposition"],
+          ["the", "Article"],
+          ["gate", "Place"]
+        ],
+        decoys: [
+          ["blue", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Present continuous",
+        grammar: "Subject + am/is/are + verb-ing",
+        clue: "Say what the wizard is doing now.",
+        words: [
+          ["the", "Article"],
+          ["wizard", "Noun"],
+          ["is", "Be verb"],
+          ["opening", "Verb"],
+          ["the", "Article"],
+          ["portal", "Object"],
+          ["now", "Time"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Negative can",
+        grammar: "Subject + cannot + base verb + place",
+        clue: "Say that I cannot sleep in the dungeon.",
+        words: [
+          ["I", "Pronoun"],
+          ["cannot", "Modal"],
+          ["sleep", "Verb"],
+          ["in", "Preposition"],
+          ["the", "Article"],
+          ["dungeon", "Place"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["blue", "Adjective"]
+        ]
+      },
+      {
+        name: "Past simple",
+        grammar: "Subject + past verb + object + time",
+        clue: "Say what the knight found yesterday.",
+        words: [
+          ["the", "Article"],
+          ["knight", "Noun"],
+          ["found", "Verb"],
+          ["the", "Article"],
+          ["sword", "Object"],
+          ["yesterday", "Time"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["blue", "Adjective"]
+        ]
+      },
+      {
+        name: "Future will",
+        grammar: "Subject + will + base verb + object",
+        clue: "Say what they will find tomorrow.",
+        words: [
+          ["they", "Pronoun"],
+          ["will", "Helper"],
+          ["find", "Verb"],
+          ["the", "Article"],
+          ["treasure", "Object"],
+          ["tomorrow", "Time"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["blue", "Adjective"]
+        ]
+      },
+      {
+        name: "Where question",
+        grammar: "Where + be + subject",
+        clue: "Ask about the castle location.",
+        punctuation: "?",
+        words: [
+          ["where", "Connector"],
+          ["is", "Be verb"],
+          ["the", "Article"],
+          ["castle", "Noun"]
+        ],
+        decoys: [
+          ["under", "Preposition"],
+          ["happy", "Adjective"]
+        ]
+      },
+      {
+        name: "Who question",
+        grammar: "Who + be + possessive + noun",
+        clue: "Ask who your friend is.",
+        punctuation: "?",
+        words: [
+          ["who", "Connector"],
+          ["is", "Be verb"],
+          ["your", "Pronoun"],
+          ["friend", "Noun"]
+        ],
+        decoys: [
+          ["under", "Preposition"],
+          ["happy", "Adjective"]
+        ]
+      },
+      {
+        name: "Yes/no question",
+        grammar: "Can + subject + base verb + object",
+        clue: "Ask if the fairy can help the elf.",
+        punctuation: "?",
+        words: [
+          ["can", "Modal"],
+          ["the", "Article"],
+          ["fairy", "Noun"],
+          ["help", "Verb"],
+          ["the", "Article"],
+          ["elf", "Object"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Adjective pair",
+        grammar: "Subject + be + adjective + but + adjective",
+        clue: "Describe the gem with two different adjectives.",
+        words: [
+          ["this", "Pronoun"],
+          ["gem", "Noun"],
+          ["is", "Be verb"],
+          ["bright", "Adjective"],
+          ["but", "Connector"],
+          ["small", "Adjective"]
+        ],
+        decoys: [
+          ["run", "Verb"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Comparative",
+        grammar: "Subject + be + comparative + than + noun",
+        clue: "Compare the tower and the gate.",
+        words: [
+          ["the", "Article"],
+          ["tower", "Noun"],
+          ["is", "Be verb"],
+          ["taller", "Adjective"],
+          ["than", "Connector"],
+          ["the", "Article"],
+          ["gate", "Object"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Because clause",
+        grammar: "Main clause + because + reason",
+        clue: "Explain why the dragon sleeps.",
+        words: [
+          ["the", "Article"],
+          ["dragon", "Noun"],
+          ["sleeps", "Verb"],
+          ["because", "Connector"],
+          ["it", "Pronoun"],
+          ["is", "Be verb"],
+          ["tired", "Adjective"]
+        ],
+        decoys: [
+          ["blue", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "If clause",
+        grammar: "If + present, will + base verb",
+        clue: "Say what we will do if it rains.",
+        words: [
+          ["if", "Connector"],
+          ["it", "Pronoun"],
+          ["rains", "Verb"],
+          ["we", "Pronoun"],
+          ["will", "Helper"],
+          ["stay", "Verb"],
+          ["inside", "Place"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Passive voice",
+        grammar: "Subject + be + past participle + by + agent",
+        clue: "Say who built the castle.",
+        words: [
+          ["the", "Article"],
+          ["castle", "Noun"],
+          ["was", "Helper"],
+          ["built", "Verb"],
+          ["by", "Preposition"],
+          ["workers", "Object"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Present perfect",
+        grammar: "Subject + have/has + past participle + object",
+        clue: "Say that she has finished the quest.",
+        words: [
+          ["she", "Pronoun"],
+          ["has", "Helper"],
+          ["finished", "Verb"],
+          ["the", "Article"],
+          ["quest", "Object"]
+        ],
+        decoys: [
+          ["blue", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Object pronoun",
+        grammar: "Subject + verb + object pronoun",
+        clue: "Say that the fairy helps him.",
+        words: [
+          ["the", "Article"],
+          ["fairy", "Noun"],
+          ["helps", "Verb"],
+          ["him", "Object"]
+        ],
+        decoys: [
+          ["happy", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Adverb of manner",
+        grammar: "Subject + verb + adverb",
+        clue: "Say how the guard speaks.",
+        words: [
+          ["the", "Article"],
+          ["guard", "Noun"],
+          ["speaks", "Verb"],
+          ["quietly", "Adverb"]
+        ],
+        decoys: [
+          ["blue", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      },
+      {
+        name: "Relative clause",
+        grammar: "Noun + that + subject + verb",
+        clue: "Build a sentence about the book you found.",
+        words: [
+          ["the", "Article"],
+          ["book", "Noun"],
+          ["that", "Connector"],
+          ["you", "Pronoun"],
+          ["found", "Verb"],
+          ["is", "Be verb"],
+          ["old", "Adjective"]
+        ],
+        decoys: [
+          ["blue", "Adjective"],
+          ["under", "Preposition"]
+        ]
+      }
+    ];
+
+    let selectedMode = modes.foundation;
+    let currentLevel = null;
+    let levelQueue = [];
+    let levelIndex = 0;
+    let tray = [];
+    let placed = [];
+    let completedRows = [];
+    let history = [];
+    let score = 0;
+    let streak = 0;
+    let mistakes = selectedMode.mistakes;
+    let timeLeft = selectedMode.time;
+    let hintsUsed = 0;
+    let brickSerial = 0;
+    let wallPulse = false;
+    let timerId = null;
+    let soundOn = true;
+    let audioContext = null;
+    let isPlaying = false;
+    let isTransitioning = false;
+    let draggedBrickId = null;
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function capitalizeWord(word) {
+      return word ? word.charAt(0).toUpperCase() + word.slice(1) : word;
+    }
+
+    function displayWord(word, index = -1) {
+      return index === 0 ? capitalizeWord(word) : word;
+    }
+
+    function grammarHint(level) {
+      const grammar = level.grammar || "";
+      if (grammar.includes("can + base verb")) return "Hint: after can, use the base verb.";
+      if (grammar.includes("be + adjective")) return "Hint: use am, is, or are before an adjective.";
+      if (grammar.includes("preposition")) return "Hint: place words often come after in, on, under, or near.";
+      if (grammar.includes("verb-s")) return "Hint: with she, he, or it, add -s to the verb.";
+      if (grammar.includes("There + is")) return "Hint: use there is for one thing.";
+      if (grammar.includes("There + are")) return "Hint: use there are for two or more things.";
+      if (grammar.includes("verb-ing")) return "Hint: am, is, or are goes before the -ing verb.";
+      if (grammar.includes("cannot")) return "Hint: cannot is followed by the base verb.";
+      if (grammar.includes("past verb")) return "Hint: past simple often uses a past verb and a time word.";
+      if (grammar.includes("will")) return "Hint: will is followed by the base verb.";
+      if (grammar.includes("Where")) return "Hint: start where questions with Where + is/are.";
+      if (grammar.includes("Who")) return "Hint: start who questions with Who + is/are.";
+      if (grammar.startsWith("Can +")) return "Hint: yes/no questions can start with Can.";
+      if (grammar.includes("comparative")) return "Hint: use a comparative adjective before than.";
+      if (grammar.includes("because")) return "Hint: because introduces the reason.";
+      if (grammar.includes("If +")) return "Hint: use will in the result part.";
+      if (grammar.includes("past participle")) return "Hint: passive voice uses be + past participle.";
+      if (grammar.includes("have/has")) return "Hint: present perfect uses have or has + past participle.";
+      if (grammar.includes("object pronoun")) return "Hint: object pronouns come after the verb.";
+      if (grammar.includes("adverb")) return "Hint: an adverb can tell how an action happens.";
+      if (grammar.includes("that + subject")) return "Hint: that can connect a noun to extra information.";
+      return "Hint: build the sentence from left to right.";
+    }
+
+    function shuffle(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function makeBrick(text, role, targetIndex) {
+      brickSerial += 1;
+      return {
+        id: `brick-${brickSerial}`,
+        text,
+        role,
+        targetIndex
+      };
+    }
+
+    function fullSentence(level) {
+      return `${level.words.map((word, index) => displayWord(word[0], index)).join(" ")}${level.punctuation || "."}`;
+    }
+
+    function bestScore() {
+      return Number(localStorage.getItem(scoreKey) || 0);
+    }
+
+    function saveBest() {
+      if (score > bestScore()) {
+        localStorage.setItem(scoreKey, String(score));
+      }
+    }
+
+    function updateHud() {
+      scoreEl.textContent = score;
+      levelEl.textContent = `${Math.min(levelIndex + 1, levelQueue.length || 1)}/${levelQueue.length || 1}`;
+      mistakesEl.textContent = mistakes;
+      timeEl.textContent = Math.max(0, Math.ceil(timeLeft));
+      streakEl.textContent = streak;
+      bestEl.textContent = bestScore();
+    }
+
+    function updateSoundButton() {
+      soundButton.textContent = soundOn ? "Sound On" : "Sound Off";
+      soundButton.setAttribute("aria-pressed", String(soundOn));
+    }
+
+    function playTone(freq, duration, type = "sine", volume = 0.08) {
+      if (!soundOn) return;
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      const now = audioContext.currentTime;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(volume, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(now);
+      oscillator.stop(now + duration + 0.02);
+    }
+
+    function playChord(notes) {
+      notes.forEach((note, index) => {
+        setTimeout(() => playTone(note, 0.12, "triangle", 0.07), index * 52);
+      });
+    }
+
+    function renderModes() {
+      modeGrid.innerHTML = Object.values(modes).map((mode) => `
+        <button class="mode-card ${mode.id === selectedMode.id ? "is-selected" : ""}" type="button" data-mode="${mode.id}">
+          <span class="mode-name">${mode.name}</span>
+          <span class="mode-meta">${mode.meta}</span>
+          <span class="mode-grammar-list">
+            ${mode.levels.map((levelId) => `<span class="mode-grammar-chip">${escapeHtml(levels[levelId].name)}</span>`).join("")}
+          </span>
+        </button>
+      `).join("");
+    }
+
+    function renderPattern() {
+      if (!currentLevel) {
+        patternEl.innerHTML = "";
+        return;
+      }
+      patternEl.innerHTML = currentLevel.words.map((word) => `
+        <span class="role-chip">${escapeHtml(word[1])}</span>
+      `).join("");
+    }
+
+    function renderCompletedWall() {
+      const rows = completedRows.slice(-7);
+      completedWallEl.classList.toggle("is-receiving", wallPulse);
+      const fillerBefore = Math.max(1, 3 - rows.length);
+      const fillerRows = Array.from({ length: fillerBefore }, (_, index) => `
+        <div class="course is-fill">${fillerCourseHtml(index)}</div>
+      `).join("");
+      const builtRows = rows.map((row, index) => {
+        const isNewest = wallPulse && index === rows.length - 1;
+        return `
+          <div class="course is-built ${isNewest ? "is-new" : ""}">
+            ${sideBrickHtml(index, "left")}
+            ${row.map((part) => completedBrickHtml(part)).join("")}
+            ${sideBrickHtml(index, "right")}
+          </div>
+        `;
+      }).join("");
+      completedWallEl.innerHTML = `${fillerRows}${builtRows}`;
+    }
+
+    const wallBrickPalette = ["#d96f52", "#c85d45", "#e27c59", "#b9543f", "#dc7350", "#c4634a"];
+    const wallFillerWidths = [92, 78, 112, 84, 104, 76, 96, 118, 88, 102];
+
+    function slotWidth(text) {
+      return Math.min(220, Math.max(92, text.length * 11 + 60));
+    }
+
+    function wallBrickHtml(width, shadeIndex) {
+      const color = wallBrickPalette[shadeIndex % wallBrickPalette.length];
+      return `<span class="wall-brick" style="--wall-brick-width:${width}px;--brick:${color};" aria-hidden="true"></span>`;
+    }
+
+    function completedBrickHtml(part) {
+      const text = typeof part === "string" ? part : part.text;
+      const role = typeof part === "string" ? "Object" : part.role;
+      const index = typeof part === "string" ? -1 : part.index;
+      return `
+        <span class="brick wall-word" style="--hole-width:${slotWidth(text)}px;" data-role="${escapeHtml(role)}">
+          <span>${escapeHtml(displayWord(text, index))}</span>
+        </span>
+      `;
+    }
+
+    function fillerCourseHtml(rowIndex) {
+      const widths = rowIndex % 2
+        ? [...wallFillerWidths].reverse()
+        : wallFillerWidths;
+      return widths.map((width, index) => wallBrickHtml(width, rowIndex + index)).join("");
+    }
+
+    function sideBrickHtml(rowIndex, side) {
+      const widths = side === "left" ? [86, 108] : [98, 78];
+      const offset = side === "left" ? 3 : 9;
+      return widths.map((width, index) => wallBrickHtml(width, rowIndex + offset + index)).join("");
+    }
+
+    function brickHtml(brick, placedClass = "") {
+      return `
+        <button class="brick ${placedClass}" type="button" draggable="true" data-brick="${brick.id}" data-role="${escapeHtml(brick.role)}">
+          <span>${escapeHtml(displayWord(brick.text, brick.targetIndex))}</span>
+        </button>
+      `;
+    }
+
+    function renderSlots() {
+      if (!currentLevel) {
+        activeWallEl.innerHTML = "";
+        return;
+      }
+      const sentenceCourse = currentLevel.words.map((word, index) => {
+        const brick = placed[index];
+        const width = slotWidth(word[0]);
+        return `
+          <div class="slot ${brick ? "is-ready" : ""}" style="--hole-width:${width}px;" data-slot="${index}">
+            <span class="slot-label">${index + 1}. ${escapeHtml(word[1])}</span>
+            ${brick ? brickHtml(brick, "is-placed") : `<span class="slot-placeholder"></span>`}
+          </div>
+        `;
+      }).join("");
+      activeWallEl.innerHTML = `<div class="wall-course is-sentence">${sentenceCourse}</div>`;
+    }
+
+    function renderTray() {
+      quarryEl.innerHTML = tray.length
+        ? tray.map((brick) => brickHtml(brick)).join("")
+        : `<span class="role-chip">Wall is full</span>`;
+    }
+
+    function renderGame() {
+      renderPattern();
+      renderCompletedWall();
+      renderSlots();
+      renderTray();
+      updateHud();
+    }
+
+    function buildTray(level) {
+      const targetBricks = level.words.map((word, index) => makeBrick(word[0], word[1], index));
+      const decoyBricks = level.decoys.map((word) => makeBrick(word[0], word[1], null));
+      return shuffle([...targetBricks, ...decoyBricks]);
+    }
+
+    function setFeedback(message) {
+      feedbackEl.textContent = message;
+    }
+
+    function loadLevel() {
+      currentLevel = levels[levelQueue[levelIndex]];
+      tray = buildTray(currentLevel);
+      placed = Array.from({ length: currentLevel.words.length }, () => null);
+      history = [];
+      hintsUsed = 0;
+      timeLeft = selectedMode.time + Math.max(0, currentLevel.words.length - 6) * 5;
+      isTransitioning = false;
+      levelTitleEl.textContent = `${selectedMode.name}: ${currentLevel.name}`;
+      clueEl.textContent = `${currentLevel.clue} | Grammar: ${currentLevel.grammar} | ${grammarHint(currentLevel)}`;
+      setFeedback("Build this course from the word bricks.");
+      renderGame();
+    }
+
+    function stopTimer() {
+      clearInterval(timerId);
+      timerId = null;
+    }
+
+    function startTimer() {
+      stopTimer();
+      timerId = setInterval(() => {
+        if (!isPlaying || isTransitioning) return;
+        timeLeft -= 1;
+        updateHud();
+        if (timeLeft <= 0) {
+          handleTimeout();
+        }
+      }, 1000);
+    }
+
+    function findBrickInTray(id) {
+      return tray.find((brick) => brick.id === id);
+    }
+
+    function firstEmptySlot() {
+      return placed.findIndex((slot) => !slot);
+    }
+
+    function placeBrick(id, slotIndex = firstEmptySlot()) {
+      if (!isPlaying || isTransitioning) return;
+      if (slotIndex < 0 || slotIndex >= placed.length) return;
+      const brick = findBrickInTray(id);
+      if (!brick) return;
+      const existing = placed[slotIndex];
+      placed[slotIndex] = brick;
+      tray = tray.filter((item) => item.id !== id);
+      if (existing) tray.push(existing);
+      history.push({ id: brick.id, slotIndex });
+      playTone(260 + slotIndex * 24, 0.06, "square", 0.035);
+      renderGame();
+      if (placed.every(Boolean)) {
+        setTimeout(checkWall, 260);
+      }
+    }
+
+    function removeBrick(slotIndex) {
+      if (!isPlaying || isTransitioning) return;
+      const brick = placed[slotIndex];
+      if (!brick) return;
+      placed[slotIndex] = null;
+      tray.push(brick);
+      playTone(180, 0.05, "sine", 0.035);
+      renderGame();
+    }
+
+    function undoPlacement() {
+      if (!isPlaying || isTransitioning) return;
+      while (history.length) {
+        const last = history.pop();
+        if (placed[last.slotIndex] && placed[last.slotIndex].id === last.id) {
+          removeBrick(last.slotIndex);
+          return;
+        }
+      }
+      setFeedback("No brick to undo.");
+    }
+
+    function clearWall(playSound = true) {
+      if (!isPlaying || isTransitioning) return;
+      const returning = placed.filter(Boolean);
+      tray = shuffle([...tray, ...returning]);
+      placed = Array.from({ length: currentLevel.words.length }, () => null);
+      history = [];
+      if (playSound) playTone(150, 0.08, "triangle", 0.04);
+      renderGame();
+    }
+
+    function markSlots() {
+      const slots = [...activeWallEl.querySelectorAll(".slot")];
+      slots.forEach((slot, index) => {
+        const brick = placed[index];
+        if (!brick) return;
+        slot.classList.add(brick.text === currentLevel.words[index][0] ? "is-correct" : "is-wrong");
+      });
+    }
+
+    function checkWall() {
+      if (!isPlaying || isTransitioning) return;
+      if (placed.some((slot) => !slot)) {
+        setFeedback("The course still has empty spaces.");
+        playTone(190, 0.08, "sawtooth", 0.04);
+        return;
+      }
+      const correct = placed.every((brick, index) => brick.text === currentLevel.words[index][0]);
+      markSlots();
+      if (correct) {
+        completeLevel();
+      } else {
+        activeWallEl.classList.remove("is-shaking");
+        void activeWallEl.offsetWidth;
+        activeWallEl.classList.add("is-shaking");
+        mistakes -= 1;
+        streak = 0;
+        score = Math.max(0, score - 25);
+        setFeedback("The wall leans. Fix the red bricks.");
+        playTone(120, 0.16, "sawtooth", 0.06);
+        updateHud();
+        if (mistakes <= 0) {
+          setTimeout(() => endGame(false), 600);
+        }
+      }
+    }
+
+    function completeLevel() {
+      isTransitioning = true;
+      activeWallEl.classList.add("is-locking");
+      streak += 1;
+      const earned = Math.max(50, selectedMode.base + streak * 25 + Math.ceil(timeLeft) * 2 - hintsUsed * 30);
+      score += earned;
+      completedRows.push(currentLevel.words.map((word, index) => ({ text: word[0], role: word[1], index })));
+      wallPulse = true;
+      setFeedback(`Solid course. +${earned} points.`);
+      playChord([440, 554.37, 659.25, 880]);
+      updateHud();
+      renderCompletedWall();
+      setTimeout(() => {
+        wallPulse = false;
+        completedWallEl.classList.remove("is-receiving");
+      }, 700);
+      setTimeout(() => {
+        levelIndex += 1;
+        if (levelIndex >= levelQueue.length) {
+          endGame(true);
+        } else {
+          loadLevel();
+        }
+      }, 900);
+    }
+
+    function handleTimeout() {
+      if (!isPlaying || isTransitioning) return;
+      mistakes -= 1;
+      streak = 0;
+      setFeedback(`Time. Blueprint answer: ${fullSentence(currentLevel)}`);
+      playTone(100, 0.22, "sawtooth", 0.06);
+      updateHud();
+      if (mistakes <= 0) {
+        setTimeout(() => endGame(false), 700);
+        return;
+      }
+      setTimeout(() => {
+        clearWall(false);
+        timeLeft = selectedMode.time + Math.max(0, currentLevel.words.length - 6) * 5;
+        setFeedback("Try the course again.");
+        renderGame();
+      }, 1000);
+    }
+
+    function useHint() {
+      if (!isPlaying || isTransitioning) return;
+      const wrongIndex = placed.findIndex((brick, index) => brick && brick.text !== currentLevel.words[index][0]);
+      if (wrongIndex >= 0) {
+        activeWallEl.querySelector(`[data-slot="${wrongIndex}"]`)?.classList.add("is-wrong");
+        setFeedback("That brick does not match its slot.");
+        playTone(210, 0.08, "triangle", 0.04);
+        return;
+      }
+      const empty = firstEmptySlot();
+      if (empty < 0) {
+        checkWall();
+        return;
+      }
+      const targetWord = currentLevel.words[empty][0];
+      const brick = tray.find((item) => item.text === targetWord);
+      if (!brick) return;
+      hintsUsed += 1;
+      placeBrick(brick.id, empty);
+      setFeedback("Hint placed one correct brick.");
+    }
+
+    function shuffleTray() {
+      if (!isPlaying || isTransitioning) return;
+      tray = shuffle(tray);
+      renderTray();
+      playTone(330, 0.06, "triangle", 0.035);
+    }
+
+    function startGame() {
+      document.body.classList.remove("is-menu", "is-ended");
+      document.body.classList.add("is-playing");
+      startPanel.hidden = true;
+      endPanel.hidden = true;
+      levelQueue = [...selectedMode.levels];
+      levelIndex = 0;
+      completedRows = [];
+      score = 0;
+      streak = 0;
+      mistakes = selectedMode.mistakes;
+      wallPulse = false;
+      isPlaying = true;
+      loadLevel();
+      startTimer();
+      playChord([261.63, 329.63, 392]);
+    }
+
+    function showMenu() {
+      isPlaying = false;
+      isTransitioning = false;
+      wallPulse = false;
+      stopTimer();
+      document.body.classList.remove("is-playing", "is-ended");
+      document.body.classList.add("is-menu");
+      startPanel.hidden = false;
+      endPanel.hidden = true;
+      currentLevel = levels[selectedMode.levels[0]];
+      levelQueue = [...selectedMode.levels];
+      levelIndex = 0;
+      mistakes = selectedMode.mistakes;
+      timeLeft = selectedMode.time;
+      levelTitleEl.textContent = "Blueprint";
+      clueEl.textContent = `${currentLevel.clue} | Grammar: ${currentLevel.grammar} | ${grammarHint(currentLevel)}`;
+      tray = buildTray(currentLevel);
+      placed = Array.from({ length: currentLevel.words.length }, () => null);
+      completedRows = [];
+      setFeedback("Choose a crew and start building.");
+      renderModes();
+      renderGame();
+    }
+
+    function endGame(won) {
+      isPlaying = false;
+      isTransitioning = false;
+      wallPulse = false;
+      stopTimer();
+      saveBest();
+      document.body.classList.remove("is-playing", "is-menu");
+      document.body.classList.add("is-ended");
+      endPanel.hidden = false;
+      endTitle.textContent = won ? "Wall Complete" : "Wall Needs Repair";
+      endText.textContent = won
+        ? `You built ${completedRows.length} sentence courses and scored ${score} points.`
+        : `You built ${completedRows.length} sentence courses and scored ${score} points. Last blueprint: ${fullSentence(currentLevel)}`;
+      finalWall.innerHTML = completedRows.length
+        ? completedRows.slice(-3).flat().map((word) => `<span class="final-word"><span>${escapeHtml(displayWord(word.text || word, word.index))}</span></span>`).join("")
+        : currentLevel.words.map((word, index) => `<span class="final-word"><span>${escapeHtml(displayWord(word[0], index))}</span></span>`).join("");
+      updateHud();
+      playChord(won ? [392, 523.25, 659.25, 783.99] : [196, 164.81, 130.81]);
+    }
+
+    modeGrid.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-mode]");
+      if (!button) return;
+      selectedMode = modes[button.dataset.mode] || modes.foundation;
+      showMenu();
+    });
+
+    quarryEl.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-brick]");
+      if (!button) return;
+      placeBrick(button.dataset.brick);
+    });
+
+    activeWallEl.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-brick]");
+      if (!button) return;
+      const slot = button.closest("[data-slot]");
+      if (slot) removeBrick(Number(slot.dataset.slot));
+    });
+
+    quarryEl.addEventListener("dragstart", (event) => {
+      const button = event.target.closest("button[data-brick]");
+      if (!button) return;
+      draggedBrickId = button.dataset.brick;
+      event.dataTransfer.setData("text/plain", draggedBrickId);
+      event.dataTransfer.effectAllowed = "move";
+    });
+
+    activeWallEl.addEventListener("dragover", (event) => {
+      if (event.target.closest("[data-slot]")) {
+        event.preventDefault();
+      }
+    });
+
+    activeWallEl.addEventListener("drop", (event) => {
+      const slot = event.target.closest("[data-slot]");
+      if (!slot) return;
+      event.preventDefault();
+      const id = event.dataTransfer.getData("text/plain") || draggedBrickId;
+      placeBrick(id, Number(slot.dataset.slot));
+    });
+
+    startButton.addEventListener("click", startGame);
+    againButton.addEventListener("click", startGame);
+    menuButton.addEventListener("click", showMenu);
+    endMenuButton.addEventListener("click", showMenu);
+    checkButton.addEventListener("click", checkWall);
+    hintButton.addEventListener("click", useHint);
+    undoButton.addEventListener("click", undoPlacement);
+    clearButton.addEventListener("click", clearWall);
+    shuffleButton.addEventListener("click", shuffleTray);
+    soundButton.addEventListener("click", () => {
+      soundOn = !soundOn;
+      updateSoundButton();
+      if (soundOn) playChord([261.63, 329.63, 392]);
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.code === "Enter") checkWall();
+      if (event.code === "Backspace") {
+        event.preventDefault();
+        undoPlacement();
+      }
+      if (event.key.toLowerCase() === "h") useHint();
+      if (event.code === "Space" && document.body.classList.contains("is-menu")) {
+        event.preventDefault();
+        startGame();
+      }
+    });
+
+    renderModes();
+    updateSoundButton();
+    showMenu();
+  </script>
+</body>
+</html>

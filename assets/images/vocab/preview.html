@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Kingdom Vocabulary Icons</title>
+  <style>
+    :root {
+      color: #2b1808;
+      background: #f8d47a;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(255, 238, 177, .9), rgba(242, 162, 62, .72)),
+        radial-gradient(circle at top left, rgba(255, 255, 255, .42), transparent 38%);
+    }
+
+    main {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 5vw, 4.5rem);
+      line-height: .95;
+      color: #6c240e;
+      text-shadow: 0 3px 0 rgba(255, 230, 155, .9);
+    }
+
+    .summary {
+      margin: 0 0 24px;
+      font: 700 1rem/1.4 system-ui, sans-serif;
+      color: #48220c;
+    }
+
+    section {
+      margin-top: 24px;
+      padding: 18px;
+      border: 2px solid rgba(114, 62, 14, .28);
+      border-radius: 8px;
+      background: rgba(255, 244, 196, .65);
+      box-shadow: 0 10px 24px rgba(92, 50, 8, .14);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font: 900 1.15rem/1.2 system-ui, sans-serif;
+      color: #7a2e12;
+      letter-spacing: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+      gap: 12px;
+    }
+
+    .tile {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      min-width: 0;
+      padding: 8px 6px;
+      border: 1px solid rgba(123, 72, 20, .22);
+      border-radius: 8px;
+      background: rgba(255, 252, 226, .72);
+    }
+
+    .label {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      font: 800 .8rem/1.1 system-ui, sans-serif;
+      color: #3c1b08;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>The Kingdom</h1>
+    <p class="summary" id="summary">Vocabulary icon preview</p>
+    <div id="groups"></div>
+  </main>
+
+  <script src="./vocab-icons.js"></script>
+  <script>
+    const names = {
+      charactersAnimals: "Characters And Animals",
+      natureAnimals: "Nature And Places",
+      objectsFood: "Objects And Food",
+      foodMagic: "Food, Magic, Adventure",
+      actionsAdjectives: "Actions And Adjectives",
+      adjectivesColors: "Adjectives And Colors",
+      numbers: "Numbers",
+      grammarPronounsPrepositions: "Grammar Words",
+      grammarQuestions: "Question Words"
+    };
+
+    const groups = {};
+    Object.values(KINGDOM_VOCAB_ICONS.words).forEach((icon) => {
+      groups[icon.atlas] ||= [];
+      groups[icon.atlas].push(icon.word);
+    });
+
+    const root = document.querySelector("#groups");
+    const total = Object.keys(KINGDOM_VOCAB_ICONS.words).length;
+    document.querySelector("#summary").textContent = `${total} approved vocabulary icons`;
+
+    Object.keys(KINGDOM_VOCAB_ICONS.atlases).forEach((atlasId) => {
+      const words = groups[atlasId] || [];
+      if (!words.length) return;
+
+      const section = document.createElement("section");
+      const title = document.createElement("h2");
+      const grid = document.createElement("div");
+      title.textContent = names[atlasId] || atlasId;
+      grid.className = "grid";
+
+      words.forEach((word) => {
+        const tile = document.createElement("div");
+        const label = document.createElement("div");
+        tile.className = "tile";
+        label.className = "label";
+        label.textContent = word;
+        tile.append(KINGDOM_VOCAB_ICONS.createIcon(word, { size: 68 }), label);
+        grid.append(tile);
+      });
+
+      section.append(title, grid);
+      root.append(section);
+    });
+  </script>
+</body>
+</html>

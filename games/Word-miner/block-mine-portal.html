@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Miner</title>
+<title>Royal Word Miner</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{
     box-sizing:border-box;
@@ -143,10 +144,35 @@ h1{
 
 .choice,
 .badge{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
     padding:9px;
     border:2px solid #486b35;
     background:#2d4127;
     font-weight:700;
+}
+
+.minerVocabIcon{
+    display:inline-block;
+    width:34px;
+    aspect-ratio:1;
+    flex:0 0 auto;
+    border-radius:7px;
+    background-color:#fff4c7;
+    box-shadow:0 3px 0 rgba(30,18,7,0.24);
+    vertical-align:middle;
+}
+
+#targetIcon .minerVocabIcon{
+    width:62px;
+}
+
+.choice .minerVocabIcon,
+.badge .minerVocabIcon,
+.skinName .minerVocabIcon{
+    width:30px;
 }
 
 .badge.locked{
@@ -262,6 +288,13 @@ button:disabled{
     font-weight:800;
 }
 
+.skinName{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+}
+
 .price{
     color:#ffe47a;
     font-weight:700;
@@ -316,11 +349,46 @@ button:disabled{
     }
 }
 </style>
+<style>
+body{
+    position:relative;
+    background:
+        linear-gradient(180deg,rgba(126,200,242,0.34),rgba(255,230,142,0.58)),
+        url('../../assets/images/kingdom-hero.png');
+    background-size:cover;
+    background-position:center top;
+    font-family:'Fredoka',Verdana,Arial,sans-serif;
+}
+
+body::before{
+    z-index:0;
+    background:linear-gradient(180deg,rgba(255,255,255,0.16),rgba(255,244,199,0.58));
+}
+
+#shell{
+    position:relative;
+    z-index:1;
+}
+
+#overlay{
+    z-index:2;
+}
+
+h1,
+#menu h2,
+.section h2{
+    font-family:'Cinzel',serif;
+}
+
+button{
+    font-family:'Fredoka',Verdana,Arial,sans-serif;
+}
+</style>
 </head>
 <body>
 <div id="shell">
     <div id="topbar">
-        <h1>WORD MINER</h1>
+        <h1>ROYAL WORD MINER</h1>
         <div id="stats">
             <div class="pill">LEVEL <span id="level">1</span></div>
             <div class="pill">ROUND <span id="round">1</span></div>
@@ -339,7 +407,7 @@ button:disabled{
                 <h2>Find The Word</h2>
                 <div id="targetCard">
                     <div id="targetIcon">?</div>
-                    <div id="targetText">Look at the picture. Mine the correct English word.</div>
+                    <div id="targetText">Look at the picture. Mine the correct English word from the royal cave.</div>
                 </div>
                 <button id="soundBtn">HEAR WORD</button>
                 <button class="secondary" id="soundToggle">SOUND ON</button>
@@ -349,16 +417,7 @@ button:disabled{
                 <h2>Motivation</h2>
                 <div id="boostLine">Get 3 correct words in a row for bonus coins.</div>
                 <button id="menuBtn">MENU / SHOP</button>
-            </div>
-
-            <div class="section">
-                <h2>Words In This Mine</h2>
-                <div id="choices"></div>
-            </div>
-
-            <div class="section">
-                <h2>Badges</h2>
-                <div id="badges"></div>
+                <button class="secondary" data-home-link>The Kingdom</button>
             </div>
 
             <div class="section">
@@ -374,9 +433,9 @@ button:disabled{
 <div id="overlay">
     <div id="menu">
         <div id="mainMenu">
-            <h2>WORD MINER</h2>
+            <h2>ROYAL WORD MINER</h2>
             <p>
-                Learn simple English words in a blocky mine. Earn coins, unlock skins,
+                Learn simple English words in the royal mines. Earn coins, unlock skins,
                 build combos, and listen to the words.
             </p>
 
@@ -397,22 +456,21 @@ button:disabled{
                 <button class="secondary" id="shopBtn">SKIN SHOP</button>
                 <button class="secondary" id="menuSoundBtn">SOUND ON</button>
             </div>
-            <div class="menuRow">
-                <button class="secondary" id="musicBtn">MUSIC ON</button>
-                <button class="secondary" id="trackBtn">TRACK: MINE GROOVE</button>
-            </div>
+            <button class="secondary" data-home-link>The Kingdom</button>
             <button class="danger" id="resetBtn">RESET PROGRESS</button>
         </div>
 
         <div id="shopMenu" class="hidden">
-            <h2>SKIN SHOP</h2>
+            <h2>ROYAL SKIN SHOP</h2>
             <p>Buy a new miner skin with coins. Skins are just for fun, but fun helps practice.</p>
             <div id="skinGrid" class="shopGrid"></div>
             <button id="backBtn">BACK TO MENU</button>
+            <button class="secondary" data-home-link>The Kingdom</button>
         </div>
     </div>
 </div>
 
+<script src="../../assets/images/vocab/vocab-icons.js"></script>
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -420,61 +478,158 @@ const tile = 32;
 const cols = 24;
 const rows = 18;
 
+function kingdomIconHtml(word,className){
+    return window.KINGDOM_VOCAB_ICONS?.markup(word,{
+        className:className || "minerVocabIcon"
+    }) || "";
+}
+
+function setKingdomIcon(element,word,fallback){
+    element.innerHTML = "";
+    const icon = window.KINGDOM_VOCAB_ICONS?.createIcon(word,{
+        className:"minerVocabIcon",
+        size:"62px",
+        borderRadius:"7px"
+    });
+
+    if(icon){
+        element.appendChild(icon);
+    }
+    else{
+        element.textContent = fallback || "?";
+    }
+}
+
 const words = [
-    {word:"apple",emoji:"\u{1F34E}",group:"Food"},
-    {word:"banana",emoji:"\u{1F34C}",group:"Food"},
-    {word:"cake",emoji:"\u{1F370}",group:"Food"},
-    {word:"egg",emoji:"\u{1F95A}",group:"Food"},
-    {word:"milk",emoji:"\u{1F95B}",group:"Food"},
-    {word:"bread",emoji:"\u{1F35E}",group:"Food"},
-    {word:"water",emoji:"\u{1F4A7}",group:"Food"},
-    {word:"rice",emoji:"\u{1F35A}",group:"Food"},
-    {word:"pizza",emoji:"\u{1F355}",group:"Food"},
-    {word:"carrot",emoji:"\u{1F955}",group:"Food"},
+    {word:"castle",emoji:"\u{1F3F0}",group:"Fantasy"},
+    {word:"king",emoji:"\u{1F451}",group:"Fantasy"},
+    {word:"queen",emoji:"\u{1F451}",group:"Fantasy"},
+    {word:"prince",emoji:"\u{1F934}",group:"Fantasy"},
+    {word:"princess",emoji:"\u{1F478}",group:"Fantasy"},
+    {word:"knight",emoji:"\u{1F6E1}",group:"Fantasy"},
+    {word:"wizard",emoji:"\u{1F9D9}",group:"Fantasy"},
+    {word:"witch",emoji:"\u{1F9D9}",group:"Fantasy"},
+    {word:"dragon",emoji:"\u{1F409}",group:"Fantasy"},
+    {word:"goblin",emoji:"\u{1F47A}",group:"Fantasy"},
+    {word:"elf",emoji:"\u{1F9DD}",group:"Fantasy"},
+    {word:"fairy",emoji:"\u{1FA84}",group:"Fantasy"},
+    {word:"giant",emoji:"\u{1F9CC}",group:"Fantasy"},
+    {word:"hero",emoji:"\u{1F9B8}",group:"Fantasy"},
+    {word:"villager",emoji:"\u{1F9D1}",group:"Fantasy"},
+    {word:"guard",emoji:"\u{1F482}",group:"Fantasy"},
+    {word:"pirate",emoji:"\u{1F3F4}",group:"Fantasy"},
+    {word:"captain",emoji:"\u{1F9ED}",group:"Fantasy"},
+    {word:"monster",emoji:"\u{1F47E}",group:"Fantasy"},
+    {word:"friend",emoji:"\u{1F91D}",group:"Fantasy"},
     {word:"cat",emoji:"\u{1F431}",group:"Animals"},
     {word:"dog",emoji:"\u{1F436}",group:"Animals"},
-    {word:"fish",emoji:"\u{1F41F}",group:"Animals"},
     {word:"bird",emoji:"\u{1F426}",group:"Animals"},
-    {word:"cow",emoji:"\u{1F42E}",group:"Animals"},
-    {word:"pig",emoji:"\u{1F437}",group:"Animals"},
     {word:"horse",emoji:"\u{1F434}",group:"Animals"},
-    {word:"frog",emoji:"\u{1F438}",group:"Animals"},
-    {word:"mouse",emoji:"\u{1F42D}",group:"Animals"},
-    {word:"duck",emoji:"\u{1F986}",group:"Animals"},
+    {word:"fish",emoji:"\u{1F41F}",group:"Animals"},
+    {word:"wolf",emoji:"\u{1F43A}",group:"Animals"},
+    {word:"owl",emoji:"\u{1F989}",group:"Animals"},
+    {word:"rabbit",emoji:"\u{1F430}",group:"Animals"},
+    {word:"bear",emoji:"\u{1F43B}",group:"Animals"},
+    {word:"fox",emoji:"\u{1F98A}",group:"Animals"},
+    {word:"forest",emoji:"\u{1F332}",group:"Nature"},
     {word:"tree",emoji:"\u{1F333}",group:"Nature"},
     {word:"flower",emoji:"\u{1F33C}",group:"Nature"},
-    {word:"rain",emoji:"\u{1F327}",group:"Nature"},
+    {word:"grass",emoji:"\u{1F33F}",group:"Nature"},
+    {word:"river",emoji:"\u{1F30A}",group:"Nature"},
+    {word:"lake",emoji:"\u{1F30A}",group:"Nature"},
+    {word:"mountain",emoji:"\u26F0",group:"Nature"},
+    {word:"cave",emoji:"\u{1FAA8}",group:"Places"},
+    {word:"bridge",emoji:"\u{1F309}",group:"Places"},
+    {word:"village",emoji:"\u{1F3D8}",group:"Places"},
+    {word:"farm",emoji:"\u{1F6DC}",group:"Places"},
+    {word:"road",emoji:"\u{1F6E3}",group:"Places"},
+    {word:"camp",emoji:"\u26FA",group:"Places"},
+    {word:"tower",emoji:"\u{1F5FC}",group:"Places"},
+    {word:"dungeon",emoji:"\u{1F6AA}",group:"Places"},
+    {word:"island",emoji:"\u{1F3DD}",group:"Places"},
+    {word:"beach",emoji:"\u{1F3D6}",group:"Places"},
     {word:"snow",emoji:"\u2744",group:"Nature"},
+    {word:"rain",emoji:"\u{1F327}",group:"Nature"},
     {word:"cloud",emoji:"\u2601",group:"Nature"},
-    {word:"fire",emoji:"\u{1F525}",group:"Nature"},
-    {word:"sun",emoji:"\u2600",group:"Nature"},
-    {word:"moon",emoji:"\u{1F319}",group:"Nature"},
-    {word:"star",emoji:"\u2B50",group:"Nature"},
-    {word:"book",emoji:"\u{1F4D8}",group:"School"},
-    {word:"pen",emoji:"\u270F",group:"School"},
-    {word:"bag",emoji:"\u{1F392}",group:"School"},
-    {word:"desk",emoji:"\u25A3",group:"School"},
-    {word:"chair",emoji:"\u{1FA91}",group:"School"},
-    {word:"clock",emoji:"\u{1F550}",group:"School"},
-    {word:"map",emoji:"\u{1F5FA}",group:"School"},
-    {word:"bus",emoji:"\u{1F68C}",group:"Town"},
-    {word:"car",emoji:"\u{1F697}",group:"Town"},
-    {word:"house",emoji:"\u{1F3E0}",group:"Town"},
-    {word:"shop",emoji:"\u{1F3EA}",group:"Town"},
-    {word:"park",emoji:"\u{1F3DE}",group:"Town"},
-    {word:"train",emoji:"\u{1F686}",group:"Town"},
+    {word:"sword",emoji:"\u2694",group:"Items"},
+    {word:"shield",emoji:"\u{1F6E1}",group:"Items"},
+    {word:"bow",emoji:"\u{1F3F9}",group:"Items"},
+    {word:"arrow",emoji:"\u27A1",group:"Items"},
+    {word:"helmet",emoji:"\u26D1",group:"Items"},
+    {word:"armor",emoji:"\u{1F6E1}",group:"Items"},
+    {word:"ring",emoji:"\u{1F48D}",group:"Items"},
+    {word:"key",emoji:"\u{1F511}",group:"Items"},
+    {word:"map",emoji:"\u{1F5FA}",group:"Items"},
+    {word:"treasure",emoji:"\u{1F48E}",group:"Items"},
+    {word:"gold",emoji:"\u{1F7E1}",group:"Items"},
+    {word:"coin",emoji:"\u{1FA99}",group:"Items"},
+    {word:"chest",emoji:"\u{1F9F0}",group:"Items"},
+    {word:"book",emoji:"\u{1F4D8}",group:"Items"},
+    {word:"letter",emoji:"\u2709",group:"Items"},
+    {word:"bag",emoji:"\u{1F392}",group:"Items"},
+    {word:"torch",emoji:"\u{1F525}",group:"Items"},
+    {word:"table",emoji:"\u25A3",group:"Items"},
+    {word:"chair",emoji:"\u{1FA91}",group:"Items"},
+    {word:"window",emoji:"\u{1FA9F}",group:"Items"},
+    {word:"apple",emoji:"\u{1F34E}",group:"Food"},
+    {word:"bread",emoji:"\u{1F35E}",group:"Food"},
+    {word:"cake",emoji:"\u{1F370}",group:"Food"},
+    {word:"milk",emoji:"\u{1F95B}",group:"Food"},
+    {word:"water",emoji:"\u{1F4A7}",group:"Food"},
+    {word:"cheese",emoji:"\u{1F9C0}",group:"Food"},
+    {word:"soup",emoji:"\u{1F372}",group:"Food"},
+    {word:"meat",emoji:"\u{1F969}",group:"Food"},
+    {word:"egg",emoji:"\u{1F95A}",group:"Food"},
+    {word:"carrot",emoji:"\u{1F955}",group:"Food"},
+    {word:"potato",emoji:"\u{1F954}",group:"Food"},
+    {word:"candy",emoji:"\u{1F36C}",group:"Food"},
+    {word:"juice",emoji:"\u{1F9C3}",group:"Food"},
+    {word:"tea",emoji:"\u{1F375}",group:"Food"},
+    {word:"magic",emoji:"\u2728",group:"Adventure"},
+    {word:"spell",emoji:"\u{1FA84}",group:"Adventure"},
+    {word:"potion",emoji:"\u2697",group:"Adventure"},
+    {word:"crystal",emoji:"\u{1F48E}",group:"Adventure"},
+    {word:"gem",emoji:"\u{1F48E}",group:"Adventure"},
+    {word:"portal",emoji:"\u{1F300}",group:"Adventure"},
+    {word:"quest",emoji:"\u{1F5FA}",group:"Adventure"},
+    {word:"battle",emoji:"\u2694",group:"Adventure"},
+    {word:"adventure",emoji:"\u{1F9ED}",group:"Adventure"},
+    {word:"secret",emoji:"\u{1F92B}",group:"Adventure"},
+    {word:"danger",emoji:"\u26A0",group:"Adventure"},
+    {word:"victory",emoji:"\u{1F3C6}",group:"Adventure"},
+    {word:"team",emoji:"\u{1F91D}",group:"Adventure"},
+    {word:"level",emoji:"\u2B06",group:"Adventure"},
+    {word:"boss",emoji:"\u{1F451}",group:"Adventure"},
+    {word:"run",emoji:"\u{1F3C3}",group:"Actions"},
+    {word:"walk",emoji:"\u{1F6B6}",group:"Actions"},
+    {word:"jump",emoji:"\u{1F998}",group:"Actions"},
+    {word:"swim",emoji:"\u{1F3CA}",group:"Actions"},
+    {word:"fly",emoji:"\u{1FABD}",group:"Actions"},
+    {word:"open",emoji:"\u{1F513}",group:"Actions"},
+    {word:"close",emoji:"\u{1F512}",group:"Actions"},
+    {word:"take",emoji:"\u270B",group:"Actions"},
+    {word:"give",emoji:"\u{1F381}",group:"Actions"},
+    {word:"eat",emoji:"\u{1F37D}",group:"Actions"},
+    {word:"drink",emoji:"\u{1F964}",group:"Actions"},
+    {word:"sleep",emoji:"\u{1F6CC}",group:"Actions"},
+    {word:"read",emoji:"\u{1F4D6}",group:"Actions"},
+    {word:"write",emoji:"\u270D",group:"Actions"},
+    {word:"look",emoji:"\u{1F441}",group:"Actions"},
+    {word:"find",emoji:"\u{1F50D}",group:"Actions"},
+    {word:"help",emoji:"\u{1F91D}",group:"Actions"},
+    {word:"fight",emoji:"\u2694",group:"Actions"},
+    {word:"play",emoji:"\u{1F3B2}",group:"Actions"},
+    {word:"listen",emoji:"\u{1F442}",group:"Actions"},
     {word:"red",emoji:"\u{1F534}",group:"Colors"},
     {word:"blue",emoji:"\u{1F535}",group:"Colors"},
     {word:"green",emoji:"\u{1F7E2}",group:"Colors"},
     {word:"yellow",emoji:"\u{1F7E1}",group:"Colors"},
     {word:"black",emoji:"\u26AB",group:"Colors"},
     {word:"white",emoji:"\u26AA",group:"Colors"},
-    {word:"run",emoji:"\u{1F3C3}",group:"Actions"},
-    {word:"jump",emoji:"\u{1F998}",group:"Actions"},
-    {word:"read",emoji:"\u{1F4D6}",group:"Actions"},
-    {word:"write",emoji:"\u270D",group:"Actions"},
-    {word:"sleep",emoji:"\u{1F6CC}",group:"Actions"},
-    {word:"swim",emoji:"\u{1F3CA}",group:"Actions"}
+    {word:"orange",emoji:"\u{1F7E0}",group:"Colors"},
+    {word:"purple",emoji:"\u{1F7E3}",group:"Colors"},
+    {word:"pink",emoji:"\u{1FA77}",group:"Colors"},
+    {word:"brown",emoji:"\u{1F7E4}",group:"Colors"}
 ];
 
 const difficulties = {
@@ -533,47 +688,20 @@ const difficulties = {
 };
 
 const skins = [
-    {id:"blue",name:"Blue Miner",price:0,shirt:"#37a0ff",hat:"#3a2415",accent:"#ffffff"},
-    {id:"forest",name:"Forest Miner",price:45,shirt:"#49b15a",hat:"#263b19",accent:"#d6ff8c"},
-    {id:"gold",name:"Gold Miner",price:90,shirt:"#e0a82e",hat:"#79551a",accent:"#fff2a0"},
-    {id:"ruby",name:"Ruby Miner",price:130,shirt:"#d84a5f",hat:"#4d151b",accent:"#ffd3da"},
-    {id:"wizard",name:"Word Wizard",price:180,shirt:"#7b5cff",hat:"#2c1c61",accent:"#f3ddff"},
-    {id:"robot",name:"Sound Bot",price:230,shirt:"#9aa7b2",hat:"#343b42",accent:"#8dfff6"}
+    {id:"blue",name:"blue",price:0,shirt:"#37a0ff",hat:"#3a2415",accent:"#ffffff"},
+    {id:"forest",name:"forest",price:45,shirt:"#49b15a",hat:"#263b19",accent:"#d6ff8c"},
+    {id:"gold",name:"gold",price:90,shirt:"#e0a82e",hat:"#79551a",accent:"#fff2a0"},
+    {id:"ruby",name:"red",price:130,shirt:"#d84a5f",hat:"#4d151b",accent:"#ffd3da"},
+    {id:"wizard",name:"wizard",price:180,shirt:"#7b5cff",hat:"#2c1c61",accent:"#f3ddff"},
+    {id:"robot",name:"friend",price:230,shirt:"#9aa7b2",hat:"#343b42",accent:"#8dfff6"}
 ];
 
 const badges = [
-    {id:"first",name:"First Word",test:() => progress.words >= 1},
-    {id:"combo3",name:"Combo 3",test:() => progress.bestCombo >= 3},
-    {id:"rich",name:"100 Coins",test:() => progress.coins >= 100},
-    {id:"level2",name:"Level 2",test:() => level >= 2 || progress.bestScore >= 120},
-    {id:"champion",name:"Mine Champion",test:() => progress.wins >= 1}
-];
-
-const musicTracks = [
-    {
-        id:"groove",
-        name:"Mine Groove",
-        tempo:92,
-        bass:[110,110,146.83,130.81,98,98,130.81,146.83],
-        lead:[440,0,392,0,493.88,0,392,0],
-        pad:[220,277.18,329.63]
-    },
-    {
-        id:"cave",
-        name:"Cave Pad",
-        tempo:72,
-        bass:[82.41,0,98,0,110,0,98,0],
-        lead:[329.63,0,392,0,293.66,0,349.23,0],
-        pad:[164.81,220,261.63]
-    },
-    {
-        id:"study",
-        name:"Study Beat",
-        tempo:104,
-        bass:[130.81,130.81,196,174.61,146.83,146.83,174.61,196],
-        lead:[523.25,0,659.25,0,587.33,0,493.88,0],
-        pad:[261.63,329.63,392]
-    }
+    {id:"first",name:"one",test:() => progress.words >= 1},
+    {id:"combo3",name:"three",test:() => progress.bestCombo >= 3},
+    {id:"rich",name:"coin",test:() => progress.coins >= 100},
+    {id:"level2",name:"level",test:() => level >= 2 || progress.bestScore >= 120},
+    {id:"champion",name:"victory",test:() => progress.wins >= 1}
 ];
 
 const blockTypes = {
@@ -595,12 +723,7 @@ let currentChoices = [];
 let running = false;
 let soundOn = localStorage.getItem("wmqSound") !== "off";
 let difficulty = localStorage.getItem("wmqDifficulty") || "normal";
-let musicOn = localStorage.getItem("wmqMusic") !== "off";
-let currentTrack = Number(localStorage.getItem("wmqTrack")) || 0;
 let audioCtx;
-let musicGain;
-let musicTimer;
-let musicStep = 0;
 let message = "Move with WASD or arrow keys. Press Space near a word block.";
 let progress = loadProgress();
 
@@ -625,8 +748,6 @@ const comboMenuEl = document.getElementById("comboMenu");
 const skinGridEl = document.getElementById("skinGrid");
 const soundToggleBtn = document.getElementById("soundToggle");
 const menuSoundBtn = document.getElementById("menuSoundBtn");
-const musicBtn = document.getElementById("musicBtn");
-const trackBtn = document.getElementById("trackBtn");
 const difficultyButtons = document.querySelectorAll(".difficultyBtn");
 
 function loadProgress(){
@@ -688,110 +809,6 @@ function tone(freq,duration,type,gain,delay){
     amp.connect(ctxAudio.destination);
     osc.start(start);
     osc.stop(start + duration + 0.03);
-}
-
-function musicTone(freq,start,duration,type,gain){
-    const ctxAudio = ensureAudio();
-
-    if(!ctxAudio || !musicGain || !freq){
-        return;
-    }
-
-    const osc = ctxAudio.createOscillator();
-    const filter = ctxAudio.createBiquadFilter();
-    const amp = ctxAudio.createGain();
-
-    osc.type = type || "sine";
-    osc.frequency.setValueAtTime(freq,start);
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(type === "sawtooth" ? 420 : 1400,start);
-    amp.gain.setValueAtTime(0.0001,start);
-    amp.gain.exponentialRampToValueAtTime(gain,start + 0.02);
-    amp.gain.exponentialRampToValueAtTime(0.0001,start + duration);
-    osc.connect(filter);
-    filter.connect(amp);
-    amp.connect(musicGain);
-    osc.start(start);
-    osc.stop(start + duration + 0.05);
-}
-
-function scheduleMusic(){
-    const ctxAudio = ensureAudio();
-
-    if(!ctxAudio || !musicOn || !soundOn){
-        return;
-    }
-
-    if(!musicGain){
-        musicGain = ctxAudio.createGain();
-        musicGain.gain.value = 0.09;
-        musicGain.connect(ctxAudio.destination);
-    }
-
-    const track = musicTracks[currentTrack % musicTracks.length];
-    const beat = 60 / track.tempo;
-    const now = ctxAudio.currentTime + 0.04;
-
-    for(let i=0;i<8;i++){
-        const step = (musicStep + i) % 8;
-        const t = now + i * beat * 0.5;
-        musicTone(track.bass[step],t,beat * 0.38,"sawtooth",0.035);
-        musicTone(track.lead[step],t,beat * 0.22,"triangle",0.018);
-    }
-
-    if(musicStep % 8 === 0){
-        track.pad.forEach(note => {
-            musicTone(note,now,beat * 3.4,"sine",0.012);
-        });
-    }
-
-    musicStep = (musicStep + 8) % 16;
-}
-
-function startMusic(){
-    if(!musicOn || !soundOn){
-        return;
-    }
-
-    stopMusic();
-    scheduleMusic();
-    const track = musicTracks[currentTrack % musicTracks.length];
-    musicTimer = setInterval(scheduleMusic,(60 / track.tempo) * 4 * 1000);
-}
-
-function stopMusic(){
-    if(musicTimer){
-        clearInterval(musicTimer);
-        musicTimer = null;
-    }
-}
-
-function toggleMusic(){
-    musicOn = !musicOn;
-    localStorage.setItem("wmqMusic",musicOn ? "on" : "off");
-    playSfx("click");
-
-    if(musicOn){
-        startMusic();
-    }
-    else{
-        stopMusic();
-    }
-
-    updateSoundButtons();
-}
-
-function nextTrack(){
-    currentTrack = (currentTrack + 1) % musicTracks.length;
-    localStorage.setItem("wmqTrack",String(currentTrack));
-    musicStep = 0;
-    playSfx("click");
-
-    if(musicOn && soundOn){
-        startMusic();
-    }
-
-    updateSoundButtons();
 }
 
 function noise(duration,gain){
@@ -941,7 +958,7 @@ function chooseRound(){
         ...shuffle(pool.filter(item => item.word !== target.word)).slice(0,settings.choices - 1)
     ]);
 
-    targetIconEl.textContent = target.emoji;
+    setKingdomIcon(targetIconEl,target.word,target.emoji);
         targetTextEl.innerHTML =
         "Find the word for this picture.<br>" +
         "Category: " + target.group + "<br>" +
@@ -949,21 +966,23 @@ function chooseRound(){
         (settings.showHint ? "<br>Hint: starts with " + target.word[0].toUpperCase() : "") +
         (settings.listenByClick ? "<br>Click hidden word blocks to hear them." : "");
 
-    choicesEl.innerHTML = "";
+    if(choicesEl){
+        choicesEl.innerHTML = "";
 
-    if(settings.showChoices){
-        currentChoices.forEach(item => {
+        if(settings.showChoices){
+            currentChoices.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "choice";
+                div.innerHTML = kingdomIconHtml(item.word,"minerVocabIcon") + "<span>" + item.word.toUpperCase() + "</span>";
+                choicesEl.appendChild(div);
+            });
+        }
+        else{
             const div = document.createElement("div");
             div.className = "choice";
-            div.textContent = item.word.toUpperCase();
+            div.textContent = "Hard mode: read the blocks in the mine. No word list here.";
             choicesEl.appendChild(div);
-        });
-    }
-    else{
-        const div = document.createElement("div");
-        div.className = "choice";
-        div.textContent = "Hard mode: read the blocks in the mine. No word list here.";
-        choicesEl.appendChild(div);
+        }
     }
 }
 
@@ -975,7 +994,7 @@ function startRound(){
     chooseRound();
     makeEmptyMap();
     placeWords();
-    message = "Find: " + target.emoji + ". Mine the correct English word.";
+    message = "Find: " + target.word + ". Mine the correct English word.";
 
     if(settings.speakOnStart){
         speak(target.word);
@@ -986,18 +1005,18 @@ function startRound(){
 
 function colorFor(cell){
     if(cell.type === blockTypes.wall){
-        return "#68716e";
+        return "#8b7351";
     }
 
     if(cell.type === blockTypes.word){
-        return "#3077c9";
+        return "#1f75bd";
     }
 
     if(cell.type === blockTypes.gem){
-        return "#56d66d";
+        return "#ffd766";
     }
 
-    return "#263525";
+    return "#5b3b23";
 }
 
 function drawCell(x,y,cell){
@@ -1010,13 +1029,13 @@ function drawCell(x,y,cell){
     ctx.strokeRect(px,py,tile,tile);
 
     if(cell.type === blockTypes.wall){
-        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.fillStyle = "rgba(255,244,199,0.18)";
         ctx.fillRect(px + 4,py + 5,10,5);
         ctx.fillRect(px + 18,py + 18,9,5);
     }
 
     if(cell.type === blockTypes.gem){
-        ctx.fillStyle = "#e9ffd6";
+        ctx.fillStyle = "#fff4c7";
         ctx.fillRect(px + 12,py + 8,8,8);
         ctx.fillRect(px + 9,py + 16,14,8);
     }
@@ -1024,8 +1043,8 @@ function drawCell(x,y,cell){
     if(cell.type === blockTypes.word){
         const settings = difficulties[difficulty] || difficulties.normal;
 
-        ctx.fillStyle = "#dff3ff";
-        ctx.font = "bold 10px Verdana";
+        ctx.fillStyle = "#fff4c7";
+        ctx.font = "bold 10px Trebuchet MS, Verdana";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(
@@ -1123,13 +1142,17 @@ function renderHud(){
 }
 
 function renderBadges(){
+    if(!badgesEl){
+        return;
+    }
+
     badgesEl.innerHTML = "";
 
     badges.forEach(badge => {
         const unlocked = badge.test();
         const div = document.createElement("div");
         div.className = "badge" + (unlocked ? "" : " locked");
-        div.textContent = (unlocked ? "UNLOCKED: " : "LOCKED: ") + badge.name;
+        div.innerHTML = kingdomIconHtml(badge.name,"minerVocabIcon") + "<span>" + (unlocked ? "UNLOCKED: " : "LOCKED: ") + badge.name + "</span>";
         badgesEl.appendChild(div);
     });
 }
@@ -1161,7 +1184,7 @@ function renderShop(){
         preview.height = 52;
         preview.className = "skinPreview";
         name.className = "skinName";
-        name.textContent = skin.name;
+        name.innerHTML = kingdomIconHtml(skin.name,"minerVocabIcon") + "<span>" + skin.name + "</span>";
         price.className = "price";
         price.textContent = owned ? "Owned" : skin.price + " coins";
         button.textContent = selected ? "EQUIPPED" : owned ? "EQUIP" : "BUY";
@@ -1192,12 +1215,9 @@ function renderShop(){
 
 function updateSoundButtons(){
     const settings = difficulties[difficulty] || difficulties.normal;
-    const track = musicTracks[currentTrack % musicTracks.length];
 
     soundToggleBtn.textContent = soundOn ? "SOUND ON" : "SOUND OFF";
     menuSoundBtn.textContent = soundOn ? "SOUND ON" : "SOUND OFF";
-    musicBtn.textContent = musicOn && soundOn ? "MUSIC ON" : "MUSIC OFF";
-    trackBtn.textContent = "TRACK: " + track.name.toUpperCase();
     document.getElementById("soundBtn").disabled = Boolean(settings.listenByClick);
     document.getElementById("soundBtn").textContent = settings.listenByClick ? "TARGET SOUND OFF" : "HEAR WORD";
 }
@@ -1375,7 +1395,7 @@ function nextRound(){
             progress.bestScore = Math.max(progress.bestScore,score);
             saveProgress();
             playSfx("win");
-            showMenu("GREAT JOB!","You finished all word mines. Final score: " + score + ". Spend your coins on a new skin or play again.");
+            showMenu("ROYAL VICTORY!","You finished all royal word mines. Final score: " + score + ". Spend your coins on a new skin or play again.");
             render();
             return;
         }
@@ -1397,7 +1417,6 @@ function startGame(){
     mainMenu.classList.remove("hidden");
     shopMenu.classList.add("hidden");
     playSfx("click");
-    startMusic();
     startRound();
 }
 
@@ -1406,9 +1425,9 @@ function showMenu(title,text){
     overlay.classList.remove("hidden");
     mainMenu.classList.remove("hidden");
     shopMenu.classList.add("hidden");
-    document.querySelector("#mainMenu h2").textContent = title || "WORD MINER";
+    document.querySelector("#mainMenu h2").textContent = title || "ROYAL WORD MINER";
     document.querySelector("#mainMenu p").textContent =
-        text || "Learn simple English words in a blocky mine. Earn coins, unlock skins, build combos, and listen to the words.";
+        text || "Learn simple English words in the royal mines. Earn coins, unlock skins, build combos, and listen to the words.";
     document.getElementById("startBtn").textContent = score > 0 ? "PLAY AGAIN" : "START GAME";
     renderMenuStats();
     updateSoundButtons();
@@ -1427,13 +1446,13 @@ function toggleSound(){
 
     if(soundOn){
         playSfx("click");
-        startMusic();
-    }
-    else{
-        stopMusic();
     }
 
     updateSoundButtons();
+}
+
+function goHome(){
+    window.location.href = "../../index.html";
 }
 
 function resetProgress(){
@@ -1451,7 +1470,7 @@ function resetProgress(){
     combo = 0;
     saveProgress();
     render();
-    showMenu("WORD MINER","Progress reset. Start fresh and build your word mine again.");
+    showMenu("ROYAL WORD MINER","Progress reset. Start fresh and build your royal word mine again.");
 }
 
 document.getElementById("startBtn").onclick = startGame;
@@ -1468,9 +1487,10 @@ document.getElementById("soundBtn").onclick = () => {
 };
 document.getElementById("soundToggle").onclick = toggleSound;
 document.getElementById("menuSoundBtn").onclick = toggleSound;
-document.getElementById("musicBtn").onclick = toggleMusic;
-document.getElementById("trackBtn").onclick = nextTrack;
 document.getElementById("resetBtn").onclick = resetProgress;
+document.querySelectorAll("[data-home-link]").forEach(button => {
+    button.onclick = goHome;
+});
 canvas.addEventListener("click",listenToClickedBlock);
 difficultyButtons.forEach(button => {
     button.onclick = () => {

@@ -5,9 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>English Games Hub</title>
+  <title>The Kingdom</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
 
@@ -17,101 +17,237 @@
       box-sizing:border-box;
     }
 
+    :root{
+      --ink:#2f1809;
+      --parchment:#fff2bd;
+      --gold:#ffd35a;
+      --ruby:#d94030;
+      --sapphire:#1976d2;
+      --emerald:#24a35a;
+      --violet:#7b4ed6;
+      --shadow:rgba(55,26,8,0.35);
+    }
+
     body{
       font-family:'Fredoka', sans-serif;
       min-height:100vh;
       background:
-      linear-gradient(rgba(0,0,0,0.45),
-      rgba(0,0,0,0.45)),
-      url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1920&auto=format&fit=crop');
+        linear-gradient(180deg,rgba(21,82,154,0.12),rgba(255,197,64,0.28) 48%,rgba(45,117,46,0.22)),
+        url('assets/images/kingdom-hero.png');
       background-size:cover;
-      background-position:center;
+      background-position:center top;
       background-attachment:fixed;
-      padding:40px;
+      color:var(--ink);
+      padding:36px;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:linear-gradient(180deg,rgba(255,255,255,0.2),rgba(255,245,190,0.52) 62%,rgba(255,238,168,0.76));
+      z-index:-1;
+    }
+
+    .kingdom-shell{
+      width:min(1280px,100%);
+      margin:0 auto;
+    }
+
+    .hero{
+      min-height:42vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      text-align:center;
+      padding-top:16px;
+    }
+
+    .crest{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:72px;
+      height:72px;
+      margin-bottom:12px;
+      border:4px solid #fff3b0;
+      border-radius:50%;
+      background:linear-gradient(145deg,#e9372e,#ffb22e);
       color:white;
+      font-size:38px;
+      box-shadow:0 10px 24px var(--shadow), inset 0 0 0 4px rgba(93,22,10,0.22);
     }
 
     h1{
+      font-family:'Cinzel', serif;
       text-align:center;
-      font-size:70px;
-      margin-bottom:15px;
-      text-shadow:0 4px 10px rgba(0,0,0,0.4);
-      color:#ffffff;
+      font-size:clamp(48px,8vw,112px);
+      line-height:0.92;
+      margin-bottom:16px;
+      color:#fff5bf;
+      text-shadow:
+        0 4px 0 #8b2a18,
+        0 8px 18px rgba(41,16,4,0.42);
     }
 
     .subtitle{
-      text-align:center;
-      font-size:24px;
-      margin-bottom:50px;
-      color:#dfe9ff;
+      max-width:720px;
+      margin:0 auto 24px;
+      padding:12px 18px;
+      border:3px solid rgba(130,61,18,0.38);
+      border-radius:8px;
+      background:rgba(255,242,189,0.9);
+      color:#663510;
+      font-size:clamp(18px,2.4vw,26px);
+      font-weight:700;
+      box-shadow:0 10px 24px rgba(75,38,9,0.22);
     }
 
     .games-container{
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-      gap:35px;
-      max-width:1400px;
-      margin:auto;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:22px;
+      align-items:stretch;
+      margin-top:8px;
     }
 
     .game-card{
-      background:rgba(255,255,255,0.12);
-      backdrop-filter:blur(12px);
-      border:1px solid rgba(255,255,255,0.2);
-      border-radius:30px;
-      padding:35px;
-      transition:0.35s;
-      box-shadow:0 10px 25px rgba(0,0,0,0.25);
+      --banner:var(--ruby);
+      min-height:310px;
+      display:flex;
+      flex-direction:column;
       position:relative;
       overflow:hidden;
+      padding:22px;
+      border:4px solid #6d3b14;
+      border-radius:8px;
+      background:
+        linear-gradient(180deg,rgba(255,252,219,0.96),rgba(255,222,129,0.94)),
+        var(--parchment);
+      box-shadow:0 14px 0 #7d4a1c, 0 24px 36px rgba(71,36,10,0.3);
+      transition:transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .game-card::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:14px;
+      background:repeating-linear-gradient(90deg,var(--banner) 0 38px,#ffe171 38px 58px);
+    }
+
+    .game-card::after{
+      content:"";
+      position:absolute;
+      right:-38px;
+      bottom:-42px;
+      width:132px;
+      height:132px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.28);
+      border:14px solid rgba(109,59,20,0.1);
     }
 
     .game-card:hover{
-      transform:translateY(-10px) scale(1.03);
-      box-shadow:0 20px 40px rgba(0,0,0,0.35);
+      transform:translateY(-8px);
+      box-shadow:0 18px 0 #7d4a1c, 0 32px 42px rgba(71,36,10,0.34);
+    }
+
+    .game-card:nth-child(2){
+      --banner:var(--emerald);
+    }
+
+    .game-card:nth-child(3){
+      --banner:var(--sapphire);
+    }
+
+    .game-card:nth-child(4){
+      --banner:var(--violet);
+    }
+
+    .game-card:nth-child(5){
+      --banner:#ef6b48;
+    }
+
+    .game-card:nth-child(6){
+      --banner:#0ea5a3;
     }
 
     .game-icon{
-      font-size:70px;
-      margin-bottom:20px;
+      width:72px;
+      height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:14px 0 18px;
+      border:3px solid #7d4a1c;
+      border-radius:8px;
+      background:linear-gradient(145deg,#fff8d1,#ffc94d);
+      color:#4a240b;
+      font-family:'Cinzel', serif;
+      font-size:34px;
+      font-weight:900;
+      box-shadow:inset 0 -8px 0 rgba(154,85,20,0.14);
     }
 
     .game-card h2{
-      font-size:34px;
-      margin-bottom:15px;
-      color:white;
+      position:relative;
+      z-index:1;
+      min-height:76px;
+      font-family:'Cinzel', serif;
+      font-size:clamp(23px,2.4vw,31px);
+      line-height:1.12;
+      margin-bottom:12px;
+      color:#5b210c;
     }
 
     .game-card p{
-      font-size:18px;
-      line-height:1.6;
-      color:#e8e8e8;
-      margin-bottom:30px;
+      position:relative;
+      z-index:1;
+      flex:1;
+      font-size:17px;
+      line-height:1.45;
+      color:#613715;
+      margin-bottom:22px;
     }
 
     .play-btn{
-      display:inline-block;
-      padding:14px 28px;
-      background:linear-gradient(135deg,#7b5cff,#4f8cff);
-      color:white;
+      position:relative;
+      z-index:1;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:13px 22px;
+      border:3px solid #6f2a14;
+      border-radius:8px;
+      background:linear-gradient(180deg,#ffe56a,#ff9f24);
+      color:#542008;
       text-decoration:none;
-      border-radius:14px;
-      font-size:20px;
-      font-weight:bold;
-      transition:0.3s;
-      box-shadow:0 6px 15px rgba(79,140,255,0.4);
+      font-size:18px;
+      font-weight:800;
+      transition:0.2s ease;
+      box-shadow:0 6px 0 #9b4317;
     }
 
     .play-btn:hover{
-      transform:scale(1.08);
-      background:linear-gradient(135deg,#9d7dff,#69a0ff);
+      transform:translateY(-3px);
+      background:linear-gradient(180deg,#fff083,#ffb43c);
+      box-shadow:0 9px 0 #9b4317;
     }
 
     .footer{
       text-align:center;
-      margin-top:70px;
-      color:#d0d0d0;
+      margin-top:36px;
+      color:#5c2b0c;
       font-size:18px;
+      font-weight:700;
+      text-shadow:0 1px 0 rgba(255,255,255,0.6);
     }
 
     .music-toggle{
@@ -119,41 +255,58 @@
       right:24px;
       bottom:24px;
       z-index:10;
-      border:1px solid rgba(255,255,255,0.35);
-      border-radius:14px;
-      padding:12px 18px;
-      background:rgba(20,25,45,0.72);
-      color:white;
+      min-height:48px;
+      border:3px solid #6f2a14;
+      border-radius:8px;
+      padding:10px 16px;
+      background:linear-gradient(180deg,#fff0a6,#ffbd37);
+      color:#4d1f08;
       font-family:inherit;
       font-size:16px;
-      font-weight:600;
+      font-weight:800;
       cursor:pointer;
-      box-shadow:0 8px 22px rgba(0,0,0,0.28);
-      backdrop-filter:blur(10px);
-      transition:0.25s;
+      box-shadow:0 6px 0 #9b4317, 0 12px 22px rgba(51,20,5,0.24);
+      transition:0.2s ease;
     }
 
     .music-toggle:hover{
       transform:translateY(-2px);
-      background:rgba(40,50,85,0.86);
     }
 
     .music-toggle.is-playing{
-      border-color:rgba(120,255,210,0.75);
-      box-shadow:0 8px 22px rgba(0,0,0,0.28),
-                 0 0 18px rgba(120,255,210,0.28);
+      background:linear-gradient(180deg,#94ff9e,#21b85a);
+      color:#083b1d;
     }
 
     @media(max-width:768px){
-
-      h1{
-        font-size:48px;
+      body{
+        padding:20px;
+        background-position:center top;
       }
 
-      .subtitle{
-        font-size:18px;
+      .hero{
+        min-height:36vh;
+        padding-top:8px;
       }
 
+      .crest{
+        width:58px;
+        height:58px;
+        font-size:30px;
+      }
+
+      .games-container{
+        grid-template-columns:1fr;
+      }
+
+      .game-card{
+        min-height:auto;
+      }
+
+      .music-toggle{
+        right:16px;
+        bottom:16px;
+      }
     }
 
   </style>
@@ -162,30 +315,34 @@
 
 <body>
 
-  <h1>🎮 English Games Hub</h1>
+  <main class="kingdom-shell">
+    <section class="hero">
+      <div class="crest">♛</div>
+      <h1>The Kingdom</h1>
 
-  <div class="subtitle">
-    Learn English Through Adventure, Creativity and Games
-  </div>
+      <div class="subtitle">
+        Choose your quest and learn English across the royal lands
+      </div>
+    </section>
 
-  <div class="games-container">
+    <section class="games-container" aria-label="English learning quests">
 
     <!-- GAME 1 -->
 
     <div class="game-card">
 
-      <div class="game-icon">🏃</div>
+      <div class="game-icon">AQ</div>
 
-      <h2>Syllable Runner</h2>
+      <h2>Chapter 1</h2>
 
       <p>
-        Jump and slide through obstacles by splitting English words into syllables.
+        Alphabet Quest: learn English letters, hear their sounds, and match each letter with its first word.
       </p>
 
       <a class="play-btn"
-         href="games/syllable-runner/index.html">
+         href="games/alphabet-quest/index.html">
 
-         Play Game
+         Start Quest
 
       </a>
 
@@ -195,19 +352,18 @@
 
     <div class="game-card">
 
-      <div class="game-icon">📚</div>
+      <div class="game-icon">SR</div>
 
-      <h2>VocaBoca</h2>
+      <h2>Chapter 2</h2>
 
       <p>
-        Explore vocabulary and improve your English through exciting language adventures.
+        Syllable Runner: race along the castle road and split English words into syllables before the gate closes.
       </p>
 
       <a class="play-btn"
-         href="https://lingua-explorer-game.lovable.app"
-         target="_blank">
+         href="games/syllable-runner/index.html">
 
-         Play Online
+         Start Quest
 
       </a>
 
@@ -217,19 +373,18 @@
 
     <div class="game-card">
 
-      <div class="game-icon">🧩</div>
+      <div class="game-icon">WM</div>
 
-      <h2>Word Buddies</h2>
+      <h2>Chapter 3</h2>
 
       <p>
-        Interactive English challenges and mini games designed for vocabulary practice.
+        Word Miner: dig through the royal mines, collect treasure, and choose the right English words.
       </p>
 
       <a class="play-btn"
-         href="https://en-quest-game.lovable.app"
-         target="_blank">
+         href="games/Word-miner/block-mine-portal.html">
 
-         Play Online
+         Start Quest
 
       </a>
 
@@ -239,19 +394,18 @@
 
     <div class="game-card">
 
-      <div class="game-icon">⛏️</div>
+      <div class="game-icon">SW</div>
 
-      <h2>Mine Word Craft</h2>
+      <h2>Chapter 4</h2>
 
       <p>
-        Minecraft-inspired English learning adventure with vocabulary and quests.
+        Sentence Wall Builder: build English sentences brick by brick and turn the right word order into a castle wall.
       </p>
 
       <a class="play-btn"
-         href="https://mine-word-craft.lovable.app"
-         target="_blank">
+         href="games/sentence-wall-builder/index.html">
 
-         Play Online
+         Start Quest
 
       </a>
 
@@ -261,18 +415,18 @@
 
     <div class="game-card">
 
-      <div class="game-icon">WM</div>
+      <div class="game-icon">GG</div>
 
-      <h2>Word Miner</h2>
+      <h2>Chapter 5</h2>
 
       <p>
-        Mine blocks, collect coins, and choose the correct English words in a pixel adventure.
+        Grammar Galaxy Rescue: guide the royal carriage, catch missing words, and repair sentences for the crown.
       </p>
 
       <a class="play-btn"
-         href="games/Word-miner/block-mine-portal.html">
+         href="games/grammar-galaxy/index.html">
 
-         Play Game
+         Start Quest
 
       </a>
 
@@ -282,126 +436,75 @@
 
     <div class="game-card">
 
-      <div class="game-icon">GG</div>
-
-      <h2>Grammar Galaxy Rescue</h2>
-
-      <p>
-        Fly a spaceship, catch the missing word, and repair English sentences in space.
-      </p>
-
-      <a class="play-btn"
-         href="games/grammar-galaxy/index.html">
-
-         Play Game
-
-      </a>
-
-    </div>
-
-    <!-- GAME 7 -->
-
-    <div class="game-card">
-
       <div class="game-icon">CD</div>
 
-      <h2>Castle Defence</h2>
+      <h2>Chapter 6</h2>
 
       <p>
-        Defend a pixel medieval castle by choosing English words that fit each story context.
+        Castle Defence: guard the fortress by choosing the English words that fit each story context.
       </p>
 
       <a class="play-btn"
          href="games/castle-context-quest/index.html">
 
-         Play Game
+         Start Quest
 
       </a>
 
     </div>
 
-  </div>
+    </section>
 
-  <div class="footer">
-    🌍 Built for fun English learning experiences
-  </div>
+    <div class="footer">
+      Royal English adventures for brave learners
+    </div>
+  </main>
 
   <button class="music-toggle" id="musicToggle" type="button" aria-pressed="false">
     Music: Off
   </button>
 
+  <audio
+    id="backgroundMusic"
+    src="assets/sounds/tunetank-medieval-happy-music-412790.mp3"
+    preload="auto"
+    loop
+  ></audio>
+
   <script>
     const musicToggle = document.getElementById("musicToggle");
-    let audioContext;
-    let masterGain;
-    let musicTimer;
+    const backgroundMusic = document.getElementById("backgroundMusic");
     let isMusicPlaying = false;
-    let isMasterConnected = false;
 
-    const notes = [261.63, 329.63, 392.00, 493.88, 392.00, 329.63];
-    let noteIndex = 0;
+    backgroundMusic.volume = 0.45;
 
-    function playSoftTone(frequency){
-      const now = audioContext.currentTime;
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(frequency, now);
-
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.055, now + 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.35);
-
-      oscillator.connect(gain);
-      gain.connect(masterGain);
-
-      oscillator.start(now);
-      oscillator.stop(now + 1.45);
-    }
-
-    function startMusic(){
-      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = masterGain || audioContext.createGain();
-
-      const now = audioContext.currentTime;
-      masterGain.gain.cancelScheduledValues(now);
-      masterGain.gain.setValueAtTime(0.35, now);
-
-      if(!isMasterConnected){
-        masterGain.connect(audioContext.destination);
-        isMasterConnected = true;
-      }
-
-      if(audioContext.state === "suspended"){
-        audioContext.resume();
-      }
-
-      playSoftTone(notes[noteIndex]);
-      musicTimer = setInterval(() => {
-        noteIndex = (noteIndex + 1) % notes.length;
-        playSoftTone(notes[noteIndex]);
-      }, 1400);
-    }
-
-    function stopMusic(){
-      clearInterval(musicTimer);
-      musicTimer = null;
-      if(masterGain){
-        masterGain.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.08);
-      }
-    }
-
-    musicToggle.addEventListener("click", () => {
-      isMusicPlaying = !isMusicPlaying;
+    function updateMusicButton(){
       musicToggle.classList.toggle("is-playing", isMusicPlaying);
       musicToggle.textContent = isMusicPlaying ? "Music: On" : "Music: Off";
       musicToggle.setAttribute("aria-pressed", String(isMusicPlaying));
+    }
 
+    async function startMusic(){
+      try{
+        await backgroundMusic.play();
+        isMusicPlaying = true;
+      }catch(error){
+        isMusicPlaying = false;
+      }
+      updateMusicButton();
+    }
+
+    function stopMusic(){
+      backgroundMusic.pause();
+      isMusicPlaying = false;
+      updateMusicButton();
+    }
+
+    musicToggle.addEventListener("click", () => {
       if(isMusicPlaying){
-        startMusic();
-      }else{
         stopMusic();
+      }else{
+        startMusic();
       }
     });
   </script>

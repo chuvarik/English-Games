@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120" role="img" aria-label="jump obstacle">
+  <ellipse cx="90" cy="101" rx="68" ry="10" fill="#4b2a12" opacity=".2"/>
+  <rect x="24" y="48" width="132" height="38" rx="18" fill="#8b4a1d" stroke="#4a2a12" stroke-width="6"/>
+  <ellipse cx="32" cy="67" rx="18" ry="20" fill="#b87333" stroke="#4a2a12" stroke-width="6"/>
+  <ellipse cx="148" cy="67" rx="18" ry="20" fill="#7b3f18" stroke="#4a2a12" stroke-width="6"/>
+  <path d="M55 55c16 10 34 10 50 0M57 77c20-9 41-8 65 1" fill="none" stroke="#c89142" stroke-width="5" stroke-linecap="round"/>
+  <path d="M34 32 20 15M55 28 52 9M78 30 90 13M132 31l19-16" stroke="#43a047" stroke-width="7" stroke-linecap="round"/>
+</svg>

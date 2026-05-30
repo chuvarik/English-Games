@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="wizard runner">
+  <defs>
+    <linearGradient id="robe" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7d62ff"/><stop offset="1" stop-color="#36208a"/></linearGradient>
+  </defs>
+  <ellipse cx="89" cy="160" rx="56" ry="10" fill="#4b2a12" opacity=".18"/>
+  <path d="M63 44 88 6l27 38z" fill="#3f2b98" stroke="#221450" stroke-width="5" stroke-linejoin="round"/>
+  <circle cx="88" cy="55" r="25" fill="#ffd1a2"/>
+  <path d="M59 87h58l16 49H45z" fill="url(#robe)" stroke="#221450" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M76 91v42M99 91v42" stroke="#ffd45c" stroke-width="5" stroke-linecap="round"/>
+  <path d="M58 94 28 117" stroke="#ffd1a2" stroke-width="15" stroke-linecap="round"/>
+  <path d="M117 93l31 24" stroke="#ffd1a2" stroke-width="15" stroke-linecap="round"/>
+  <path d="M65 131l-27 23" stroke="#33207a" stroke-width="17" stroke-linecap="round"/>
+  <path d="M109 131l31 24" stroke="#33207a" stroke-width="17" stroke-linecap="round"/>
+  <path d="M29 155h31M132 155h31" stroke="#21124a" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="79" cy="56" r="4" fill="#172033"/>
+  <circle cx="98" cy="56" r="4" fill="#172033"/>
+  <path d="M78 68c8 6 18 6 27 0" fill="none" stroke="#7a2d18" stroke-width="4" stroke-linecap="round"/>
+  <path d="M137 36l6 12 13 2-10 9 3 13-12-6-12 6 3-13-10-9 13-2z" fill="#ffd45c"/>
+</svg>

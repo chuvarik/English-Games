@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="horse runner">
+  <ellipse cx="92" cy="160" rx="63" ry="10" fill="#4b2a12" opacity=".18"/>
+  <path d="M49 75c16-20 58-23 81-8 15 9 21 25 12 42-10 19-40 25-70 18-27-6-42-27-23-52z" fill="#a5652f" stroke="#633919" stroke-width="5"/>
+  <path d="M116 62c14-16 30-19 43-6 10 11 7 26-2 36-12-6-26-10-41-8z" fill="#b87637" stroke="#633919" stroke-width="5"/>
+  <path d="M134 51c-5-13-2-24 9-33 4 13 4 25-1 35z" fill="#8a4d25"/>
+  <path d="M56 124l-19 29M83 129l-4 28M116 126l19 29M139 113l18 28" stroke="#6b3a1d" stroke-width="12" stroke-linecap="round"/>
+  <path d="M30 155h28M67 160h27M125 157h27M147 145h27" stroke="#2a170b" stroke-width="9" stroke-linecap="round"/>
+  <path d="M62 73c20-23 52-22 71-7-26-2-49 2-71 7z" fill="#4a2b17"/>
+  <circle cx="143" cy="68" r="4" fill="#172033"/>
+  <path d="M155 85c-6 5-13 6-21 3" fill="none" stroke="#633919" stroke-width="4" stroke-linecap="round"/>
+</svg>

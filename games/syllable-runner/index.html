@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chapter 2 - Syllable Runner</title>
+  <title>Chapter 2</title>
   <style>
     * {
       box-sizing: border-box;
@@ -879,6 +879,10 @@
     }
 
     @media (max-width: 640px) {
+      .game {
+        margin-bottom: 78px;
+      }
+
       .topbar {
         align-items: flex-start;
         flex-direction: column;
@@ -916,6 +920,25 @@
       .word-rail {
         max-height: none;
       }
+
+      .stage {
+        min-height: 250px;
+      }
+
+      .runner {
+        width: 88px;
+        height: 132px;
+      }
+
+      .obstacle.jump img {
+        width: 112px;
+        height: 62px;
+      }
+
+      .obstacle.slide img {
+        width: 96px;
+        height: 102px;
+      }
     }
   </style>
 </head>
@@ -931,7 +954,7 @@
               <h1>Chapter 2</h1>
             </div>
           </div>
-          <p>Syllable Runner</p>
+          <p>Chapter 2</p>
           <div class="stat-row">
             <div class="stat"><span>Gold</span><strong id="homeCredits">0</strong></div>
             <div class="stat"><span>Unlocked</span><strong id="homeUnlocked">1</strong></div>
@@ -958,7 +981,7 @@
         <div class="brand">
           <div class="crest" aria-hidden="true"></div>
           <div>
-            <p class="kicker">Syllable Runner</p>
+            <p class="kicker">Chapter 2</p>
             <h2>Choose Level</h2>
           </div>
         </div>
@@ -975,7 +998,7 @@
         <div class="brand">
           <div class="crest" aria-hidden="true"></div>
           <div>
-            <p class="kicker">Syllable Runner</p>
+            <p class="kicker">Chapter 2</p>
             <h2>Choose Skin</h2>
           </div>
         </div>
@@ -1058,7 +1081,7 @@
         <div class="brand">
           <div class="crest" aria-hidden="true"></div>
           <div>
-            <p class="kicker">Syllable Runner</p>
+            <p class="kicker">Chapter 2</p>
             <h2 id="endTitle">Level Complete</h2>
           </div>
         </div>
@@ -1543,7 +1566,7 @@
       utterance.lang = "en-US";
       utterance.rate = 0.82;
       utterance.pitch = 1.08;
-      utterance.volume = 1;
+      utterance.volume = window.KINGDOM_NARRATOR_VOLUME?.() ?? 0.45;
       window.speechSynthesis.speak(utterance);
     }
 
@@ -1734,5 +1757,6 @@
         .replace(/"/g, "&quot;");
     }
   </script>
+  <script src="../../assets/js/kingdom-music.js" data-music-src="../../assets/sounds/tunetank-medieval-happy-music-412790.mp3"></script>
 </body>
 </html>

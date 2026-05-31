@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alphabet Quest</title>
+  <title>Chapter 1</title>
   <style>
     * {
       box-sizing: border-box;
@@ -149,6 +149,7 @@
     }
 
     .letter-tile {
+      position: relative;
       aspect-ratio: 1;
       border: 3px solid #23304f;
       border-radius: 8px;
@@ -160,7 +161,20 @@
     }
 
     .letter-tile.is-mastered {
-      background: #baf7c8;
+      background: #39f06c;
+      color: #083b1d;
+      box-shadow: 0 4px 0 rgba(8, 59, 29, 0.32);
+    }
+
+    .letter-tile.is-mastered::after {
+      content: "✓";
+      position: absolute;
+      right: 4px;
+      bottom: 1px;
+      font-size: 0.55em;
+      line-height: 1;
+      color: #083b1d;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
     }
 
     .letter-tile.is-current {
@@ -215,7 +229,8 @@
       border: 3px solid #23304f;
       background: var(--sun);
       color: #23304f;
-      font-size: 30px;
+      font-size: 34px;
+      line-height: 1;
       box-shadow: 0 6px 0 rgba(35, 48, 79, 0.24);
     }
 
@@ -271,6 +286,15 @@
       font-size: clamp(24px, 4vw, 36px);
       font-weight: 900;
       color: #23304f;
+    }
+
+    .missing-letter {
+      display: inline-flex;
+      width: 0.85em;
+      height: 0.85em;
+      margin-right: 0.04em;
+      border-bottom: 0.12em solid currentColor;
+      vertical-align: -0.02em;
     }
 
     .answers {
@@ -590,6 +614,24 @@
       .app {
         width: 100%;
         min-height: calc(100vh - 20px);
+        padding-bottom: 78px;
+      }
+
+      h1 {
+        font-size: clamp(34px, 14vw, 54px);
+      }
+
+      .game-panel {
+        min-height: auto;
+        padding: 14px;
+      }
+
+      .big-letter {
+        width: min(260px, 72vw);
+      }
+
+      .answer-btn {
+        min-height: 58px;
       }
     }
   </style>
@@ -598,7 +640,7 @@
   <div class="app">
     <header>
       <a class="back-link" href="../../index.html">The Kingdom</a>
-      <h1>Alphabet Quest</h1>
+      <h1>Chapter 1</h1>
       <div class="scorebar" aria-label="Game score">
         <div class="score-pill">Score <span id="score">0</span></div>
         <div class="score-pill">Streak <span id="streak">0</span></div>
@@ -618,7 +660,7 @@
       <section class="game-panel" aria-label="Alphabet game">
         <div class="prompt-row">
           <div class="prompt" id="prompt">Find the letter the word starts with.</div>
-          <button class="icon-btn" id="soundBtn" type="button" title="Hear the letter" aria-label="Hear the letter">Sound</button>
+          <button class="icon-btn" id="soundBtn" type="button" title="Hear the letter" aria-label="Hear the letter">♫</button>
         </div>
 
         <div class="stage">
@@ -693,6 +735,10 @@
 
     function displayWord(value) {
       return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function clueWord(value) {
+      return `<span class="missing-letter" aria-label="missing first letter"></span>${value.slice(1)}`;
     }
 
     function renderVocabPicture(item) {
@@ -773,6 +819,7 @@
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "en-US";
       utterance.rate = 0.78;
+      utterance.volume = window.KINGDOM_NARRATOR_VOLUME?.() ?? 0.45;
       window.speechSynthesis.speak(utterance);
     }
 
@@ -802,8 +849,9 @@
 
     function renderQuestion() {
       renderVocabPicture(current);
-      word.textContent = displayWord(current.word);
-      feedback.textContent = `Which letter does "${displayWord(current.word)}" start with?`;
+      word.innerHTML = clueWord(current.word);
+      word.setAttribute("aria-label", `missing first letter, ${current.word.slice(1)}`);
+      feedback.textContent = `Which letter completes "${current.word.slice(1)}"?`;
 
       const wrongLetters = shuffle(alphabet.filter((item) => item.letter !== current.letter)).slice(0, 2);
       const choices = shuffle([current, ...wrongLetters]);
@@ -875,5 +923,6 @@
     chooseQuestion();
     renderQuestion();
   </script>
+  <script src="../../assets/js/kingdom-music.js" data-music-src="../../assets/sounds/tunetank-medieval-happy-music-412790.mp3"></script>
 </body>
 </html>

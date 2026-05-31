@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sentence Wall Builder</title>
+  <title>Chapter 4</title>
   <style>
     * {
       box-sizing: border-box;
@@ -716,9 +716,9 @@
     }
 
     .mode-card {
-      min-height: 178px;
+      min-height: 128px;
       display: grid;
-      gap: 5px;
+      gap: 8px;
       align-content: start;
       justify-items: start;
       padding: 10px;
@@ -728,7 +728,6 @@
       color: #123447;
       text-align: left;
       font-weight: 900;
-      cursor: pointer;
       box-shadow: 0 5px 0 rgba(12, 74, 110, 0.38);
     }
 
@@ -743,10 +742,46 @@
       font-size: clamp(17px, 2.3vw, 22px);
     }
 
+    .mode-select {
+      width: 100%;
+      display: grid;
+      gap: 5px;
+      justify-items: start;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .mode-select:focus-visible,
+    .mode-grammar-toggle:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, 0.35);
+      outline-offset: 3px;
+    }
+
     .mode-meta {
       color: #3f5e72;
       font-size: 13px;
       line-height: 1.22;
+    }
+
+    .mode-grammar-toggle {
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 2px solid #164e63;
+      border-radius: 7px;
+      background: #fff8d7;
+      color: #123447;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 3px 0 rgba(12, 74, 110, 0.28);
     }
 
     .mode-grammar-list {
@@ -755,6 +790,10 @@
       flex-wrap: wrap;
       gap: 5px;
       margin-top: 4px;
+    }
+
+    .mode-grammar-list[hidden] {
+      display: none;
     }
 
     .mode-grammar-chip {
@@ -1150,13 +1189,28 @@
       header {
         margin: 10px;
       }
+
+      .site {
+        padding-bottom: 86px;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .game-button,
+      .home-link {
+        min-width: 0;
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body class="is-menu">
   <div class="screen">
     <header>
-      <h1>Sentence Wall Builder</h1>
+      <h1>Chapter 4</h1>
       <div class="hud" aria-live="polite">
         <div class="pill">Score <strong id="score">0</strong></div>
         <div class="pill">Level <strong id="level">1/1</strong></div>
@@ -1202,7 +1256,7 @@
       </div>
 
       <section class="panel" id="startPanel">
-        <h2>Sentence Wall Builder</h2>
+        <h2>Chapter 4</h2>
         <p>Build English sentences from word bricks and turn every correct line into a stronger castle wall.</p>
 
         <div class="mode-grid" id="modeGrid"></div>
@@ -1703,6 +1757,7 @@
     ];
 
     let selectedMode = modes.foundation;
+    let grammarOpenMode = null;
     let currentLevel = null;
     let levelQueue = [];
     let levelIndex = 0;
@@ -1837,15 +1892,23 @@
     }
 
     function renderModes() {
-      modeGrid.innerHTML = Object.values(modes).map((mode) => `
-        <button class="mode-card ${mode.id === selectedMode.id ? "is-selected" : ""}" type="button" data-mode="${mode.id}">
-          <span class="mode-name">${mode.name}</span>
-          <span class="mode-meta">${mode.meta}</span>
-          <span class="mode-grammar-list">
+      modeGrid.innerHTML = Object.values(modes).map((mode) => {
+        const isOpen = grammarOpenMode === mode.id;
+        return `
+        <div class="mode-card ${mode.id === selectedMode.id ? "is-selected" : ""}">
+          <button class="mode-select" type="button" data-mode="${mode.id}">
+            <span class="mode-name">${mode.name}</span>
+            <span class="mode-meta">${mode.meta}</span>
+          </button>
+          <button class="mode-grammar-toggle" type="button" data-grammar-toggle="${mode.id}" aria-expanded="${String(isOpen)}">
+            ${isOpen ? "Hide grammar" : "Show grammar"}
+          </button>
+          <span class="mode-grammar-list" ${isOpen ? "" : "hidden"}>
             ${mode.levels.map((levelId) => `<span class="mode-grammar-chip">${escapeHtml(levels[levelId].name)}</span>`).join("")}
           </span>
-        </button>
-      `).join("");
+        </div>
+      `;
+      }).join("");
     }
 
     function renderPattern() {
@@ -1956,8 +2019,7 @@
 
     function buildTray(level) {
       const targetBricks = level.words.map((word, index) => makeBrick(word[0], word[1], index));
-      const decoyBricks = level.decoys.map((word) => makeBrick(word[0], word[1], null));
-      return shuffle([...targetBricks, ...decoyBricks]);
+      return shuffle(targetBricks);
     }
 
     function setFeedback(message) {
@@ -2015,9 +2077,6 @@
       history.push({ id: brick.id, slotIndex });
       playTone(260 + slotIndex * 24, 0.06, "square", 0.035);
       renderGame();
-      if (placed.every(Boolean)) {
-        setTimeout(checkWall, 260);
-      }
     }
 
     function removeBrick(slotIndex) {
@@ -2079,7 +2138,7 @@
         mistakes -= 1;
         streak = 0;
         score = Math.max(0, score - 25);
-        setFeedback("The wall leans. Fix the red bricks.");
+        setFeedback("The wall leans. Change the word order.");
         playTone(120, 0.16, "sawtooth", 0.06);
         updateHud();
         if (mistakes <= 0) {
@@ -2225,6 +2284,13 @@
     }
 
     modeGrid.addEventListener("click", (event) => {
+      const grammarButton = event.target.closest("button[data-grammar-toggle]");
+      if (grammarButton) {
+        const modeId = grammarButton.dataset.grammarToggle;
+        grammarOpenMode = grammarOpenMode === modeId ? null : modeId;
+        renderModes();
+        return;
+      }
       const button = event.target.closest("button[data-mode]");
       if (!button) return;
       selectedMode = modes[button.dataset.mode] || modes.foundation;
@@ -2298,5 +2364,6 @@
     updateSoundButton();
     showMenu();
   </script>
+  <script src="../../assets/js/kingdom-music.js" data-music-src="../../assets/sounds/tunetank-medieval-happy-music-412790.mp3"></script>
 </body>
 </html>

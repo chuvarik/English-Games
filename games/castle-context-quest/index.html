@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kingdom Castle Defence</title>
+  <title>Chapter 6</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -529,6 +529,23 @@
     }
 
     @media (max-width: 720px) {
+      body {
+        overflow: auto;
+      }
+
+      .screen {
+        min-height: 100dvh;
+      }
+
+      main {
+        min-height: 620px;
+        padding-bottom: 82px;
+      }
+
+      canvas {
+        min-height: 620px;
+      }
+
       header {
         align-items: flex-start;
         flex-direction: column;
@@ -548,19 +565,49 @@
         left: 8px;
         right: 8px;
         width: auto;
+        max-height: 42dvh;
+        overflow: auto;
+        padding: 10px;
+      }
+
+      .sentence {
+        font-size: clamp(18px, 5vw, 26px);
       }
 
       .game-controls {
         left: 8px;
         right: 8px;
         top: auto;
-        bottom: 8px;
+        bottom: 74px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .choices,
       .menu-rules,
       .shop-grid {
         grid-template-columns: 1fr;
+      }
+
+      .panel {
+        top: calc(50% - 38px);
+        max-height: calc(100dvh - 116px);
+      }
+
+      .choice {
+        min-height: 46px;
+        padding: 7px;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .control-button {
+        min-width: 0;
+        padding: 7px 8px;
+        font-size: 13px;
       }
     }
   </style>
@@ -654,7 +701,7 @@
 <body class="is-menu">
   <div class="screen">
     <header>
-      <h1>Kingdom Castle Defence</h1>
+      <h1>Chapter 6</h1>
       <div class="hud" aria-live="polite">
         <div class="pill"><span class="hud-icon icon-castle"></span><span>Castle <strong><span id="castleHp">100</span>/<span id="castleMaxHp">100</span></strong></span></div>
         <div class="pill"><span class="hud-icon icon-wave"></span><span>Wave <strong><span id="wave">1</span>/<span id="maxWave">10</span></strong></span></div>
@@ -686,7 +733,7 @@
       </div>
 
       <section class="panel" id="startPanel">
-        <h2>Castle Defence</h2>
+        <h2>Chapter 6</h2>
         <div class="menu-rules">
           <div class="menu-rule">
             <span class="pixel-icon icon-shield"></span>
@@ -1425,8 +1472,6 @@
     let arrowTimer = 0;
     let boostTimer = 0;
     let audioContext = null;
-    let musicTimer = null;
-    let musicStep = 0;
     let lastArrowSound = 0;
     let lastSolvedRound = rounds[0];
     let stats = {
@@ -1597,51 +1642,6 @@
       source.start();
     }
 
-    function playMusicNote() {
-      const audio = ensureAudio();
-      if (!audio || !musicTimer) return;
-      const notes = [220, 261.63, 293.66, 329.63, 293.66, 261.63, 196, 246.94];
-      const now = audio.currentTime;
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(notes[musicStep % notes.length], now);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.035, now + 0.025);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
-      osc.connect(gain);
-      gain.connect(audio.destination);
-      osc.start(now);
-      osc.stop(now + 0.46);
-
-      if (musicStep % 4 === 0) {
-        const bass = audio.createOscillator();
-        const bassGain = audio.createGain();
-        bass.type = "sine";
-        bass.frequency.setValueAtTime(110, now);
-        bassGain.gain.setValueAtTime(0.0001, now);
-        bassGain.gain.exponentialRampToValueAtTime(0.03, now + 0.04);
-        bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
-        bass.connect(bassGain);
-        bassGain.connect(audio.destination);
-        bass.start(now);
-        bass.stop(now + 0.72);
-      }
-      musicStep += 1;
-    }
-
-    function startMusic() {
-      if (!soundOn || musicTimer) return;
-      ensureAudio();
-      musicTimer = setInterval(playMusicNote, 520);
-      playMusicNote();
-    }
-
-    function stopMusic() {
-      clearInterval(musicTimer);
-      musicTimer = null;
-    }
-
     function startGame() {
       castleHp = 100;
       castleMaxHp = 100;
@@ -1665,8 +1665,6 @@
       setActiveRound(pickRandomRound());
       lastSolvedRound = activeRound;
       updateControlButtons();
-      musicStep = 0;
-      startMusic();
       playChord([196, 246.94, 293.66, 392], 0.2, "triangle", 0.08);
       startWave();
       startPanel.hidden = true;
@@ -1706,7 +1704,6 @@
       spawnLeft = 0;
       boostTimer = 0;
       knightReserve = 0;
-      stopMusic();
       document.body.classList.remove("is-playing", "is-ended", "is-shop");
       document.body.classList.add("is-menu");
       startPanel.hidden = false;
@@ -1742,7 +1739,6 @@
       endTitle.textContent = victory ? "The castle stands" : "The gate has fallen";
       endText.textContent = `Score: ${score}. Coins: ${coins}. You reached wave ${wave} of ${maxWave}.`;
       lastAnswer.innerHTML = `Last correct sentence: ${escapeHtml(lastSolvedRound.sentence.replace("___", lastSolvedRound.answer))} ${vocabIconHtml(lastSolvedRound.answer)}`;
-      stopMusic();
       playChord(victory ? [261.63, 329.63, 392, 523.25] : [196, 164.81, 146.83], 0.24, victory ? "triangle" : "sawtooth", 0.08);
       updateControlButtons();
       updateHud();
@@ -2344,10 +2340,7 @@
       soundOn = !soundOn;
       soundButton.textContent = soundOn ? "Sound On" : "Sound Off";
       if (soundOn) {
-        startMusic();
         playChord([261.63, 329.63, 392], 0.14, "triangle", 0.06);
-      } else {
-        stopMusic();
       }
     });
     window.addEventListener("resize", resize);
@@ -2358,5 +2351,6 @@
     updateHud();
     drawFrame();
   </script>
+  <script src="../../assets/js/kingdom-music.js" data-music-src="../../assets/sounds/tunetank-medieval-happy-music-412790.mp3"></script>
 </body>
 </html>

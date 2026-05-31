@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Royal Word Miner</title>
+<title>Chapter 3</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{
@@ -327,7 +327,12 @@ button:disabled{
     body{
         overflow:auto;
         align-items:flex-start;
-        padding:16px 0;
+        padding:12px 0 88px;
+    }
+
+    #shell{
+        width:min(760px,calc(100vw - 20px));
+        padding:12px;
     }
 
     #layout{
@@ -337,6 +342,8 @@ button:disabled{
     #gameCanvas{
         width:100%;
         height:auto;
+        max-height:58vh;
+        object-fit:contain;
     }
 
     #panel{
@@ -346,6 +353,76 @@ button:disabled{
     .menuStats,
     .shopGrid{
         grid-template-columns:1fr;
+    }
+
+    #menu{
+        max-height:calc(100dvh - 112px);
+        padding:16px;
+    }
+
+    #overlay{
+        align-items:flex-start;
+        overflow:auto;
+        padding:14px 0 90px;
+    }
+}
+
+@media (max-width:640px){
+    #shell{
+        width:calc(100vw - 12px);
+        padding:8px;
+    }
+
+    #topbar{
+        grid-template-columns:1fr;
+        gap:10px;
+    }
+
+    #stats{
+        justify-content:flex-start;
+        gap:6px;
+    }
+
+    .pill{
+        min-width:70px;
+        padding:6px 7px;
+        font-size:12px;
+    }
+
+    #panel{
+        padding:10px;
+    }
+
+    .section{
+        padding:10px;
+    }
+
+    #targetCard{
+        grid-template-columns:58px 1fr;
+    }
+
+    #targetIcon{
+        width:58px;
+        height:58px;
+    }
+
+    #menu{
+        width:calc(100vw - 16px);
+        padding:14px;
+    }
+
+    .difficultyRow,
+    .menuRow{
+        grid-template-columns:1fr;
+    }
+
+    h1{
+        font-size:24px;
+    }
+
+    button{
+        min-height:42px;
+        font-size:14px;
     }
 }
 </style>
@@ -388,7 +465,7 @@ button{
 <body>
 <div id="shell">
     <div id="topbar">
-        <h1>ROYAL WORD MINER</h1>
+        <h1>Chapter 3</h1>
         <div id="stats">
             <div class="pill">LEVEL <span id="level">1</span></div>
             <div class="pill">ROUND <span id="round">1</span></div>
@@ -433,7 +510,7 @@ button{
 <div id="overlay">
     <div id="menu">
         <div id="mainMenu">
-            <h2>ROYAL WORD MINER</h2>
+            <h2>Chapter 3</h2>
             <p>
                 Learn simple English words in the royal mines. Earn coins, unlock skins,
                 build combos, and listen to the words.
@@ -461,7 +538,7 @@ button{
         </div>
 
         <div id="shopMenu" class="hidden">
-            <h2>ROYAL SKIN SHOP</h2>
+            <h2>Chapter 3 Skin Shop</h2>
             <p>Buy a new miner skin with coins. Skins are just for fun, but fun helps practice.</p>
             <div id="skinGrid" class="shopGrid"></div>
             <button id="backBtn">BACK TO MENU</button>
@@ -894,6 +971,7 @@ function speak(text){
     speech.lang = "en-US";
     speech.rate = 0.82;
     speech.pitch = 1;
+    speech.volume = window.KINGDOM_NARRATOR_VOLUME?.() ?? 0.45;
     speechSynthesis.speak(speech);
 }
 
@@ -1425,7 +1503,7 @@ function showMenu(title,text){
     overlay.classList.remove("hidden");
     mainMenu.classList.remove("hidden");
     shopMenu.classList.add("hidden");
-    document.querySelector("#mainMenu h2").textContent = title || "ROYAL WORD MINER";
+    document.querySelector("#mainMenu h2").textContent = title || "Chapter 3";
     document.querySelector("#mainMenu p").textContent =
         text || "Learn simple English words in the royal mines. Earn coins, unlock skins, build combos, and listen to the words.";
     document.getElementById("startBtn").textContent = score > 0 ? "PLAY AGAIN" : "START GAME";
@@ -1470,7 +1548,7 @@ function resetProgress(){
     combo = 0;
     saveProgress();
     render();
-    showMenu("ROYAL WORD MINER","Progress reset. Start fresh and build your royal word mine again.");
+    showMenu("Chapter 3","Progress reset. Start fresh and build your royal word mine again.");
 }
 
 document.getElementById("startBtn").onclick = startGame;
@@ -1529,5 +1607,6 @@ makeEmptyMap();
 render();
 showMenu();
 </script>
+<script src="../../assets/js/kingdom-music.js" data-music-src="../../assets/sounds/tunetank-medieval-happy-music-412790.mp3"></script>
 </body>
 </html>

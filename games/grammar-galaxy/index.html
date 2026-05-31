@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Royal Grammar Messenger</title>
+  <title>Chapter 5</title>
   <style>
     * {
       box-sizing: border-box;
@@ -363,6 +363,14 @@
     }
 
     @media (max-width: 720px) {
+      body {
+        overflow: auto;
+      }
+
+      .screen {
+        min-height: 100dvh;
+      }
+
       header {
         align-items: flex-start;
         flex-direction: column;
@@ -384,16 +392,30 @@
 
       .sentence-banner {
         min-height: 46px;
+        top: 6px;
+        left: 8px;
+        right: 8px;
+        font-size: clamp(16px, 5vw, 24px);
       }
 
       .panel {
-        max-height: calc(100vh - 28px);
+        top: calc(50% - 36px);
+        max-height: calc(100dvh - 112px);
       }
 
       .word-tray {
         right: 8px;
-        top: 62px;
-        width: min(190px, calc(100vw - 16px));
+        top: 70px;
+        width: min(210px, calc(100vw - 16px));
+      }
+
+      main {
+        min-height: 560px;
+        padding-bottom: 82px;
+      }
+
+      canvas {
+        min-height: 520px;
       }
     }
   </style>
@@ -401,7 +423,7 @@
 <body>
   <div class="screen">
     <header>
-      <h1>Royal Grammar Messenger</h1>
+      <h1>Chapter 5</h1>
       <div class="hud" aria-live="polite">
         <div class="pill">Score <span id="score">0</span></div>
         <div class="pill">Errors <span id="lives">5</span></div>
@@ -419,11 +441,12 @@
 
       <div class="word-tray">
         <div class="target" id="targetSentence">Choose a messenger and press Start Journey.</div>
+        <button class="sound" id="soundToggle" type="button" aria-label="Toggle sound">Sound On</button>
         <button class="sound" id="gameMenuButton" type="button">Menu</button>
       </div>
 
       <section class="panel" id="startPanel">
-        <h2>Messenger Stable</h2>
+        <h2>Chapter 5</h2>
         <p>Guide the royal messenger on horseback and collect the word that completes each English sentence. Avoid the wrong scrolls and keep the journey alive.</p>
         <div class="sentence" id="previewSentence">I ___ apple.</div>
         <div class="menu-label">Difficulty</div>
@@ -462,6 +485,7 @@
         <p>Move with WASD, mouse, or touch. Press Space to start.</p>
         <div class="actions">
           <button id="startButton" type="button">Start Journey</button>
+          <button class="secondary" id="menuSoundButton" type="button">Sound On</button>
           <a class="home-link" href="../../index.html">The Kingdom</a>
         </div>
         <div class="leaderboard">
@@ -509,6 +533,8 @@
     const againButton = document.getElementById("againButton");
     const backToMenuButton = document.getElementById("backToMenuButton");
     const gameMenuButton = document.getElementById("gameMenuButton");
+    const soundToggle = document.getElementById("soundToggle");
+    const menuSoundButton = document.getElementById("menuSoundButton");
     const menuScores = document.getElementById("menuScores");
     const endScores = document.getElementById("endScores");
     const shipButtons = [...document.querySelectorAll(".ship-card")];
@@ -617,6 +643,8 @@
     let running = false;
     let lastTime = 0;
     let spawnTimer = 0;
+    let audioContext = null;
+    let soundOn = true;
     let selectedShip = ships.comet;
     let selectedDifficulty = difficulties.easy;
     let prompts = promptSets.easy;
@@ -766,6 +794,68 @@
       return capitalizeSentence(prompt.text).replace("___", prompt.answer);
     }
 
+    function ensureAudio() {
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      return audioContext;
+    }
+
+    function playTone(frequency, delay, duration, type = "sine", volume = 0.08) {
+      if (!soundOn) return;
+      const audio = ensureAudio();
+      const start = audio.currentTime + delay;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    }
+
+    function playSound(name) {
+      if (name === "start") {
+        playTone(330, 0, 0.09, "triangle", 0.08);
+        playTone(494, 0.08, 0.11, "triangle", 0.08);
+        return;
+      }
+      if (name === "correct") {
+        playTone(523.25, 0, 0.09, "sine", 0.075);
+        playTone(783.99, 0.08, 0.13, "sine", 0.075);
+        return;
+      }
+      if (name === "wrong") {
+        playTone(174.61, 0, 0.12, "sawtooth", 0.055);
+        playTone(130.81, 0.09, 0.16, "sawtooth", 0.045);
+        return;
+      }
+      if (name === "end") {
+        playTone(246.94, 0, 0.12, "triangle", 0.07);
+        playTone(196, 0.11, 0.18, "triangle", 0.06);
+      }
+    }
+
+    function updateSoundButtons() {
+      const label = soundOn ? "Sound On" : "Sound Off";
+      soundToggle.textContent = label;
+      menuSoundButton.textContent = label;
+      soundToggle.setAttribute("aria-label", soundOn ? "Turn sound off" : "Turn sound on");
+    }
+
+    function toggleSound() {
+      soundOn = !soundOn;
+      updateSoundButtons();
+      if (soundOn) {
+        playSound("start");
+      }
+    }
+
     function selectShip(shipId) {
       selectedShip = ships[shipId] || ships.comet;
       ship.speed = selectedShip.speed;
@@ -860,12 +950,14 @@
       endPanel.hidden = true;
       updateHud();
       spawnWords();
+      playSound("start");
       requestAnimationFrame(loop);
     }
 
     function endGame() {
       running = false;
       addRecord();
+      playSound("end");
       document.body.classList.remove("is-playing");
       document.body.classList.add("is-ended");
       endPanel.hidden = false;
@@ -1243,6 +1335,7 @@
     function advancePrompt() {
       const prompt = currentPrompt();
       score += selectedShip.basePoints + selectedDifficulty.pointBonus + promptIndex * 20;
+      playSound("correct");
       promptIndex += 1;
       updateHud();
       spawnWords();
@@ -1250,6 +1343,7 @@
 
     function missWord() {
       lives -= 1;
+      playSound("wrong");
       updateHud();
       if (lives <= 0) {
         endGame();
@@ -1325,6 +1419,8 @@
     againButton.addEventListener("click", startGame);
     backToMenuButton.addEventListener("click", showMenu);
     gameMenuButton.addEventListener("click", showMenu);
+    soundToggle.addEventListener("click", toggleSound);
+    menuSoundButton.addEventListener("click", toggleSound);
     shipButtons.forEach((button) => {
       button.addEventListener("click", () => selectShip(button.dataset.ship));
     });
@@ -1336,11 +1432,13 @@
     document.body.classList.add("is-menu");
     selectShip("comet");
     selectDifficulty("easy");
+    updateSoundButtons();
     renderRecords();
     updateHud();
     drawStars(0);
     drawPlanet();
     drawShip();
   </script>
+  <script src="../../assets/js/kingdom-music.js" data-music-src="../../assets/sounds/tunetank-medieval-happy-music-412790.mp3"></script>
 </body>
 </html>

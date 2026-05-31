@@ -703,7 +703,7 @@
     <header>
       <h1>Chapter 6</h1>
       <div class="hud" aria-live="polite">
-        <div class="pill"><span class="hud-icon icon-castle"></span><span>Castle <strong><span id="castleHp">100</span>/<span id="castleMaxHp">100</span></strong></span></div>
+        <div class="pill"><span class="hud-icon icon-castle"></span><span>Health <strong><span id="castleHp">100</span>/<span id="castleMaxHp">100</span></strong></span></div>
         <div class="pill"><span class="hud-icon icon-wave"></span><span>Wave <strong><span id="wave">1</span>/<span id="maxWave">10</span></strong></span></div>
         <div class="pill"><span class="hud-icon icon-enemies"></span><span>Enemies <strong><span id="enemyCount">0</span></strong></span></div>
         <div class="pill"><span class="hud-icon icon-coins"></span><span>Coins <strong><span id="coins">0</span></strong></span></div>
@@ -713,11 +713,11 @@
     </header>
 
     <main>
-      <canvas id="game" aria-label="Castle Defence game"></canvas>
+      <canvas id="game" aria-label="Chapter 6 word choice game"></canvas>
 
       <section class="question-window" aria-live="polite">
         <div class="question-title">
-          <span>Context Spell</span>
+          <span>Sentence Practice</span>
           <span id="boostText">Normal arrows</span>
         </div>
         <div class="scene" id="sceneText"></div>
@@ -737,15 +737,15 @@
         <div class="menu-rules">
           <div class="menu-rule">
             <span class="pixel-icon icon-shield"></span>
-            <span><strong>Defend</strong>Protect the castle through 10 waves. Archers shoot when enemies enter range.</span>
+            <span><strong>Play</strong>Complete 10 rounds. Your answers help you keep going.</span>
           </div>
           <div class="menu-rule">
             <span class="pixel-icon icon-book"></span>
-            <span><strong>Answer</strong>Choose the word that completes the English sentence from the story context.</span>
+            <span><strong>Answer</strong>Choose the word that completes the English sentence.</span>
           </div>
           <div class="menu-rule">
             <span class="pixel-icon icon-gift"></span>
-            <span><strong>Rewards</strong>Correct answers can give faster arrows, extra coins, or a knight attack.</span>
+            <span><strong>Rewards</strong>Correct answers can give points, coins, and helpful bonuses.</span>
           </div>
           <div class="menu-rule">
             <span class="pixel-icon icon-shop"></span>
@@ -754,15 +754,15 @@
         </div>
         <div class="sample">Example<br>Context: The guard is hungry.<br>Sentence: He wants to ___ bread.<br>Correct word: eat</div>
         <div class="actions">
-          <button class="menu-button" id="startButton" type="button">Start Defense</button>
+          <button class="menu-button" id="startButton" type="button">Start Game</button>
           <button class="menu-button secondary" id="soundButton" type="button">Sound On</button>
           <a class="home-link" href="../../index.html">The Kingdom</a>
         </div>
       </section>
 
       <section class="panel" id="shopPanel" hidden>
-        <h2>Castle Shop</h2>
-        <p id="shopSummary">Wave cleared. Spend coins before the next attack.</p>
+        <h2>Upgrade Shop</h2>
+        <p id="shopSummary">Round cleared. Spend coins before the next round.</p>
         <div class="shop-grid" id="shopGrid"></div>
         <div class="shop-note" id="shopNote"></div>
         <div class="actions">
@@ -773,7 +773,7 @@
       </section>
 
       <section class="panel" id="endPanel" hidden>
-        <h2 id="endTitle">The castle stands</h2>
+        <h2 id="endTitle">Game complete</h2>
         <p id="endText"></p>
         <div class="sample" id="lastAnswer"></div>
         <div class="actions">
@@ -1440,13 +1440,13 @@
     ];
 
     const upgrades = [
-      { id: "maxHp", icon: "maxHp", title: "Stronger Walls", desc: "+20 max castle health and repair 20 HP.", base: 12 },
-      { id: "fireRate", icon: "fireRate", title: "Faster Archers", desc: "Archers shoot more often.", base: 16 },
-      { id: "damage", icon: "damage", title: "Sharper Arrows", desc: "+6 arrow damage.", base: 18 },
-      { id: "repair", icon: "repair", title: "Repair Gate", desc: "Restore 30 castle health.", base: 10 },
-      { id: "archers", icon: "archers", title: "Extra Archer", desc: "Adds archer support. Every two levels adds a lane.", base: 19 },
-      { id: "range", icon: "range", title: "Watchtower Range", desc: "Archers can fire a little farther than half field.", base: 14 },
-      { id: "boost", icon: "boost", title: "Longer Spell", desc: "Correct answers boost arrows longer.", base: 13 }
+      { id: "maxHp", icon: "maxHp", title: "More Health", desc: "+20 max health and repair 20 HP.", base: 12 },
+      { id: "fireRate", icon: "fireRate", title: "Faster Shots", desc: "Shots happen more often.", base: 16 },
+      { id: "damage", icon: "damage", title: "More Damage", desc: "+6 damage.", base: 18 },
+      { id: "repair", icon: "repair", title: "Restore Health", desc: "Restore 30 health.", base: 10 },
+      { id: "archers", icon: "archers", title: "Extra Helper", desc: "Adds support. Every two levels adds a lane.", base: 19 },
+      { id: "range", icon: "range", title: "Longer Range", desc: "Shots can go a little farther than half field.", base: 14 },
+      { id: "boost", icon: "boost", title: "Longer Boost", desc: "Correct answers make boosts last longer.", base: 13 }
     ];
     const maxUpgradeLevel = 5;
 
@@ -1719,9 +1719,9 @@
       document.body.classList.remove("is-playing");
       document.body.classList.add("is-shop");
       shopPanel.hidden = false;
-      shopSummary.textContent = `Wave ${wave} cleared. Coins: ${coins}. Castle health: ${Math.ceil(castleHp)}/${castleMaxHp}.`;
-      nextWaveButton.textContent = wave >= maxWave ? "Finish Defense" : "Start Next Wave";
-      skipShopButton.textContent = wave >= maxWave ? "Finish Defense" : "Buy Nothing";
+      shopSummary.textContent = `Round ${wave} cleared. Coins: ${coins}. Health: ${Math.ceil(castleHp)}/${castleMaxHp}.`;
+      nextWaveButton.textContent = wave >= maxWave ? "Finish Game" : "Start Next Round";
+      skipShopButton.textContent = wave >= maxWave ? "Finish Game" : "Buy Nothing";
       renderShop();
       updateControlButtons();
       playChord([329.63, 293.66, 261.63], 0.18, "triangle", 0.05);
@@ -1736,7 +1736,7 @@
       document.body.classList.add("is-ended");
       endPanel.hidden = false;
       shopPanel.hidden = true;
-      endTitle.textContent = victory ? "The castle stands" : "The gate has fallen";
+      endTitle.textContent = victory ? "Game complete" : "Game over";
       endText.textContent = `Score: ${score}. Coins: ${coins}. You reached wave ${wave} of ${maxWave}.`;
       lastAnswer.innerHTML = `Last correct sentence: ${escapeHtml(lastSolvedRound.sentence.replace("___", lastSolvedRound.answer))} ${vocabIconHtml(lastSolvedRound.answer)}`;
       playChord(victory ? [261.63, 329.63, 392, 523.25] : [196, 164.81, 146.83], 0.24, victory ? "triangle" : "sawtooth", 0.08);
@@ -1826,7 +1826,7 @@
       const target = nearestFieldEnemy();
       if (target) {
         summonKnight(target);
-        answerStatus.textContent = "Correct. A knight leaves the castle.";
+        answerStatus.textContent = "Correct. A helper joins the field.";
       } else {
         knightReserve += 1;
         answerStatus.textContent = "Correct. A knight is ready for the next enemy.";
@@ -2053,7 +2053,7 @@
       if (id === "archers") stats.archers = Math.min(3, 1 + Math.floor(upgradeLevels.archers / 2));
       if (id === "range") stats.attackRange += 45;
       if (id === "boost") stats.boostDuration += 1;
-      shopSummary.textContent = `Upgrade bought. Coins: ${coins}. Castle health: ${Math.ceil(castleHp)}/${castleMaxHp}.`;
+      shopSummary.textContent = `Upgrade bought. Coins: ${coins}. Health: ${Math.ceil(castleHp)}/${castleMaxHp}.`;
       playChord([392, 523.25, 659.25], 0.12, "square", 0.055);
       renderShop();
       updateHud();

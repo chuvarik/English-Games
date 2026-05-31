@@ -1252,12 +1252,12 @@
           <button class="game-button secondary" id="menuButton" type="button">Menu</button>
         </div>
 
-        <div class="feedback" id="feedback">Choose a crew and start building.</div>
+        <div class="feedback" id="feedback">Choose a mode and start building.</div>
       </div>
 
       <section class="panel" id="startPanel">
         <h2>Chapter 4</h2>
-        <p>Build English sentences from word bricks and turn every correct line into a stronger castle wall.</p>
+        <p>Build English sentences from word bricks and place every word in the correct order.</p>
 
         <div class="mode-grid" id="modeGrid"></div>
 
@@ -2258,7 +2258,7 @@
       tray = buildTray(currentLevel);
       placed = Array.from({ length: currentLevel.words.length }, () => null);
       completedRows = [];
-      setFeedback("Choose a crew and start building.");
+      setFeedback("Choose a mode and start building.");
       renderModes();
       renderGame();
     }

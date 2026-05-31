@@ -431,23 +431,23 @@
         <div class="pill">Progress <span id="progress">0</span></div>
         <div class="pill">Best <span id="bestScore">0</span></div>
         <div class="pill">Mode <span id="difficultyName">Easy</span></div>
-        <div class="pill">Messenger <span id="shipName">Royal Envoy</span></div>
+        <div class="pill">Character <span id="shipName">Red Rider</span></div>
       </div>
     </header>
 
     <main>
-      <canvas id="game" aria-label="Royal Grammar Messenger game"></canvas>
+      <canvas id="game" aria-label="Chapter 5 grammar game"></canvas>
       <div class="sentence-banner" id="bigSentence">I <strong>___</strong> apple.</div>
 
       <div class="word-tray">
-        <div class="target" id="targetSentence">Choose a messenger and press Start Journey.</div>
+        <div class="target" id="targetSentence">Choose a character and press Start Game.</div>
         <button class="sound" id="soundToggle" type="button" aria-label="Toggle sound">Sound On</button>
         <button class="sound" id="gameMenuButton" type="button">Menu</button>
       </div>
 
       <section class="panel" id="startPanel">
         <h2>Chapter 5</h2>
-        <p>Guide the royal messenger on horseback and collect the word that completes each English sentence. Avoid the wrong scrolls and keep the journey alive.</p>
+        <p>Move the character and collect the word that completes each English sentence. Avoid wrong words and keep going.</p>
         <div class="sentence" id="previewSentence">I ___ apple.</div>
         <div class="menu-label">Difficulty</div>
         <div class="menu-grid" id="difficultyMenu">
@@ -464,11 +464,11 @@
             <span class="ship-stats">Mixed grammar<br>Fast speed growth</span>
           </button>
         </div>
-        <div class="menu-label">Messenger</div>
+        <div class="menu-label">Character</div>
         <div class="menu-grid" id="shipMenu">
           <button class="ship-card is-selected" type="button" data-ship="comet">
             <span class="ship-icon" style="background:#d94030;">RE</span>
-            <span class="ship-title">Royal Envoy</span>
+            <span class="ship-title">Red Rider</span>
             <span class="ship-stats">Balanced horse<br>+100 base points</span>
           </button>
           <button class="ship-card" type="button" data-ship="scout">
@@ -478,13 +478,13 @@
           </button>
           <button class="ship-card" type="button" data-ship="cruiser">
             <span class="ship-icon" style="background:#7b4ed6;">KH</span>
-            <span class="ship-title">Knight Herald</span>
+            <span class="ship-title">Strong Rider</span>
             <span class="ship-stats">Strong slow horse<br>+140 base points</span>
           </button>
         </div>
         <p>Move with WASD, mouse, or touch. Press Space to start.</p>
         <div class="actions">
-          <button id="startButton" type="button">Start Journey</button>
+          <button id="startButton" type="button">Start Game</button>
           <button class="secondary" id="menuSoundButton" type="button">Sound On</button>
           <a class="home-link" href="../../index.html">The Kingdom</a>
         </div>
@@ -495,7 +495,7 @@
       </section>
 
       <section class="panel" id="endPanel" hidden>
-        <h2 id="endTitle">Journey complete</h2>
+        <h2 id="endTitle">Game complete</h2>
         <p id="endText"></p>
         <div class="sentence" id="finalSentence"></div>
         <div class="actions">
@@ -594,7 +594,7 @@
     const ships = {
       comet: {
         id: "comet",
-        name: "Royal Envoy",
+        name: "Red Rider",
         body: "#d94030",
         wing: "#ffd766",
         glass: "#fff4c7",
@@ -618,7 +618,7 @@
       },
       cruiser: {
         id: "cruiser",
-        name: "Knight Herald",
+        name: "Strong Rider",
         body: "#7b4ed6",
         wing: "#ffd766",
         glass: "#fff4c7",
@@ -756,7 +756,7 @@
             <span>${record.progress}</span>
           </div>
         `).join("")
-        : `<div class="score-row empty">No records yet. Start a journey.</div>`;
+        : `<div class="score-row empty">No records yet. Start a game.</div>`;
       menuScores.innerHTML = html;
       endScores.innerHTML = html;
     }
@@ -961,7 +961,7 @@
       document.body.classList.remove("is-playing");
       document.body.classList.add("is-ended");
       endPanel.hidden = false;
-      endTitle.textContent = "Journey ended";
+      endTitle.textContent = "Game ended";
       endText.textContent = `You scored ${score} points and completed ${promptIndex} sentences on ${selectedDifficulty.name}.`;
       finalSentence.textContent = `Best ${selectedDifficulty.name} score: ${bestForCurrentMode()}`;
       updateHud();

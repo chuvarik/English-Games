@@ -484,7 +484,7 @@ button{
                 <h2>Find The Word</h2>
                 <div id="targetCard">
                     <div id="targetIcon">?</div>
-                    <div id="targetText">Look at the picture. Mine the correct English word from the royal cave.</div>
+                    <div id="targetText">Look at the picture and choose the correct English word.</div>
                 </div>
                 <button id="soundBtn">HEAR WORD</button>
                 <button class="secondary" id="soundToggle">SOUND ON</button>
@@ -512,7 +512,7 @@ button{
         <div id="mainMenu">
             <h2>Chapter 3</h2>
             <p>
-                Learn simple English words in the royal mines. Earn coins, unlock skins,
+                Practice simple English words. Earn coins, unlock skins,
                 build combos, and listen to the words.
             </p>
 
@@ -1473,7 +1473,7 @@ function nextRound(){
             progress.bestScore = Math.max(progress.bestScore,score);
             saveProgress();
             playSfx("win");
-            showMenu("ROYAL VICTORY!","You finished all royal word mines. Final score: " + score + ". Spend your coins on a new skin or play again.");
+            showMenu("Great job!","You finished all rounds. Final score: " + score + ". Spend your coins on a new skin or play again.");
             render();
             return;
         }
@@ -1505,7 +1505,7 @@ function showMenu(title,text){
     shopMenu.classList.add("hidden");
     document.querySelector("#mainMenu h2").textContent = title || "Chapter 3";
     document.querySelector("#mainMenu p").textContent =
-        text || "Learn simple English words in the royal mines. Earn coins, unlock skins, build combos, and listen to the words.";
+        text || "Practice simple English words. Earn coins, unlock skins, build combos, and listen to the words.";
     document.getElementById("startBtn").textContent = score > 0 ? "PLAY AGAIN" : "START GAME";
     renderMenuStats();
     updateSoundButtons();
@@ -1548,7 +1548,7 @@ function resetProgress(){
     combo = 0;
     saveProgress();
     render();
-    showMenu("Chapter 3","Progress reset. Start fresh and build your royal word mine again.");
+    showMenu("Chapter 3","Progress reset. Start fresh and practice again.");
 }
 
 document.getElementById("startBtn").onclick = startGame;

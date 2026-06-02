@@ -724,9 +724,35 @@
     let streak = 0;
     let lowercaseMode = false;
     const mastered = new Set();
+    const progressKey = "alphabetQuestProgressV1";
 
     function shuffle(items) {
       return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function loadProgress() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(progressKey) || "{}");
+        return {
+          correct: Number(parsed.correct) || 0,
+          bestScore: Number(parsed.bestScore) || 0,
+          bestStreak: Number(parsed.bestStreak) || 0,
+          mastered: Array.isArray(parsed.mastered) ? parsed.mastered : []
+        };
+      } catch (error) {
+        return { correct: 0, bestScore: 0, bestStreak: 0, mastered: [] };
+      }
+    }
+
+    function saveProgress(addCorrect = false) {
+      const previous = loadProgress();
+      const learned = new Set([...previous.mastered, ...mastered]);
+      localStorage.setItem(progressKey, JSON.stringify({
+        correct: previous.correct + (addCorrect ? 1 : 0),
+        bestScore: Math.max(previous.bestScore, score),
+        bestStreak: Math.max(previous.bestStreak, streak),
+        mastered: [...learned].slice(0, alphabet.length)
+      }));
     }
 
     function displayLetter(letter) {
@@ -882,6 +908,7 @@
         button.classList.add("is-correct");
         feedback.textContent = `Great! ${displayWord(current.word)} starts with ${current.letter}.`;
         speak(`${displayWord(current.word)} starts with ${current.letter}.`);
+        saveProgress(true);
       } else {
         streak = 0;
         button.classList.add("is-wrong");

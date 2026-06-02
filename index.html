@@ -245,6 +245,132 @@
       box-shadow:0 9px 0 #9b4317;
     }
 
+    .achievements-section{
+      width:100%;
+      max-width:1004px;
+      margin:42px auto 0;
+      padding:22px;
+      border:4px solid #6d3b14;
+      border-radius:8px;
+      background:rgba(255,242,189,0.94);
+      box-shadow:0 14px 0 #7d4a1c, 0 24px 36px rgba(71,36,10,0.28);
+    }
+
+    .section-heading{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .section-heading h2{
+      font-family:'Cinzel', serif;
+      font-size:clamp(28px,4vw,44px);
+      line-height:1;
+      color:#5b210c;
+    }
+
+    .achievement-summary{
+      padding:8px 12px;
+      border:3px solid #7d4a1c;
+      border-radius:8px;
+      background:linear-gradient(180deg,#fff8d1,#ffd35a);
+      color:#4a240b;
+      font-weight:900;
+      white-space:nowrap;
+      box-shadow:inset 0 -6px 0 rgba(154,85,20,0.14);
+    }
+
+    .achievement-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .achievement-card{
+      min-height:174px;
+      display:grid;
+      grid-template-columns:auto 1fr;
+      gap:12px;
+      padding:14px;
+      border:3px solid #7d4a1c;
+      border-radius:8px;
+      background:#fff7d0;
+      color:#5b210c;
+      box-shadow:inset 0 -8px 0 rgba(154,85,20,0.1);
+    }
+
+    .achievement-card.is-locked{
+      filter:saturate(0.72);
+      opacity:0.72;
+    }
+
+    .achievement-badge{
+      width:48px;
+      height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:3px solid #6f2a14;
+      border-radius:8px;
+      background:linear-gradient(145deg,#ffe56a,#ff9f24);
+      color:#4a240b;
+      font-family:'Cinzel', serif;
+      font-size:20px;
+      font-weight:900;
+      box-shadow:0 5px 0 #9b4317;
+    }
+
+    .achievement-card.is-locked .achievement-badge{
+      background:linear-gradient(145deg,#d9d2bd,#a99b83);
+      color:#4d4438;
+    }
+
+    .achievement-content{
+      min-width:0;
+    }
+
+    .achievement-chapter{
+      display:block;
+      margin-bottom:4px;
+      color:#8c4a17;
+      font-size:12px;
+      font-weight:900;
+      text-transform:uppercase;
+    }
+
+    .achievement-content h3{
+      margin-bottom:6px;
+      font-size:19px;
+      line-height:1.08;
+      color:#4f1e0b;
+    }
+
+    .achievement-content p{
+      margin-bottom:12px;
+      color:#6b3b14;
+      font-size:14px;
+      line-height:1.35;
+    }
+
+    .achievement-meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .achievement-state{
+      color:#167a3d;
+    }
+
+    .achievement-card.is-locked .achievement-state{
+      color:#74553b;
+    }
+
     .footer{
       text-align:center;
       margin-top:36px;
@@ -283,6 +409,20 @@
       .games-container{
         grid-template-columns:1fr;
         max-width:420px;
+      }
+
+      .achievements-section{
+        max-width:420px;
+        padding:16px;
+      }
+
+      .section-heading{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .achievement-grid{
+        grid-template-columns:1fr;
       }
 
       .game-card{
@@ -448,12 +588,137 @@
 
     </section>
 
+    <section class="achievements-section" aria-labelledby="achievementsTitle">
+      <div class="section-heading">
+        <h2 id="achievementsTitle">Achievements</h2>
+        <div class="achievement-summary" id="achievementSummary">0/6 unlocked</div>
+      </div>
+      <div class="achievement-grid" id="achievementGrid"></div>
+    </section>
+
     <div class="footer">
       Simple English games for practice
     </div>
   </main>
 
   <script src="assets/js/kingdom-music.js" data-music-src="assets/sounds/tunetank-medieval-happy-music-412790.mp3"></script>
+  <script>
+    (() => {
+      const grid = document.getElementById("achievementGrid");
+      const summary = document.getElementById("achievementSummary");
+      if (!grid || !summary) return;
+
+      function readNumber(key, fallback = 0) {
+        const value = Number(localStorage.getItem(key));
+        return Number.isFinite(value) ? value : fallback;
+      }
+
+      function readJson(key, fallback) {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key) || "null");
+          return parsed ?? fallback;
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function clampProgress(value, max) {
+        return Math.max(0, Math.min(max, Number(value) || 0));
+      }
+
+      function grammarStats() {
+        const records = readJson("royalGrammarMessengerRecords", []);
+        if (!Array.isArray(records)) return { best: 0, words: 0 };
+        return records.reduce((stats, record) => {
+          const words = Number(String(record.progress || "").match(/\d+/)?.[0] || 0);
+          return {
+            best: Math.max(stats.best, Number(record.score) || 0),
+            words: Math.max(stats.words, words)
+          };
+        }, { best: 0, words: 0 });
+      }
+
+      function wordMinerProgress() {
+        return readJson("wmqProgress", { words: 0, bestScore: 0, wins: 0 });
+      }
+
+      const alphabet = readJson("alphabetQuestProgressV1", { correct: 0, bestScore: 0, bestStreak: 0 });
+      const syllableHighest = readNumber("csrHighestLevel", 1);
+      const syllableCredits = readNumber("csrCredits", 0);
+      const miner = wordMinerProgress();
+      const sentenceBest = readNumber("sentence-wall-builder-best-v1", 0);
+      const grammar = grammarStats();
+      const chapterSixBest = readNumber("castleContextQuestBest", 0);
+
+      const achievements = [
+        {
+          icon: "AQ",
+          chapter: "Chapter 1",
+          title: "Letter Starter",
+          goal: "Answer 5 letters correctly.",
+          current: `${clampProgress(alphabet.correct, 5)}/5`,
+          unlocked: (Number(alphabet.correct) || 0) >= 5
+        },
+        {
+          icon: "SR",
+          chapter: "Chapter 2",
+          title: "Syllable Step",
+          goal: "Finish one syllable level.",
+          current: syllableHighest > 1 ? `Level ${Math.min(syllableHighest, 4)} unlocked` : `${syllableCredits} gold`,
+          unlocked: syllableHighest > 1 || syllableCredits > 0
+        },
+        {
+          icon: "WM",
+          chapter: "Chapter 3",
+          title: "Word Finder",
+          goal: "Choose 5 correct words.",
+          current: `${clampProgress(miner.words, 5)}/5`,
+          unlocked: (Number(miner.words) || 0) >= 5 || (Number(miner.wins) || 0) > 0
+        },
+        {
+          icon: "SW",
+          chapter: "Chapter 4",
+          title: "Sentence Builder",
+          goal: "Build at least one correct sentence.",
+          current: `Best ${sentenceBest}`,
+          unlocked: sentenceBest > 0
+        },
+        {
+          icon: "GG",
+          chapter: "Chapter 5",
+          title: "Grammar Catch",
+          goal: "Complete a grammar run.",
+          current: grammar.words ? `${grammar.words} sentences` : `Best ${grammar.best}`,
+          unlocked: grammar.best > 0 || grammar.words > 0
+        },
+        {
+          icon: "CD",
+          chapter: "Chapter 6",
+          title: "Context Choice",
+          goal: "Score points by choosing fitting words.",
+          current: `Best ${chapterSixBest}`,
+          unlocked: chapterSixBest > 0
+        }
+      ];
+
+      const unlockedCount = achievements.filter((achievement) => achievement.unlocked).length;
+      summary.textContent = `${unlockedCount}/${achievements.length} unlocked`;
+      grid.innerHTML = achievements.map((achievement) => `
+        <article class="achievement-card ${achievement.unlocked ? "is-unlocked" : "is-locked"}">
+          <div class="achievement-badge">${achievement.icon}</div>
+          <div class="achievement-content">
+            <span class="achievement-chapter">${achievement.chapter}</span>
+            <h3>${achievement.title}</h3>
+            <p>${achievement.goal}</p>
+            <div class="achievement-meta">
+              <span class="achievement-state">${achievement.unlocked ? "Unlocked" : "Locked"}</span>
+              <span>${achievement.current}</span>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    })();
+  </script>
 
 </body>
 </html>

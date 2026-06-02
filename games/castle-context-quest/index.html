@@ -193,6 +193,90 @@
       color: var(--red);
     }
 
+    .reward-preview {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 9px;
+      padding: 7px 10px;
+      border: 3px solid #7c4a1d;
+      border-radius: 4px;
+      background: #ffeab0;
+      color: #4d2a14;
+      font-size: clamp(15px, 1.7vw, 18px);
+      font-weight: 900;
+      box-shadow: inset 0 -3px 0 rgba(124, 74, 29, 0.18);
+    }
+
+    .reward-icon {
+      position: relative;
+      width: 28px;
+      aspect-ratio: 1;
+      flex: 0 0 auto;
+      border: 3px solid #4d2a14;
+      border-radius: 4px;
+      background: #f8fafc;
+      box-shadow: 0 2px 0 rgba(72, 34, 9, 0.24);
+    }
+
+    .reward-icon.fast {
+      background: #bde9ff;
+    }
+
+    .reward-icon.fast::before {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 10px;
+      width: 17px;
+      height: 5px;
+      background: #1e3a8a;
+      box-shadow: 7px -5px 0 #f8fafc, 7px 5px 0 #f8fafc;
+    }
+
+    .reward-icon.coins {
+      background: #ffd766;
+    }
+
+    .reward-icon.coins::before,
+    .reward-icon.coins::after {
+      content: "";
+      position: absolute;
+      border: 3px solid #b7791f;
+      border-radius: 50%;
+      background: #facc15;
+    }
+
+    .reward-icon.coins::before {
+      left: 3px;
+      top: 8px;
+      width: 13px;
+      height: 13px;
+    }
+
+    .reward-icon.coins::after {
+      right: 3px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+    }
+
+    .reward-icon.knight {
+      background: #dbeafe;
+    }
+
+    .reward-icon.knight::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 4px;
+      width: 9px;
+      height: 17px;
+      background: #2563eb;
+      box-shadow: 0 -5px 0 #d1d5db, -5px 8px 0 #9ca3af, 5px 8px 0 #9ca3af;
+    }
+
     .choices {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -722,6 +806,10 @@
         </div>
         <div class="scene" id="sceneText"></div>
         <div class="sentence" id="sentenceText"></div>
+        <div class="reward-preview" id="rewardPreview">
+          <span class="reward-icon fast" aria-hidden="true"></span>
+          <span>Reward: Fast arrows</span>
+        </div>
         <div class="choices" id="choices"></div>
         <div class="status-line" id="answerStatus">Choose the word that fits the story.</div>
       </section>
@@ -745,7 +833,7 @@
           </div>
           <div class="menu-rule">
             <span class="pixel-icon icon-gift"></span>
-            <span><strong>Rewards</strong>Correct answers can give points, coins, and helpful bonuses.</span>
+            <span><strong>Rewards</strong>The task window shows what you will get for a correct answer.</span>
           </div>
           <div class="menu-rule">
             <span class="pixel-icon icon-shop"></span>
@@ -802,6 +890,7 @@
     const sentenceText = document.getElementById("sentenceText");
     const choicesEl = document.getElementById("choices");
     const answerStatus = document.getElementById("answerStatus");
+    const rewardPreview = document.getElementById("rewardPreview");
     const startPanel = document.getElementById("startPanel");
     const shopPanel = document.getElementById("shopPanel");
     const endPanel = document.getElementById("endPanel");
@@ -1449,6 +1538,9 @@
       { id: "boost", icon: "boost", title: "Longer Boost", desc: "Correct answers make boosts last longer.", base: 13 }
     ];
     const maxUpgradeLevel = 5;
+    const knightSlowDuration = 3.4;
+    const knightSlowFactor = 0.44;
+    const knightCrowdRange = 185;
 
     let width = 0;
     let height = 0;
@@ -1483,6 +1575,7 @@
     };
     let activeRound = rounds[0];
     let activeChoices = [];
+    let activeReward = { type: "fast", label: "Fast arrows" };
     let lastCoinReward = 0;
     let knights = [];
     let knightReserve = 0;
@@ -1536,6 +1629,24 @@
       return window.KINGDOM_VOCAB_ICONS?.markup(word, { className }) || "";
     }
 
+    function createContextReward() {
+      const rewardType = Math.floor(Math.random() * 3);
+      if (rewardType === 0) {
+        return { type: "fast", label: `Fast arrows ${stats.boostDuration}s` };
+      }
+      if (rewardType === 1) {
+        const amount = randomCoinReward();
+        return { type: "coins", amount, label: `+${amount} coins` };
+      }
+      return { type: "knight", label: "Knight slows enemies" };
+    }
+
+    function rewardPreviewHtml(reward) {
+      const currentReward = reward || { type: "fast", label: "Fast arrows" };
+      return `<span class="reward-icon ${currentReward.type}" aria-hidden="true"></span>
+        <span>Reward: ${escapeHtml(currentReward.label)}</span>`;
+    }
+
     function shuffledChoices(round) {
       const choices = [...round.choices];
       for (let i = choices.length - 1; i > 0; i -= 1) {
@@ -1552,6 +1663,7 @@
     function setActiveRound(round) {
       activeRound = round;
       activeChoices = shuffledChoices(activeRound);
+      activeReward = createContextReward();
     }
 
     function currentRound() {
@@ -1580,11 +1692,12 @@
         ? `Fast arrows ${Math.ceil(boostTimer)}s`
         : knightReserve > 0
           ? `Knight ready x${knightReserve}`
-          : "Random reward";
+          : "Reward shown";
 
       const round = currentRound();
       sceneText.textContent = round.scene;
       sentenceText.innerHTML = round.sentence.replace("___", "<strong>___</strong>");
+      rewardPreview.innerHTML = rewardPreviewHtml(activeReward);
       choicesEl.innerHTML = activeChoices.map((choice, index) => (
         `<button class="choice" type="button" data-choice="${escapeHtml(choice)}" ${inputLocked ? "disabled" : ""}>
           <span class="choice-number">${index + 1}.</span>
@@ -1662,11 +1775,12 @@
       arrowTimer = 0;
       stats = { damage: 12, fireRate: 1, archers: 1, boostDuration: 4, attackRange: 0 };
       upgradeLevels = { maxHp: 0, fireRate: 0, damage: 0, repair: 0, archers: 0, range: 0, boost: 0 };
-      setActiveRound(pickRandomRound());
-      lastSolvedRound = activeRound;
+      activeChoices = [];
+      activeReward = null;
       updateControlButtons();
       playChord([196, 246.94, 293.66, 392], 0.2, "triangle", 0.08);
       startWave();
+      lastSolvedRound = activeRound;
       startPanel.hidden = true;
       endPanel.hidden = true;
       shopPanel.hidden = true;
@@ -1682,6 +1796,7 @@
       particles = [];
       knights = [];
       inputLocked = false;
+      setActiveRound(pickRandomRound());
       answerStatus.textContent = "Choose the word that fits the story.";
       document.body.classList.remove("is-menu", "is-ended", "is-shop");
       document.body.classList.add("is-playing");
@@ -1764,6 +1879,8 @@
         damage: type.damage + Math.floor(wave / 3),
         coins: type.coins + Math.floor(wave / 8),
         wobble: Math.random() * Math.PI * 2,
+        slowTimer: 0,
+        slowFactor: 1,
         dead: false,
         escaped: false
       });
@@ -1797,6 +1914,34 @@
       });
     }
 
+    function knightStrike(knight) {
+      const target = knight.target;
+      if (!target || target.dead || target.escaped) return 0;
+      const centerX = target.x;
+      const damage = Math.max(5, Math.round(stats.damage * 0.42));
+      let affected = 0;
+
+      for (const enemy of enemies) {
+        if (enemy.dead || enemy.escaped) continue;
+        const behindFront = enemy.x >= centerX - 42 && enemy.x <= centerX + knightCrowdRange;
+        if (!behindFront) continue;
+
+        enemy.hp = Math.max(1, enemy.hp - damage);
+        enemy.slowTimer = Math.max(enemy.slowTimer || 0, knightSlowDuration);
+        enemy.slowFactor = knightSlowFactor;
+        affected += 1;
+        burst(enemy.x, enemy.y - 30, "#7dd3fc");
+      }
+
+      if (affected > 0) {
+        score += affected * 8;
+        playTone(360, 0.1, "triangle", 0.055);
+        playNoise(0.08, 0.03);
+        updateHud();
+      }
+      return affected;
+    }
+
     function releaseReservedKnights() {
       while (knightReserve > 0) {
         const target = nearestFieldEnemy();
@@ -1807,18 +1952,17 @@
     }
 
     function giveCorrectReward() {
-      const rewardType = Math.floor(Math.random() * 3);
-      if (rewardType === 0) {
+      const reward = activeReward || createContextReward();
+      if (reward.type === "fast") {
         boostTimer = stats.boostDuration;
         answerStatus.textContent = "Correct. Fast arrows are active.";
         playTone(700, 0.12, "triangle");
         playTone(920, 0.14, "triangle");
         return;
       }
-      if (rewardType === 1) {
-        const reward = randomCoinReward();
-        coins += reward;
-        answerStatus.textContent = `Correct. Treasury gains ${reward} coins.`;
+      if (reward.type === "coins") {
+        coins += reward.amount;
+        answerStatus.textContent = `Correct. Treasury gains ${reward.amount} coins.`;
         playTone(520, 0.1, "square");
         playTone(690, 0.12, "square");
         return;
@@ -1826,10 +1970,10 @@
       const target = nearestFieldEnemy();
       if (target) {
         summonKnight(target);
-        answerStatus.textContent = "Correct. A helper joins the field.";
+        answerStatus.textContent = "Correct. Knight slows the crowd.";
       } else {
         knightReserve += 1;
-        answerStatus.textContent = "Correct. A knight is ready for the next enemy.";
+        answerStatus.textContent = "Correct. Knight will slow the next crowd.";
       }
       playTone(440, 0.1, "triangle");
       playTone(560, 0.16, "triangle");
@@ -1932,7 +2076,7 @@
         knight.y += (knight.target.y - knight.y) * Math.min(1, delta * 4);
         if (knight.x >= knight.target.x - 18) {
           burst(knight.target.x, knight.target.y - 28, "#f8fafc");
-          killEnemy(knight.target);
+          knightStrike(knight);
           knight.done = true;
         }
       }
@@ -1959,7 +2103,9 @@
 
       for (const enemy of enemies) {
         if (enemy.dead || enemy.escaped) continue;
-        enemy.x -= enemy.speed * delta;
+        const moveFactor = enemy.slowTimer > 0 ? enemy.slowFactor : 1;
+        enemy.x -= enemy.speed * moveFactor * delta;
+        enemy.slowTimer = Math.max(0, enemy.slowTimer - delta);
         enemy.wobble += delta * 4;
         if (enemy.x < 188) {
           enemy.escaped = true;
@@ -2236,6 +2382,11 @@
         rect(x - 22, y - 56, 12, 10, "#4f9a3d");
         rect(x + 10, y - 56, 12, 10, "#4f9a3d");
         rect(x - 2, y - 59, 5, 12, "#7c3aed");
+      }
+      if (enemy.slowTimer > 0) {
+        rect(x - 31, y - 58, 62, 4, "#7dd3fc");
+        rect(x - 28, y + 25, 56, 4, "#38bdf8");
+        rect(x - 2, y - 64, 5, 8, "#e0f2fe");
       }
       const hpRatio = Math.max(0, enemy.hp / enemy.maxHp);
       rect(x - 24, y - 66, 48, 7, "#111827");

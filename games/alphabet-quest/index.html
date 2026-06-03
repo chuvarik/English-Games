@@ -166,6 +166,11 @@
       box-shadow: 0 4px 0 rgba(8, 59, 29, 0.32);
     }
 
+    .letter-tile.is-locked {
+      background: rgba(255, 255, 255, 0.58);
+      color: transparent;
+    }
+
     .letter-tile.is-mastered::after {
       content: "✓";
       position: absolute;
@@ -177,7 +182,7 @@
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
     }
 
-    .letter-tile.is-current {
+    .letter-tile.is-current:not(.is-locked) {
       background: var(--sun);
       transform: translateY(-2px);
     }
@@ -855,9 +860,11 @@
         const tile = document.createElement("button");
         tile.className = "letter-tile";
         tile.type = "button";
-        tile.textContent = displayLetter(item.letter);
+        const isMastered = mastered.has(item.letter);
+        tile.textContent = isMastered ? displayLetter(item.letter) : "";
         tile.setAttribute("aria-label", `${displayWord(item.word)} starts with ${item.letter}`);
-        tile.classList.toggle("is-mastered", mastered.has(item.letter));
+        tile.classList.toggle("is-mastered", isMastered);
+        tile.classList.toggle("is-locked", !isMastered);
         tile.classList.toggle("is-current", item.letter === current.letter);
         tile.addEventListener("click", () => {
           current = item;

@@ -466,7 +466,8 @@ button{
 }
 
 .touchBtn{
-    min-height:116px;
+    width:96px;
+    min-height:92px;
     margin:0;
     border:3px solid #6f2a14;
     border-radius:8px;
@@ -485,8 +486,8 @@ button{
 }
 
 .touchBtn.mine{
-    grid-area:mine;
-    min-height:244px;
+    width:142px;
+    min-height:92px;
     background:linear-gradient(180deg,#94ff9e,#21b85a);
     color:#083b1d;
 }
@@ -501,17 +502,23 @@ button{
         left:24px;
         bottom:24px;
         z-index:3;
-        display:grid;
-        grid-template-columns:150px 150px 180px;
-        grid-template-areas:
-            ". up mine"
-            "left down mine";
+        display:flex;
+        align-items:flex-end;
         gap:12px;
         padding:12px;
         border:4px solid #6f2a14;
         border-radius:8px;
         background:rgba(255,244,199,0.94);
         box-shadow:0 10px 0 #7d4a1c, 0 18px 42px rgba(41,16,4,0.28);
+    }
+
+    .touchDpad{
+        display:grid;
+        grid-template-columns:repeat(3,96px);
+        grid-template-areas:
+            ". up ."
+            "left down right";
+        gap:10px;
     }
 
     .touchBtn.up{
@@ -618,10 +625,12 @@ button{
 </div>
 
 <div id="touchControls" aria-label="Touch controls">
-    <button class="touchBtn up" type="button" data-touch-move="0,-1">UP</button>
-    <button class="touchBtn left" type="button" data-touch-move="-1,0">LEFT</button>
-    <button class="touchBtn down" type="button" data-touch-move="0,1">DOWN</button>
-    <button class="touchBtn right" type="button" data-touch-move="1,0">RIGHT</button>
+    <div class="touchDpad" aria-label="Move">
+        <button class="touchBtn up" type="button" data-touch-move="0,-1">UP</button>
+        <button class="touchBtn left" type="button" data-touch-move="-1,0">LEFT</button>
+        <button class="touchBtn down" type="button" data-touch-move="0,1">DOWN</button>
+        <button class="touchBtn right" type="button" data-touch-move="1,0">RIGHT</button>
+    </div>
     <button class="touchBtn mine" id="touchMine" type="button">MINE</button>
 </div>
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=1180">
 <title>Chapter 3</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -460,6 +460,76 @@ h1,
 button{
     font-family:'Fredoka',Verdana,Arial,sans-serif;
 }
+
+#touchControls{
+    display:none;
+}
+
+.touchBtn{
+    min-height:116px;
+    margin:0;
+    border:3px solid #6f2a14;
+    border-radius:8px;
+    background:linear-gradient(180deg,#ffe56a,#ff9f24);
+    color:#542008;
+    font-size:22px;
+    font-weight:900;
+    box-shadow:0 7px 0 #9b4317;
+    touch-action:manipulation;
+    user-select:none;
+}
+
+.touchBtn:active{
+    transform:translateY(4px);
+    box-shadow:0 3px 0 #9b4317;
+}
+
+.touchBtn.mine{
+    grid-area:mine;
+    min-height:244px;
+    background:linear-gradient(180deg,#94ff9e,#21b85a);
+    color:#083b1d;
+}
+
+@media (pointer:coarse){
+    #overlay:not(.hidden) + #touchControls{
+        display:none;
+    }
+
+    #touchControls{
+        position:fixed;
+        left:24px;
+        bottom:24px;
+        z-index:3;
+        display:grid;
+        grid-template-columns:150px 150px 180px;
+        grid-template-areas:
+            ". up mine"
+            "left down mine";
+        gap:12px;
+        padding:12px;
+        border:4px solid #6f2a14;
+        border-radius:8px;
+        background:rgba(255,244,199,0.94);
+        box-shadow:0 10px 0 #7d4a1c, 0 18px 42px rgba(41,16,4,0.28);
+    }
+
+    .touchBtn.up{
+        grid-area:up;
+    }
+
+    .touchBtn.left{
+        grid-area:left;
+    }
+
+    .touchBtn.down{
+        grid-area:down;
+    }
+
+    .touchBtn.right{
+        grid-area:right;
+    }
+}
 </style>
 </head>
 <body>
@@ -500,7 +570,7 @@ button{
             <div class="section">
                 <h2>How To Play</h2>
                 <div id="message">
-                    Move with WASD or arrow keys. Stand next to a word block and press Space to mine it.
+                    Move with WASD, arrow keys, or touch controls. Stand next to a word block and press Space or tap Mine.
                 </div>
             </div>
         </aside>
@@ -545,6 +615,14 @@ button{
             <button class="secondary" data-home-link>The Kingdom</button>
         </div>
     </div>
+</div>
+
+<div id="touchControls" aria-label="Touch controls">
+    <button class="touchBtn up" type="button" data-touch-move="0,-1">UP</button>
+    <button class="touchBtn left" type="button" data-touch-move="-1,0">LEFT</button>
+    <button class="touchBtn down" type="button" data-touch-move="0,1">DOWN</button>
+    <button class="touchBtn right" type="button" data-touch-move="1,0">RIGHT</button>
+    <button class="touchBtn mine" id="touchMine" type="button">MINE</button>
 </div>
 
 <script src="../../assets/images/vocab/vocab-icons.js"></script>
@@ -801,7 +879,7 @@ let running = false;
 let soundOn = localStorage.getItem("wmqSound") !== "off";
 let difficulty = localStorage.getItem("wmqDifficulty") || "normal";
 let audioCtx;
-let message = "Move with WASD or arrow keys. Press Space near a word block.";
+let message = "Move with WASD, arrow keys, or touch controls. Press Space or tap Mine near a word block.";
 let progress = loadProgress();
 
 const levelEl = document.getElementById("level");
@@ -1381,7 +1459,7 @@ function mineWord(){
     const cell = map[ty][tx];
 
     if(cell.type !== blockTypes.word){
-        message = "Stand next to a word block. Then press Space.";
+        message = "Stand next to a word block. Then press Space or tap Mine.";
         playSfx("bump");
         render();
         return;
@@ -1568,6 +1646,17 @@ document.getElementById("menuSoundBtn").onclick = toggleSound;
 document.getElementById("resetBtn").onclick = resetProgress;
 document.querySelectorAll("[data-home-link]").forEach(button => {
     button.onclick = goHome;
+});
+document.querySelectorAll("[data-touch-move]").forEach(button => {
+    button.addEventListener("pointerdown",(event) => {
+        event.preventDefault();
+        const [dx,dy] = button.dataset.touchMove.split(",").map(Number);
+        tryMove(dx,dy);
+    });
+});
+document.getElementById("touchMine").addEventListener("pointerdown",(event) => {
+    event.preventDefault();
+    mineWord();
 });
 canvas.addEventListener("click",listenToClickedBlock);
 difficultyButtons.forEach(button => {
